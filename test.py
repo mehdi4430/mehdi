@@ -133,8 +133,12 @@ def send_service_safe(service, phone):
 
 # Simple SMS bomber
 def Vip(phone, Time):
+  def Vip(phone, Time):
     services = [
-    ,  digikala, hajamooo]
+        digikala,
+        hajamooo,
+        # سرویس‌های دیگه بعداً اینجا
+    ]
     total_services = len(services)
     
     print_slow(f"{p}╔═════[ SMS Bombing Initiated ]═════╗")
