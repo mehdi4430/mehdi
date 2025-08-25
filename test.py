@@ -50,21 +50,22 @@ def hajamooo(phone):
     import requests
     import re
     
+    # تبدیل شماره از +989173644430 به 917 364 4430
     digits_phone = phone.replace("+98", "")
+    formatted_phone = f"{digits_phone[:3]} {digits_phone[3:6]} {digits_phone[6:]}"  # با فاصله
     
-    # مرحله 1: دریافت صفحه و استخراج nounce
     try:
+        # ایجاد session برای حفظ cookieها
         session = requests.Session()
         
-        # اول صفحه اصلی را بگیریم تا cookieها تنظیم شوند
+        # دریافت صفحه اصلی برای استخراج nounce
         home_response = session.get("https://hajamooo.ir/", timeout=10)
         
-        # استخراج nounce از صفحه - الگوهای مختلف را امتحان می‌کنیم
+        # استخراج nounce از صفحه
         nounce_patterns = [
             r'name="dig_nounce" value="([a-f0-9]+)"',
             r'name="csrf" value="([a-f0-9]+)"',
-            r'"nonce":"([a-f0-9]+)"',
-            r'nonce=([a-f0-9]+)'
+            r'var nonce = "([a-f0-9]+)"',
         ]
         
         nounce_value = None
@@ -72,19 +73,21 @@ def hajamooo(phone):
             match = re.search(pattern, home_response.text)
             if match:
                 nounce_value = match.group(1)
+                print(f'{g}[+] Found nounce: {nounce_value}{a}')
                 break
         
-        # اگر nounce پیدا نشد، از مقدار تصادفی استفاده می‌کنیم
+        # اگر nounce پیدا نشد، از مقدار پیش‌فرض استفاده می‌کنیم
         if not nounce_value:
-            import string
-            nounce_value = ''.join(random.choices(string.hexdigits.lower(), k=10))
+            nounce_value = "34bcba36e0"  # مقدار پیش‌فرض
+            print(f'{y}[!] Using default nounce: {nounce_value}{a}')
         
-        # مرحله 2: ارسال درخواست اصلی
+        # ارسال درخواست اصلی با فرمت صحیح شماره
         url = "https://hajamooo.ir/wp-admin/admin-ajax.php"
+        
         payload = {
             "action": "digits_check_mob",
             "countrycode": "+98",
-            "mobileNo": digits_phone,
+            "mobileNo": digits_phone,  # بدون فاصله (9173644430)
             "csrf": nounce_value,
             "login": "1",
             "username": "",
@@ -94,7 +97,7 @@ def hajamooo(phone):
             "digits": "1",
             "json": "1",
             "whatsapp": "0",
-            "mobmail": digits_phone,
+            "mobmail": formatted_phone,  # با فاصله (917 364 4430) - اینجا درست شده
             "dig_otp": "",
             "dig_nounce": nounce_value
         }
@@ -103,20 +106,31 @@ def hajamooo(phone):
             "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
             "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
             "X-Requested-With": "XMLHttpRequest",
-            "Referer": "https://hajamooo.ir/"
+            "Origin": "https://hajamooo.ir",
+            "Referer": "https://hajamooo.ir/",
+            "Accept": "*/*",
+            "Accept-Language": "en-US,en;q=0.9,fa;q=0.8"
         }
+        
+        # نمایش اطلاعات درخواست برای دیباگ
+        print(f'{g}[+] Sending request to: {url}{a}')
+        print(f'{g}[+] Payload: {payload}{a}')
         
         response = session.post(url, data=payload, headers=headers, timeout=10)
         
         # پردازش پاسخ
+        print(f'{g}[+] Status Code: {response.status_code}{a}')
+        print(f'{g}[+] Response Text: {response.text}{a}')
+        
         if response.status_code == 200:
             response_text = response.text.strip()
             
+            # بررسی پاسخ‌های موفق
             if response_text == "1" or "success" in response_text.lower():
-                print(f'{g}(hajamooo) {a}Code Sent')
+                print(f'{g}(hajamooo) {a}Code Sent Successfully!')
                 return True
             else:
-                print(f'{r}[-] (hajamooo) Server Response: {response_text}{a}')
+                print(f'{r}[-] (hajamooo) Failed - Server returned: {response_text}{a}')
                 return False
         else:
             print(f'{r}[-] (hajamooo) HTTP Error: {response.status_code}{a}')
@@ -125,6 +139,7 @@ def hajamooo(phone):
     except Exception as e:
         print(f'{r}[!] hajamooo Exception: {e}{a}')
         return False
+
 
 
 
