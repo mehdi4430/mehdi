@@ -99,7 +99,10 @@ def ragham_call(phone):
 
 
 
+# ارسال OTP از ilozi
 def ilozi(phone):
+    import requests
+
     url = "https://ilozi.com/wp-admin/admin-ajax.php"
     payload = {
         "login_digt_countrycode": "+98",
@@ -129,15 +132,14 @@ def ilozi(phone):
     try:
         response = requests.post(url, data=payload, headers=headers, timeout=10)
         if response.status_code == 200 and response.json().get("success"):
-            print(f"{g}[+] ilozi => Code sent to {phone}{a}")
+            print(f"[ilozi] Code sent to {phone}")
             return True
         else:
-            print(f"{y}[-] ilozi => Failed or not sent: {phone}{a}")
+            print(f"[ilozi] Failed or not sent: {phone}")
             return False
     except Exception as e:
-        print(f"{r}[!] ilozi => Exception: {e}{a}")
+        print(f"[ilozi] Exception: {e}")
         return False
-
 
 def achareh(phone):
     url = "https://api.achareh.co/v2/accounts/login/"
