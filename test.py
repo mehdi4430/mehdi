@@ -49,7 +49,8 @@ def check_internet():
 
 
 
-def katonikhan(phone):
+
+        def katonikhan(phone):
     import requests
     import re
     
@@ -68,12 +69,12 @@ def katonikhan(phone):
             instance_id = match.group(1)
         
         if not instance_id:
-            instance_id = "c1866f4215f82aaedb42ab38190ef1fa"  # مقدار پیشفرض
+            instance_id = "c1866f4215f82aaedb42ab38190ef1fa"
         
         url = "https://katonikhan.com/wp-admin/admin-ajax.php"
         
         payload = {
-            "phone": formatted_phone,  # با + بین اعداد
+            "phone": formatted_phone,  # با + بین اعداد: 917+364+4430
             "digt_countrycode": "+98",
             "digits_process_register": "1",
             "instance_id": instance_id,
@@ -84,7 +85,7 @@ def katonikhan(phone):
             "digits": "1",
             "digits_redirect_page": "-1",
             "aio_special_field": "",
-            "digits_form": "92e2d882a6",  # ممکنه نیاز به استخراج داشته باشه
+            "digits_form": "92e2d882a6",
             "_wp_http_referer": "/?login=true&page=1&redirect_to=https%3A%2F%2Fkatonikhan.com%2F"
         }
         
@@ -98,17 +99,27 @@ def katonikhan(phone):
         
         response = session.post(url, data=payload, headers=headers, timeout=10)
         
+        # دیباگ: نمایش پاسخ سرور
+        print(f'{g}[+] Status: {response.status_code}{a}')
+        print(f'{g}[+] Response: {response.text}{a}')
+        
         if response.status_code == 200:
-            response_data = response.json()
-            if response_data.get("success") is True:
-                print(f'{g}(katonikhan) {a}Code Sent')
-                return True
+            try:
+                response_data = response.json()
+                if response_data.get("success") is True:
+                    print(f'{g}(katonikhan) {a}Code Sent')
+                    return True
+            except:
+                # اگر پاسخ JSON نبود
+                if "1" in response.text or "success" in response.text.lower():
+                    print(f'{g}(katonikhan) {a}Code Sent')
+                    return True
         
         print(f'{r}[-] (katonikhan) Failed{a}')
         return False
             
-    except Exception:
-        print(f'{r}[-] (katonikhan) Failed{a}')
+    except Exception as e:
+        print(f'{r}[!] katonikhan Exception: {e}{a}')
         return False
 
 
