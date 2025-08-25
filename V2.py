@@ -103,7 +103,7 @@ def ilozi(phone):
     url = "https://ilozi.com/wp-admin/admin-ajax.php"
     payload = {
         "login_digt_countrycode": "+98",
-        "digits_phone": phone,  # شماره بدون صفر و بدون +98
+        "digits_phone": phone,
         "action_type": "phone",
         "sms_otp": "",
         "otp_step_1": "1",
@@ -125,16 +125,17 @@ def ilozi(phone):
         "Content-Type": "application/x-www-form-urlencoded",
         "X-Requested-With": "XMLHttpRequest"
     }
+
     try:
-        response = post(url, data=payload, headers=headers, timeout=10)
+        response = requests.post(url, data=payload, headers=headers, timeout=10)
         if response.status_code == 200 and response.json().get("success"):
-            print(f'{g}(Ilozi) {a}Code Sent')
+            print(f"{g}[+] ilozi => Code sent to {phone}{a}")
             return True
         else:
-            print(f'{y}[-] (Ilozi) Failed or No Response{a}')
+            print(f"{y}[-] ilozi => Failed or not sent: {phone}{a}")
             return False
     except Exception as e:
-        print(f'{r}[!] Ilozi Exception: {e}{a}')
+        print(f"{r}[!] ilozi => Exception: {e}{a}")
         return False
 
 
