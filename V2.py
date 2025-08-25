@@ -99,14 +99,15 @@ def ragham_call(phone):
 
 
 
-# ارسال OTP از ilozi
 def ilozi(phone):
     import requests
+    # تبدیل شماره از +989123456789 به 9123456789
+    digits_phone = phone.replace("+98", "")  # حذف +98
 
     url = "https://ilozi.com/wp-admin/admin-ajax.php"
     payload = {
         "login_digt_countrycode": "+98",
-        "digits_phone": phone,
+        "digits_phone": digits_phone,  # اینجا شماره تبدیل شده رو میذاریم
         "action_type": "phone",
         "sms_otp": "",
         "otp_step_1": "1",
@@ -131,14 +132,19 @@ def ilozi(phone):
 
     try:
         response = requests.post(url, data=payload, headers=headers, timeout=10)
-        if response.status_code == 200 and response.json().get("success"):
-            print(f"[ilozi] Code sent to {phone}")
-            return True
+        if response.status_code == 200:
+            response_data = response.json()
+            if response_data.get("success") is True:
+                print(f'{g}(ilozi) {a}Code Sent')
+                return True
+            else:
+                print(f'{r}[-] (ilozi) Failed: {response_data.get("message", "No message")}{a}')
+                return False
         else:
-            print(f"[ilozi] Failed or not sent: {phone}")
+            print(f'{r}[-] (ilozi) HTTP Error: {response.status_code}{a}')
             return False
     except Exception as e:
-        print(f"[ilozi] Exception: {e}")
+        print(f'{r}[!] ilozi Exception: {e}{a}')
         return False
 
 def achareh(phone):
