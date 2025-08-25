@@ -349,8 +349,7 @@ def Vip(phone, Time):
     services = [
     snap, gap, divar, alibaba, mek, okorosh,
     drnext, pindo, shahrfarsh, tetherland, snapp_market,
-    trip_call, paklean_call, ragham_call,
-    digikala, barghman,
+    trip_call, paklean_call, ragham_call,  digikala, barghman,
     achareh, snappshop, bimebazar, ilozi, komodaa, alopeyk_safir
 ]
     total_services = len(services)
