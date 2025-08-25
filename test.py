@@ -50,7 +50,7 @@ def check_internet():
 
 
 
-        def katonikhan(phone):
+ def katonikhan(phone):
     import requests
     import re
     
