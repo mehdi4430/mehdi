@@ -49,20 +49,4 @@ def ilozi(phone):
         print(f"{r}[!] Exception: {e}{a}")
         return False
 
-# اجرای همزمان
 
-
-# اعتبارسنجی شماره
-def is_phone(phone):
-    import re
-    if re.match(r"^\d{10}$", phone):
-        return phone
-    return False
-
-if __name__ == "__main__":
-    phone = input("Enter phone (e.g. 9173644430): ")
-    phone = is_phone(phone)
-    if not phone:
-        print("Invalid phone!")
-    else:
-        bomber(phone)
