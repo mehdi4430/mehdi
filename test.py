@@ -47,7 +47,8 @@ def check_internet():
 # SMS services
 # ------------------------------
 def hajamooo(phone):
-    import requests, string
+    import requests
+    import string
 
     digits_phone = phone.replace("+98", "")
     random_nounce = ''.join(random.choices(string.hexdigits.lower(), k=10))
@@ -82,21 +83,40 @@ def hajamooo(phone):
 
     try:
         response = requests.post(url, data=payload, headers=headers, timeout=10)
+        
+        # ابتدا نوع پاسخ را بررسی می‌کنیم
         if response.status_code == 200:
-            response_data = response.json()
-            if response_data.get("success") is True:
-                print(f'{g}(hajamooo) {a}Code Sent')
-                return True
-            else:
-                error_msg = response_data.get("message", "Unknown error")
-                print(f'{r}[-] (hajamooo) Failed: {error_msg}{a}')
-                return False
+            try:
+                # سعی می‌کنیم پاسخ را به صورت JSON پردازش کنیم
+                response_data = response.json()
+                if isinstance(response_data, dict) and response_data.get("success") is True:
+                    print(f'{g}(hajamooo) {a}Code Sent')
+                    return True
+                else:
+                    error_msg = response_data.get("message", "Unknown error") if isinstance(response_data, dict) else str(response_data)
+                    print(f'{r}[-] (hajamooo) Failed: {error_msg}{a}')
+                    return False
+            except ValueError:
+                # اگر پاسخ JSON نبود، متن خام را بررسی می‌کنیم
+                response_text = response.text.strip()
+                if response_text == "1" or "success" in response_text.lower():
+                    print(f'{g}(hajamooo) {a}Code Sent')
+                    return True
+                else:
+                    print(f'{r}[-] (hajamooo) Failed: {response_text}{a}')
+                    return False
         else:
             print(f'{r}[-] (hajamooo) HTTP Error: {response.status_code}{a}')
+            print(f'{r}[-] Response: {response.text}{a}')
             return False
+
     except Exception as e:
         print(f'{r}[!] hajamooo Exception: {e}{a}')
         return False
+
+
+
+
 
 def digikala(phone):
     url = "https://api.digikala.com/v1/user/authenticate/"
