@@ -50,13 +50,7 @@ def ilozi(phone):
         return False
 
 # اجرای همزمان
-def bomber(phone, delay=0.5):
-    try:
-        while True:
-            Thread(target=ilozi, args=(phone,)).start()
-            sleep(delay)
-    except KeyboardInterrupt:
-        print(f"{g}[+] Stopped!{a}")
+
 
 # اعتبارسنجی شماره
 def is_phone(phone):
