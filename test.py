@@ -55,23 +55,47 @@ def katonikhan(phone):
     
     try:
         session = requests.Session()
-        home_response = session.get("https://katonikhan.com/", timeout=10)
         
-        # استخراج instance_id
-        instance_id = None
-        instance_pattern = r'name="instance_id" value="([a-f0-9]+)"'
-        match_obj = re.search(instance_pattern, home_response.text)
-        if match_obj:
-            instance_id = match_obj.group(1)
-        if not instance_id:
-            instance_id = "c1866f4215f82aaedb42ab38190ef1fa"
+        # دریافت صفحه اصلی با Referer درست
+        headers = {
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            "Accept-Language": "en-US,en;q=0.9,fa;q=0.8",
+        }
+        
+        home_response = session.get("https://katonikhan.com/?login=true&page=1&redirect_to=https%3A%2F%2Fkatonikhan.com%2F", 
+                                  headers=headers, timeout=10)
+        
+        # استخراج تمام پارامترهای لازم از صفحه
+        patterns = {
+            'instance_id': r'name="instance_id" value="([a-f0-9]+)"',
+            'digits_form': r'name="digits_form" value="([a-f0-9]+)"',
+            'dig_nounce': r'name="dig_nounce" value="([a-f0-9]+)"',
+            'csrf': r'name="csrf" value="([a-f0-9]+)"'
+        }
+        
+        params = {}
+        for key, pattern in patterns.items():
+            match = re.search(pattern, home_response.text)
+            if match:
+                params[key] = match.group(1)
+            else:
+                params[key] = ""  # مقدار پیشفرض خالی
+        
+        # اگر digits_form پیدا نشد، از مقدار پیشفرض استفاده کن
+        if not params.get('digits_form'):
+            params['digits_form'] = "92e2d882a6"
+        
+        if not params.get('instance_id'):
+            params['instance_id'] = "c1866f4215f82aaedb42ab38190ef1fa"
         
         url = "https://katonikhan.com/wp-admin/admin-ajax.php"
+        
         payload = {
             "phone": formatted_phone,
             "digt_countrycode": "+98",
             "digits_process_register": "1",
-            "instance_id": instance_id,
+            "instance_id": params['instance_id'],
             "optional_data": "optional_data",
             "action": "digits_forms_ajax",
             "type": "register",
@@ -79,17 +103,26 @@ def katonikhan(phone):
             "digits": "1",
             "digits_redirect_page": "-1",
             "aio_special_field": "",
-            "digits_form": "92e2d882a6",
-            "_wp_http_referer": "/?login=true&page=1&redirect_to=https%3A%2F%2Fkatonikhan.com%2F"
+            "digits_form": params['digits_form'],
+            "_wp_http_referer": "/?login=true&page=1&redirect_to=https%3A%2F%2Fkatonikhan.com%2F",
+            "dig_nounce": params.get('dig_nounce', ""),
+            "csrf": params.get('csrf', "")
         }
-        headers = {
+        
+        # حذف پارامترهای خالی
+        payload = {k: v for k, v in payload.items() if v is not None and v != ""}
+        
+        ajax_headers = {
             "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
             "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
             "X-Requested-With": "XMLHttpRequest",
             "Origin": "https://katonikhan.com",
-            "Referer": "https://katonikhan.com/",
+            "Referer": "https://katonikhan.com/?login=true&page=1&redirect_to=https%3A%2F%2Fkatonikhan.com%2F",
+            "Accept": "*/*",
+            "Accept-Language": "en-US,en;q=0.9,fa;q=0.8"
         }
-        response = session.post(url, data=payload, headers=headers, timeout=10)
+        
+        response = session.post(url, data=payload, headers=ajax_headers, timeout=10)
         
         print(f'{g}[+] Status: {response.status_code}{a}')
         print(f'{g}[+] Response: {response.text}{a}')
@@ -100,16 +133,21 @@ def katonikhan(phone):
                 if response_data.get("success") is True:
                     print(f'{g}(katonikhan) {a}Code Sent')
                     return True
-            except:
-                if "1" in response.text or "success" in response.text.lower():
-                    print(f'{g}(katonikhan) {a}Code Sent')
-                    return True
+                else:
+                    print(f'{r}[-] (katonikhan) API Error: {response_data}{a}')
+                    return False
+            except Exception as e:
+                print(f'{r}[-] (katonikhan) JSON Error: {e}{a}')
+                return False
         
-        print(f'{r}[-] (katonikhan) Failed{a}')
+        print(f'{r}[-] (katonikhan) HTTP Error{a}')
         return False
+            
     except Exception as e:
         print(f'{r}[!] katonikhan Exception: {e}{a}')
         return False
+
+
 
 def katoonistore(phone):
     import requests
