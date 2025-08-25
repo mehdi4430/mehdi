@@ -45,18 +45,19 @@ a = "\033[0m"   # ریست
 
 import requests
 
+import requests
+
 def ilozi(phone):
     url = "https://ilozi.com/wp-admin/admin-ajax.php"
     
-    # داده‌هایی که باید در request ارسال بشه
     payload = {
         "action": "digits_forms_ajax",
         "type": "login",
         "digits": "1",
         "instance_id": "a15a96e438ca5771bfd748a1fdf98103",
         "action_type": "phone",
-        "digits_phone": phone,
-        "login_digt_countrycode": "+98" if phone.startswith("+98") else "",
+        "digits_phone": phone,  # شماره بدون +98 و صفر اول
+        "login_digt_countrycode": "+98",
     }
     
     try:
@@ -72,7 +73,7 @@ def ilozi(phone):
         return False
 
 # گرفتن شماره از کاربر
-phone_input = input("Enter phone number (e.g. +989123456789): ")
+phone_input = input("Enter phone number (e.g. 9173644430): ")
 ilozi(phone_input)
 
 # ------------------------------
