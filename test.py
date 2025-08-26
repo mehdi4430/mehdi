@@ -93,6 +93,15 @@ def alldigitall(phone):
 # ------------------------------
 # SMS Bomber
 # ------------------------------
+# ------------------------------
+# Safe service execution
+# ------------------------------
+def send_service_safe(service, phone):
+    try:
+        service(phone)
+    except Exception as e:
+        print(f"{r}[!] {service.__name__} Exception: {e}{a}")
+        
 def Vip(phone, Time):
     services = [
     alldigitall,  # سرویس جدید
