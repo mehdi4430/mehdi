@@ -52,9 +52,6 @@ def check_internet():
 # ------------------------------
 # SMS Service
 # ------------------------------
-
-
-
 def khanoumi(phone):
     import requests
     import time
@@ -135,9 +132,6 @@ def khanoumi(phone):
         print(f'{r}[!] Exception: {str(e)}{a}')
         return False
 
-
-
-
 # ------------------------------
 # Service Runner
 # ------------------------------
@@ -156,8 +150,8 @@ def send_service_safe(service, phone):
 # SMS Bomber
 # ------------------------------
 def Vip(phone, Time):
-    services = [khanoumi]  # فقط سرویس khanoumi
-    # بقیه کد...
+    services = [khanoumi]
+    total_services = len(services)  # اضافه کردن این خط
 
     print_slow(f"{p}╔═════[ SMS Bombing Initiated ]═════╗")
     print_slow(f"{g}Target: {y}{phone}")
