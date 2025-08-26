@@ -71,29 +71,33 @@ def khanoumi(phone):
     try:
         response = requests.post(url, json=payload, headers=headers, timeout=10)
         
-        if response.status_code == 200:
-            response_data = response.json()
+        print(f'{g}[+] Status Code: {response.status_code}{a}')
+        print(f'{g}[+] Response Text: {response.text}{a}')
+        
+        # بررسی اینکه پاسخ خالی نباشد
+        if not response.text.strip():
+            print(f'{r}[-] (khanoumi) Empty response from server{a}')
+            return False
             
-            # بررسی اینکه آیا کد ارسال شده
-            if (response_data.get("data") and 
-                response_data["data"].get("results") and
-                len(response_data["data"]["results"]) > 0):
-                
-                print(f'{g}(khanoumi) {a}Code Sent Successfully!')
-                print(f'{g}[+] MFA Code: {response_data["data"]["mfaCode"]}{a}')
-                return True
-            else:
-                print(f'{r}[-] (khanoumi) No SMS method found in response{a}')
+        if response.status_code == 200:
+            try:
+                response_data = response.json()
+                if response_data.get("data"):
+                    print(f'{g}(khanoumi) {a}Code Sent Successfully!')
+                    return True
+                else:
+                    print(f'{r}[-] (khanoumi) Invalid response structure{a}')
+                    return False
+            except ValueError:
+                print(f'{r}[-] (khanoumi) Invalid JSON response{a}')
                 return False
         else:
             print(f'{r}[-] (khanoumi) HTTP Error: {response.status_code}{a}')
-            print(f'{r}[+] Response: {response.text}{a}')
             return False
             
     except Exception as e:
         print(f'{r}[!] khanoumi Exception: {e}{a}')
         return False
-
 # ------------------------------
 # Service Runner
 # ------------------------------
