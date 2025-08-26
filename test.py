@@ -99,12 +99,13 @@ def katonikhan(phone):
         return False
 
 
-# Simple SMS bomber
+   # Simple SMS bomber
 def Vip(phone, Time):
-services = [
-    katonikhan
-
-]
+    services = [
+        katonikhan,
+    ]
+    
+    
     total_services = len(services)
 
     print_slow(f"{p}╔═════[ SMS Bombing Initiated ]═════╗")
