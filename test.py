@@ -212,7 +212,8 @@ def main():
                 if phone:
                     break
                 print(f"{r}[-] {a}Invalid Phone!")
-            try:
+       
+        try:
                 Time = float(input(f'{g}[?] {y}Delay (seconds) [Default=0.1]: {a}') or 0.1)
             except ValueError:
                 Time = 0.1
