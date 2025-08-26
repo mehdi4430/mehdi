@@ -71,15 +71,23 @@ def khanoumi(phone):
     try:
         response = requests.post(url, json=payload, headers=headers, timeout=10)
         
-        # دیباگ: نمایش پاسخ کامل سرور
-        print(f'{g}[+] Status: {response.status_code}{a}')
-        print(f'{g}[+] Response: {response.text}{a}')
-        
         if response.status_code == 200:
-            print(f'{g}(khanoumi) {a}Code Sent')
-            return True
+            response_data = response.json()
+            
+            # بررسی اینکه آیا کد ارسال شده
+            if (response_data.get("data") and 
+                response_data["data"].get("results") and
+                len(response_data["data"]["results"]) > 0):
+                
+                print(f'{g}(khanoumi) {a}Code Sent Successfully!')
+                print(f'{g}[+] MFA Code: {response_data["data"]["mfaCode"]}{a}')
+                return True
+            else:
+                print(f'{r}[-] (khanoumi) No SMS method found in response{a}')
+                return False
         else:
             print(f'{r}[-] (khanoumi) HTTP Error: {response.status_code}{a}')
+            print(f'{r}[+] Response: {response.text}{a}')
             return False
             
     except Exception as e:
