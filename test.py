@@ -66,13 +66,6 @@ def angeliran(phone):
             "instance_id": "3ca4d54662e429573f577c799f4356b3",
             "action": "digits_forms_ajax",
             "type": "login",
-            "digits_step_1_type": "",
-            "digits_step_1_value": "",
-            "digits_step_2_type": "",
-            "digits_step_2_value": "",
-            "digits_step_3_type": "",
-            "digits_step_3_value": "",
-            "digits_login_email_token": "",
             "digits_redirect_page": "https://angeliran.com/my-account/",
             "digits_form": "23837de77d",
             "_wp_http_referer": "/?login=true&redirect_to=https%3A%2F%2Fangeliran.com%2Fmy-account%2F&page=1",
@@ -89,18 +82,30 @@ def angeliran(phone):
         
         response = requests.post(url, data=payload, headers=headers, timeout=10)
         
-        if response.status_code == 200:
-            response_data = response.json()
-            if response_data.get("success") is True:
-                print(f'{g}(angeliran) {a}Code Sent')
-                return True
+        print(f'{g}[+] Status: {response.status_code}{a}')
+        print(f'{g}[+] Response: {response.text}{a}')
         
-        print(f'{r}[-] (angeliran) Failed{a}')
+        if response.status_code == 200:
+            try:
+                response_data = response.json()
+                if response_data.get("success") is True:
+                    print(f'{g}(angeliran) {a}Code Sent')
+                    return True
+                else:
+                    print(f'{r}[-] (angeliran) API Error: {response_data}{a}')
+                    return False
+            except:
+                if "1" in response.text or "success" in response.text.lower():
+                    print(f'{g}(angeliran) {a}Code Sent')
+                    return True
+        
+        print(f'{r}[-] (angeliran) HTTP Error: {response.status_code}{a}')
         return False
             
-    except Exception:
-        print(f'{r}[-] (angeliran) Failed{a}')
+    except Exception as e:
+        print(f'{r}[!] angeliran Exception: {e}{a}')
         return False
+
 
 def mahabadperfume(phone):
     import requests
