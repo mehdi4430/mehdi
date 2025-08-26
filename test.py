@@ -102,7 +102,7 @@ def katonikhan(phone):
 # Simple SMS bomber
 def Vip(phone, Time):
 services = [
-    katonikhan,
+    katonikhan
 
 ]
     total_services = len(services)
