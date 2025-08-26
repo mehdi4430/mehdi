@@ -151,7 +151,7 @@ def send_service_safe(service, phone):
 # ------------------------------
 def Vip(phone, Time):
     services = [khanoumi]
-    total_services = len(services)  # اضافه کردن این خط
+    total_services = len(services)
 
     print_slow(f"{p}╔═════[ SMS Bombing Initiated ]═════╗")
     print_slow(f"{g}Target: {y}{phone}")
@@ -212,8 +212,7 @@ def main():
                 if phone:
                     break
                 print(f"{r}[-] {a}Invalid Phone!")
-       
-        try:
+            try:
                 Time = float(input(f'{g}[?] {y}Delay (seconds) [Default=0.1]: {a}') or 0.1)
             except ValueError:
                 Time = 0.1
