@@ -97,15 +97,35 @@ def nillarayeshi(phone):
     try:
         formatted_phone = "0" + phone.replace("+98", "")
         
+        # استفاده از مقادیر ثابت از درخواست واقعی
+        csrf = "2a49f89a8f"
+        nonce = "2a49f89a8f"
+        
         url = "https://nillarayeshi.com/wp-admin/admin-ajax.php"
         
         payload = {
-            "action": "digits_resendotp",  # تغییر action به digits_resendotp
+            "action": "digits_check_mob",
             "countrycode": "+98",
-            "mobileNo": formatted_phone.replace("0", "", 1),  # حذف صفر اول (9174444636)
-            "csrf": "2a49f89a8f",
+            "mobileNo": formatted_phone,
+            "csrf": csrf,
             "login": "2",
-            "whatsapp": "0"
+            "username": "",
+            "email": "",
+            "captcha": "",
+            "captcha_ses": "",
+            "digits": "1",
+            "json": "1",
+            "whatsapp": "0",
+            "digits_reg_name": "نام",
+            "digregcode": "+98",
+            "digits_reg_mail": formatted_phone,
+            "digregscode2": "+98",
+            "mobmail2": "",
+            "digits_reg_password": "",
+            "dig_otp": "",
+            "code": "",
+            "dig_reg_mail": "",
+            "dig_nounce": nonce
         }
         
         headers = {
@@ -124,7 +144,7 @@ def nillarayeshi(phone):
         print(f'{y}[Debug] Response: {response.text}{a}')
         
         if response.status_code == 200:
-            if response.text.strip() == "1":  # بررسی پاسخ "1"
+            if response.text.strip() == "1" or "success" in response.text.lower():
                 print(f'{g}(nillarayeshi) Code Sent{a}')
                 return True
             else:
