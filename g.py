@@ -64,6 +64,65 @@ def send_service_safe(service, phone):
 # ==========================
 
 
+def Charsooq(phone):
+    try:
+        url = "https://app.charsooq.com/api/v1/send-otp"
+        
+        # فرمت شماره
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        formatted_phone = f"0{formatted_phone}"  # فرمت 0912...
+        
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "User-Agent": random.choice(user_agents),
+            "Origin": "https://app.charsooq.com",
+            "Referer": "https://app.charsooq.com/",
+        }
+        
+        payload = {
+            "phone": formatted_phone
+        }
+        
+        response = requests.post(
+            url, 
+            json=payload, 
+            headers=headers, 
+            timeout=10
+        )
+        
+        print(f'{y}[Debug] Charsooq Status: {response.status_code}{a}')
+        print(f'{y}[Debug] Charsooq Response: {response.text}{a}')
+        
+        if response.status_code in [200, 201, 202]:
+            try:
+                data = response.json()
+                if data.get("success") or data.get("status") == "success" or data.get("otp_sent"):
+                    print(f'{g}(Charsooq) Code Sent{a}')
+                    return True
+                else:
+                    print(f'{r}[-] Charsooq Failed: {data.get("message", "Unknown error")}{a}')
+                    return False
+            except:
+                if "success" in response.text.lower() or "sent" in response.text.lower():
+                    print(f'{g}(Charsooq) Code Sent{a}')
+                    return True
+                return False
+        elif response.status_code == 400:
+            # ممکن است شماره از قبل ثبت شده باشد
+            print(f'{y}(Charsooq) Possible already registered{a}')
+            return True
+        else:
+            print(f'{r}[-] Charsooq HTTP Error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] Charsooq Exception: {e}{a}')
+        return False
+
+
+
+
 def Koohshid(phone):
     try:
         session = requests.Session()
@@ -799,7 +858,7 @@ def nillarayeshi(phone):
 # ==========================
 # لیست سرویس‌ها
 # ==========================
-services = [Balad, Besparto, DigikalaJet, Footini, Koohshid, nillarayeshi, Okala, ShahreSandal, SibApp]
+services = [Balad, Besparto, Charsooq, DigikalaJet, Footini, Koohshid, nillarayeshi, Okala, ShahreSandal, SibApp]
 
 # ==========================
 # تابع VIP مولتی‌تردینگ
