@@ -62,6 +62,54 @@ def send_service_safe(service, phone):
 # ==========================
 # توابع سرویس‌ها
 # ==========================
+
+def SibApp(phone):
+    try:
+        url = "https://api.sibapp.net/api/v1/user/register"
+        headers = {
+            "Accept": "application/json, text/plain, */*",
+            "Content-Type": "application/json; charset=UTF-8",
+            "Cache-Control": "no-cache",
+            "User-Agent": random.choice(user_agents)
+        }
+        
+        payload = {
+            "phone_number": phone
+        }
+        
+        response = requests.post(
+            url, 
+            json=payload, 
+            headers=headers, 
+            timeout=10
+        )
+        
+        print(f'{y}[Debug] SibApp Response: {response.status_code} - {response.text}{a}')
+        
+        if response.status_code == 200:
+            try:
+                data = response.json()
+                if data.get("success") or data.get("status") == "success":
+                    print(f'{g}(SibApp) Code Sent{a}')
+                    return True
+                else:
+                    print(f'{r}[-] SibApp Failed: {data.get("message", "Unknown error")}{a}')
+                    return False
+            except:
+                if "success" in response.text.lower() or "sent" in response.text.lower():
+                    print(f'{g}(SibApp) Code Sent{a}')
+                    return True
+                return False
+        else:
+            print(f'{r}[-] SibApp HTTP Error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] SibApp Exception: {e}{a}')
+        return False
+
+
+
 def Balad(phone):
     try:
         formatted_phone = "0" + phone.replace("+98", "")  # تبدیل +989... به 09...
@@ -162,7 +210,7 @@ def nillarayeshi(phone):
 # ==========================
 # لیست سرویس‌ها
 # ==========================
-services = [Balad, nillarayeshi]
+services = [SibApp, Balad, nillarayeshi]
 
 # ==========================
 # تابع VIP مولتی‌تردینگ
