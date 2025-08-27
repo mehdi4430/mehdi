@@ -719,7 +719,7 @@ def nillarayeshi(phone):
 # ==========================
 # لیست سرویس‌ها
 # ==========================
-services = [Balad, Besparto, DigikalaJet, Footini, nillarayeshi, ShahreSandal, SibApp]
+services = [Balad, Besparto, DigikalaJet, Footini, nillarayeshi, Okala, ShahreSandal, SibApp]
 
 # ==========================
 # تابع VIP مولتی‌تردینگ
