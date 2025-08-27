@@ -68,9 +68,9 @@ def Charsooq(phone):
     try:
         url = "https://app.charsooq.com/api/v1/send-otp"
         
-        # فرمت شماره
+        # فرمت شماره: 09113339999 (با صفر اول)
         formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
-        formatted_phone = f"0{formatted_phone}"  # فرمت 0912...
+        formatted_phone = f"0{formatted_phone}"  # مطمئن شویم که با صفر شروع می‌شود
         
         headers = {
             "Accept": "application/json",
@@ -81,7 +81,7 @@ def Charsooq(phone):
         }
         
         payload = {
-            "phone": formatted_phone
+            "cell_number": formatted_phone  # با فرمت 09123334455
         }
         
         response = requests.post(
@@ -95,23 +95,11 @@ def Charsooq(phone):
         print(f'{y}[Debug] Charsooq Response: {response.text}{a}')
         
         if response.status_code in [200, 201, 202]:
-            try:
-                data = response.json()
-                if data.get("success") or data.get("status") == "success" or data.get("otp_sent"):
-                    print(f'{g}(Charsooq) Code Sent{a}')
-                    return True
-                else:
-                    print(f'{r}[-] Charsooq Failed: {data.get("message", "Unknown error")}{a}')
-                    return False
-            except:
-                if "success" in response.text.lower() or "sent" in response.text.lower():
-                    print(f'{g}(Charsooq) Code Sent{a}')
-                    return True
-                return False
-        elif response.status_code == 400:
-            # ممکن است شماره از قبل ثبت شده باشد
-            print(f'{y}(Charsooq) Possible already registered{a}')
+            print(f'{g}(Charsooq) Code Sent{a}')
             return True
+        elif response.status_code == 422:
+            print(f'{y}[!] Charsooq Validation Error{a}')
+            return False
         else:
             print(f'{r}[-] Charsooq HTTP Error: {response.status_code}{a}')
             return False
@@ -119,7 +107,6 @@ def Charsooq(phone):
     except Exception as e:
         print(f'{r}[!] Charsooq Exception: {e}{a}')
         return False
-
 
 
 
