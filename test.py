@@ -54,8 +54,8 @@ def check_internet():
 # ------------------------------
 
 
-        
-  def vitrin_shop(phone):
+         
+def vitrin_shop(phone):
     import requests
     import re
     import uuid
