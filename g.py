@@ -5,6 +5,7 @@ from threading import Thread
 from time import sleep
 import socket
 import urllib3
+import random
 
 # غیرفعال کردن هشدارهای urllib3
 urllib3.disable_warnings()
@@ -286,7 +287,7 @@ def send_service_safe(service, phone):
 
 # تابع اصلی SMS Bomber
 def vip(phones, delay=0.1):
-    services = [vitrin_shop, ilozi, elanza]
+    services = [vitrin_shop, ilozi, elanza, nillarayeshi]
     print(f"{g}Targets: {y}{', '.join(phones)}{a}")
     print(f"{g}Services: {y}{len(services)}{a}")
     print(f"{g}Delay: {y}{delay}s{a}")
