@@ -64,12 +64,15 @@ def Balad(phone):
         headers = {
             "Accept": "application/json, text/plain, */*",
             "Content-Type": "application/json",
-            "device-id": str(uuid.uuid4()),  # UUID رندوم برای هر درخواست
+            "device-id": str(uuid.uuid4()),
             "User-Agent": random.choice(user_agents)
         }
         
+        # فرمت صحیح شماره برای Balad: 09123456789 بدون +98
+        formatted_phone = phone.replace("+98", "0")
+        
         payload = {
-            "phone_number": phone,
+            "phone_number": formatted_phone,
             "os_type": "W"
         }
         
@@ -79,7 +82,7 @@ def Balad(phone):
             print(f'{g}(Balad) Code Sent{a}')
             return True
         else:
-            print(f'{r}[-] Balad HTTP Error: {response.status_code} - {response.text[:100]}{a}')
+            print(f'{r}[-] Balad HTTP Error: {response.status_code} - {response.text}{a}')
             return False
             
     except Exception as e:
@@ -91,24 +94,54 @@ def nillarayeshi(phone):
         formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
         session = requests.Session()
         
-        # دریافت صفحه اصلی
+        # دریافت صفحه اصلی با هدرهای کامل
+        headers = {
+            "User-Agent": random.choice(user_agents),
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            "Accept-Language": "en-US,en;q=0.5",
+            "Accept-Encoding": "gzip, deflate, br",
+            "Connection": "keep-alive",
+        }
+        
         home_response = session.get(
             "https://nillarayeshi.com/", 
             timeout=10, 
-            headers={"User-Agent": random.choice(user_agents)}
+            headers=headers
         )
         home_response.encoding = 'utf-8'
         
-        # استخراج مقادیر با الگوهای مختلف
-        csrf_match = re.search(r'name="csrf" value="([^"]+)"', home_response.text)
-        nonce_match = re.search(r'name="dig_nounce" value="([^"]+)"', home_response.text)
+        # دیباگ: نمایش بخشی از صفحه برای بررسی
+        print(f"{y}[Debug] Page content: {home_response.text[:500]}...{a}")
         
-        csrf = csrf_match.group(1) if csrf_match else ""
-        nonce = nonce_match.group(1) if nonce_match else ""
+        # الگوهای مختلف برای استخراج توکن‌ها
+        patterns = [
+            r'name="csrf" value="([^"]+)"',
+            r'name="dig_nounce" value="([^"]+)"',
+            r'csrf["\']?\s*[:=]\s*["\']([^"\']+)["\']',
+            r'nonce["\']?\s*[:=]\s*["\']([^"\']+)["\']'
+        ]
+        
+        csrf = None
+        nonce = None
+        
+        for pattern in patterns:
+            if not csrf:
+                csrf_match = re.search(pattern, home_response.text)
+                if csrf_match:
+                    csrf = csrf_match.group(1)
+                    print(f"{g}[+] Found CSRF: {csrf}{a}")
+            
+            if not nonce:
+                nonce_match = re.search(pattern, home_response.text)
+                if nonce_match:
+                    nonce = nonce_match.group(1)
+                    print(f"{g}[+] Found Nonce: {nonce}{a}")
         
         if not csrf or not nonce:
-            print(f'{r}[-] nillarayeshi: Could not extract tokens{a}')
-            return False
+            # استفاده از مقادیر پیشفرض اگر پیدا نشد
+            csrf = "default_csrf_token"
+            nonce = "default_nonce_token"
+            print(f"{y}[!] Using default tokens{a}")
         
         payload = {
             "action": "digits_check_mob",
@@ -136,10 +169,10 @@ def nillarayeshi(phone):
             timeout=10
         )
         
-        print(f'{y}[Debug] nillarayeshi Response: {response.status_code} - {response.text[:200]}{a}')
+        print(f'{y}[Debug] Response: {response.status_code} - {response.text}{a}')
         
         if response.status_code == 200:
-            if "success" in response.text.lower() or "1" in response.text:
+            if any(x in response.text.lower() for x in ["success", "1", "sent"]):
                 print(f'{g}(nillarayeshi) Code Sent{a}')
                 return True
         return False
@@ -147,6 +180,7 @@ def nillarayeshi(phone):
     except Exception as e:
         print(f"{r}[!] nillarayeshi Exception: {e}{a}")
         return False
+
 
 
 # ==========================
