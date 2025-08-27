@@ -63,6 +63,7 @@ def send_service_safe(service, phone):
 # توابع سرویس‌ها
 # ==========================
 
+
 def SibApp(phone):
     try:
         url = "https://api.sibapp.net/api/v1/user/register"
@@ -73,8 +74,11 @@ def SibApp(phone):
             "User-Agent": random.choice(user_agents)
         }
         
+        # فرمت شماره برای SibApp: بدون +98 و فقط اعداد
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        
         payload = {
-            "phone_number": phone
+            "phone_number": formatted_phone
         }
         
         response = requests.post(
@@ -86,20 +90,17 @@ def SibApp(phone):
         
         print(f'{y}[Debug] SibApp Response: {response.status_code} - {response.text}{a}')
         
-        if response.status_code == 200:
+        if response.status_code in [200, 201]:
+            print(f'{g}(SibApp) Code Sent{a}')
+            return True
+        elif response.status_code == 400:
+            # بررسی دقیق‌تر خطای 400
             try:
-                data = response.json()
-                if data.get("success") or data.get("status") == "success":
-                    print(f'{g}(SibApp) Code Sent{a}')
-                    return True
-                else:
-                    print(f'{r}[-] SibApp Failed: {data.get("message", "Unknown error")}{a}')
-                    return False
+                error_data = response.json()
+                print(f'{r}[-] SibApp Error: {error_data}{a}')
             except:
-                if "success" in response.text.lower() or "sent" in response.text.lower():
-                    print(f'{g}(SibApp) Code Sent{a}')
-                    return True
-                return False
+                print(f'{r}[-] SibApp Bad Request: {response.text}{a}')
+            return False
         else:
             print(f'{r}[-] SibApp HTTP Error: {response.status_code}{a}')
             return False
@@ -107,8 +108,7 @@ def SibApp(phone):
     except Exception as e:
         print(f'{r}[!] SibApp Exception: {e}{a}')
         return False
-
-
+        
 
 def Balad(phone):
     try:
