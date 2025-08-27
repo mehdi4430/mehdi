@@ -1,14 +1,15 @@
-import requests
+import random
 import re
-import uuid
+from re import match, sub
+import socket
+import sys
+import urllib3
+from os import system, name
+from platform import node, system, release
 from threading import Thread
 from time import sleep
-import socket
-import urllib3
-import random
 
-# غیرفعال کردن هشدارهای urllib3
-urllib3.disable_warnings()
+
 
 # رنگ‌ها برای خروجی
 r, g, y, a = '\033[31;1m', '\033[32;1m', '\033[33;1m', '\033[0m'
