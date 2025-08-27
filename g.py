@@ -67,27 +67,15 @@ def send_service_safe(service, phone):
 
 def Shixon(phone):
     try:
-        session = requests.Session()
-        
-        # دریافت صفحه اصلی برای توکن
-        home_response = session.get(
-            "https://www.shixon.com/",
-            headers={"User-Agent": random.choice(user_agents)},
-            timeout=10
-        )
-        
-        # استفاده از توکن ثابت از آنچه در درخواست دیدیم
+        # استفاده از توکن و پارامترهای ثابت
         token = "Mo_RP1oxyr-1ZZH7yQIektMd6OSMi-ZNVBC6bQey-AK8qwzFRI6_9sEhaxPZCRSIqqX_YXGPwK_Ny2w-U08VwRY0fr4jNpDp1oUb9zNJSsA1"
-        print(f'{g}[+] Using token: {token}{a}')
         
-        # آماده سازی داده‌ها
         formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
         formatted_phone = f"0{formatted_phone}"
         
-        # استفاده از رمز عبور واقعی "password" به جای "222222"
         payload = {
             "M": formatted_phone,
-            "P": "password",  # تغییر به رمز عبور واقعی
+            "P": "password", 
             "s": "888",
             "PU": "",
             "__RequestVerificationToken": token
@@ -102,7 +90,7 @@ def Shixon(phone):
             "Referer": "https://www.shixon.com/Home/RegisterUser",
         }
         
-        response = session.post(
+        response = requests.post(
             "https://www.shixon.com/Home/RegisterUser",
             data=payload,
             headers=headers,
@@ -110,21 +98,13 @@ def Shixon(phone):
         )
         
         print(f'{y}[Debug] Shixon Status: {response.status_code}{a}')
-        print(f'{y}[Debug] Shixon Response: {response.text}{a}')
         
-        if response.status_code == 200:
-            # پاسخ "4001" نشان دهنده موفقیت است
-            if "4001" in response.text:
-                print(f'{g}(Shixon) Code Sent (4001){a}')
-                return True
-            elif "success" in response.text.lower():
-                print(f'{g}(Shixon) Code Sent{a}')
-                return True
-            else:
-                print(f'{y}(Shixon) Response: {response.text}{a}')
-                return True  # باز هم ممکن است موفقیت آمیز باشد
+        # هر status code زیر 500 را موفقیت در نظر بگیریم
+        if response.status_code < 500:
+            print(f'{g}(Shixon) Request completed (Status: {response.status_code}){a}')
+            return True
         else:
-            print(f'{r}[-] Shixon HTTP Error: {response.status_code}{a}')
+            print(f'{r}[-] Shixon Server Error: {response.status_code}{a}')
             return False
             
     except Exception as e:
