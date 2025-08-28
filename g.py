@@ -304,7 +304,7 @@ def snapp(phone):
 # ==========================
 # لیست سرویس‌ها
 # ==========================
-services = [alibaba, mek, trip, otaghak, snapp‏, virgool]
+services = [alibaba, mek, trip, otaghak, snapp, virgool]
 
 # ==========================
 # تابع VIP مولتی‌تردینگ
