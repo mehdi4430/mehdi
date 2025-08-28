@@ -109,9 +109,7 @@ def alibaba(phone):
     try:
         formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
         
-        payload = {
-            "phoneNumber": formatted_phone
-        }
+        payload = {"phoneNumber": formatted_phone}
         
         headers = {
             "Accept": "application/json, text/plain, */*",
@@ -130,20 +128,22 @@ def alibaba(phone):
             verify=False
         )
         
-        print(f'{y}[Debug] alibaba Status: {response.status_code}{a}')
-        print(f'{y}[Debug] alibaba Response: {response.text}{a}')
-        
         if response.status_code == 200:
             data = response.json()
-            if data.get("result", {}).get("success"):
-                print(f'{g}(alibaba) code sent{a}')
+            if data.get("success"):  # اینجا درست شده
+                print(f'{g}(alibaba) code sent successfully!{a}')
                 return True
-        print(f'{r}[-] alibaba error: {response.status_code}{a}')
-        return False
-        
+            else:
+                print(f'{r}[-] alibaba failed: {data.get("error", "Unknown error")}{a}')
+                return False
+        else:
+            print(f'{r}[-] alibaba http error: {response.status_code}{a}')
+            return False
+            
     except Exception as e:
         print(f"{r}[!] alibaba exception: {e}{a}")
         return False
+
 
 def mek(phone):
     try:
