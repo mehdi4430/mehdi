@@ -107,9 +107,10 @@ def trip(phone):
 
 def alibaba(phone):
     try:
+        # حذف +98 و همه غیراعداد، و بدون اضافه کردن صفر
         formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
         
-        payload = {"phoneNumber": formatted_phone}
+        payload = {"phoneNumber": formatted_phone}  # بدون صفر اول
         
         headers = {
             "Accept": "application/json, text/plain, */*",
@@ -130,8 +131,8 @@ def alibaba(phone):
         
         if response.status_code == 200:
             data = response.json()
-            if data.get("success"):  # اینجا درست شده
-                print(f'{g}(alibaba) code sent successfully!{a}')
+            if data.get("success"):
+                print(f'{g}(alibaba) code sent to {formatted_phone}{a}')
                 return True
             else:
                 print(f'{r}[-] alibaba failed: {data.get("error", "Unknown error")}{a}')
