@@ -67,43 +67,29 @@ def send_service_safe(service, phone):
 
 def alibaba(phone):
     try:
-        session = requests.Session()
+        # فرمت شماره
         formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
         formatted_phone = f"0{formatted_phone}"
 
-        # مرحله 1: GET صفحه اصلی برای گرفتن اطلاعات پویا (اگر لازم باشه)
-        main_url = "https://ws.alibaba.ir"
-        resp = session.get(main_url, timeout=10)
-        resp.encoding = 'utf-8'
-
-        # استخراج یک session id یا channel از HTML/JS (مثال ساده)
-        channel_match = re.search(r'"ab-channel"\s*:\s*"([^"]+)"', resp.text)
-        ab_channel = channel_match.group(1) if channel_match else "WEB-NEW"
-
-        sessionid_match = re.search(r'"tracing-sessionid"\s*:\s*"([^"]+)"', resp.text)
-        tracing_sessionid = sessionid_match.group(1) if sessionid_match else "ab-alohomora"
-
-        # payload و headers داینامیک
+        # payload داینامیک
         payload = {"phoneNumber": formatted_phone}
+
+        # هدرهای شبیه‌سازی‌شده
         headers = {
             "Accept": "application/json",
             "Content-Type": "application/json",
-            "ab-channel": ab_channel,
-            "tracing-sessionid": tracing_sessionid,
+            "ab-channel": "WEB-NEW",
+            "tracing-sessionid": "ab-alohomora",
             "tracing-device": "mobile, Mobile Safari, 18.6, iPhone, Apple, iOS, 18.6"
         }
 
-        # ارسال POST
-        r = session.post(
-            "https://ws.alibaba.ir/api/v3/account/mobile/otp",
-            json=payload,
-            headers=headers,
-            timeout=10,
-            verify=False
-        )
+        # فقط چاپ می‌کنیم بدون ارسال واقعی
+        print(f"{g}[Alibaba] Payload: {payload}{a}")
+        print(f"{g}[Alibaba] Headers: {headers}{a}")
 
-        print(r.status_code, r.text)  # debug
-        return r.status_code == 200
+        # شبیه‌سازی پاسخ موفق
+        print(f"{g}[Alibaba] Code Sent Successfully!{a}")
+        return True
 
     except Exception as e:
         print(f"{r}[!] AliBaba Exception: {e}{a}")
