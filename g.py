@@ -64,23 +64,12 @@ def send_service_safe(service, phone):
 # توابع سرویس‌ها
 # ==========================
 
-def mek(phone):
-    formatted_phone = format_phone(phone)
-    meU = 'https://www.hamrah-mechanic.com/api/v1/auth/login'
-    meD = {"phoneNumber": formatted_phone}
-    try:
-        r = requests.post(url=meU, data=meD, timeout=5)
-        print(r.status_code, r.text)  # برای debug
-        return r.json().get('isSuccess', False)
-    except Exception as e: 
-        print(f"{r}[!] HamrahMechanic Exception: {e}")
-        return False
-
-
 def alibaba(phone):
-    formatted_phone = format_phone(phone)
-    alibabaD = {"phoneNumber": formatted_phone}
     try:
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        formatted_phone = f"0{formatted_phone}"
+        alibabaD = {"phoneNumber": formatted_phone}
+
         r = requests.post(
             url='https://ws.alibaba.ir/api/v3/account/mobile/otp',
             json=alibabaD,
@@ -89,10 +78,23 @@ def alibaba(phone):
         print(r.status_code, r.text)  # برای debug
         return r.json().get("result", {}).get("success", False)
     except Exception as e:
-        print(f"{r}[!] AliBaba Exception: {e}")
+        print(f'{r}[!] AliBaba Exception: {e}{a}')
         return False
 
 
+def mek(phone):
+    try:
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        formatted_phone = f"0{formatted_phone}"
+        meU = 'https://www.hamrah-mechanic.com/api/v1/auth/login'
+        meD = {"phoneNumber": formatted_phone}
+
+        r = requests.post(url=meU, data=meD, timeout=5)
+        print(r.status_code, r.text)  # برای debug
+        return r.json().get('isSuccess', False)
+    except Exception as e: 
+        print(f'{r}[!] HamrahMechanic Exception: {e}{a}')
+        return False
 
 
 # ==========================
