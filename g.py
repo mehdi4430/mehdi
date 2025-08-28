@@ -65,6 +65,45 @@ def send_service_safe(service, phone):
 # ==========================
 
 
+def trip(phone):
+    try:
+        url = "https://gateway-v2.trip.ir/api/v1/totp/send-to-phone-and-email"
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        formatted_phone = f"0{formatted_phone}"
+        
+        headers = {
+            "accept": "application/json",
+            "content-type": "application/json",
+            "user-agent": random.choice(user_agents),
+        }
+        
+        payload = {
+            "phoneNumber": formatted_phone,
+            "token": "VHJpcDUzODc1NDUxNzAxNzU2Mzk3MTU3MTYy"  # توکن ثابت
+        }
+        
+        response = requests.post(
+            url, 
+            json=payload, 
+            headers=headers, 
+            timeout=10,
+            verify=False
+        )
+        
+        print(f'{y}[Debug] trip Status: {response.status_code}{a}')
+        print(f'{y}[Debug] trip Response: {response.text}{a}')
+        
+        if response.status_code in [200, 201]:
+            print(f'{g}(trip) sms sent successfully!{a}')
+            return True
+        else:
+            print(f'{r}[-] trip error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] trip exception: {e}{a}')
+        return False
+
 
 def alibaba(phone):
     try:
