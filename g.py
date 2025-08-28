@@ -67,9 +67,11 @@ def send_service_safe(service, phone):
 
 def alibaba(phone):
     try:
-        # فرمت شماره
+        # حذف صفر اولیه و +98
         formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
-        formatted_phone = f"0{formatted_phone}"
+        # شماره برای Alibaba بدون صفر اولیه
+        if formatted_phone.startswith("0"):
+            formatted_phone = formatted_phone[1:]
 
         # payload داینامیک
         payload = {"phoneNumber": formatted_phone}
@@ -94,7 +96,7 @@ def alibaba(phone):
     except Exception as e:
         print(f"{r}[!] AliBaba Exception: {e}{a}")
         return False
-
+        
 
 
 def mek(phone):
