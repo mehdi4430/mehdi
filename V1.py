@@ -1471,7 +1471,8 @@ def sibapp(phone):
         print(f'{r}[!] sibapp exception: {e}{a}')
         return False
 
-   ‏def komodaa(phone):
+
+def komodaa(phone):
     try:
         url = "https://api.komodaa.com/api/v2.6/loginrc/request"
         formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
