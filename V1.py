@@ -2101,7 +2101,7 @@ services = [
     bodoroj, candom_shop, Charsooq, dgshahr, digikala,
     DigikalaJet, divar, drnext, elanza, gap,
     ghasedak24, hajamooo, ilozi, katonikhan, katoonistore,
-    Komodaa, Koohshid, mahabadperfume, malltina, mek,
+    komodaa, Koohshid, mahabadperfume, malltina, mek,
     missomister, mo7_ir, mobilex, mootanroo, mrbilit,
     niktakala, Nillarayeshi, Okala, okorosh, paklean_call,
     payonshoes, pindo, ragham_call, riiha, Sandalestan,
