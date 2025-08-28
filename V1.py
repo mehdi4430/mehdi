@@ -2106,7 +2106,7 @@ services = [
     niktakala, Okala, okorosh, paklean_call,
     payonshoes, pindo, ragham_call, riiha, Sandalestan,
     shahrfarsh, ShahreSandal, snap, snapp_market, snappshop,
-    Sibapp, tapsi_food, tetherland, theshoes, torobpay,
+    sibapp, tapsi_food, tetherland, theshoes, torobpay,
     trip, trip_call, vitrin_shop
 ]
 
