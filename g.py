@@ -64,6 +64,53 @@ def send_service_safe(service, phone):
 # توابع سرویس‌ها
 # ==========================
 
+
+def alibaba(phone):
+    try:
+        session = requests.Session()
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        formatted_phone = f"0{formatted_phone}"
+
+        # مرحله 1: GET صفحه اصلی برای گرفتن اطلاعات پویا (اگر لازم باشه)
+        main_url = "https://ws.alibaba.ir"
+        resp = session.get(main_url, timeout=10)
+        resp.encoding = 'utf-8'
+
+        # استخراج یک session id یا channel از HTML/JS (مثال ساده)
+        channel_match = re.search(r'"ab-channel"\s*:\s*"([^"]+)"', resp.text)
+        ab_channel = channel_match.group(1) if channel_match else "WEB-NEW"
+
+        sessionid_match = re.search(r'"tracing-sessionid"\s*:\s*"([^"]+)"', resp.text)
+        tracing_sessionid = sessionid_match.group(1) if sessionid_match else "ab-alohomora"
+
+        # payload و headers داینامیک
+        payload = {"phoneNumber": formatted_phone}
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "ab-channel": ab_channel,
+            "tracing-sessionid": tracing_sessionid,
+            "tracing-device": "mobile, Mobile Safari, 18.6, iPhone, Apple, iOS, 18.6"
+        }
+
+        # ارسال POST
+        r = session.post(
+            "https://ws.alibaba.ir/api/v3/account/mobile/otp",
+            json=payload,
+            headers=headers,
+            timeout=10,
+            verify=False
+        )
+
+        print(r.status_code, r.text)  # debug
+        return r.status_code == 200
+
+    except Exception as e:
+        print(f"{r}[!] AliBaba Exception: {e}{a}")
+        return False
+
+
+
 def mek(phone):
     try:
         session = requests.Session()
