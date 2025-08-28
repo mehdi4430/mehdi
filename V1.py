@@ -2094,22 +2094,24 @@ def banimode(phone):
 # ==========================
 # لیست سرویس‌ها (می‌توانی همه سرویس‌های V4 را اضافه کنی)
 # ==========================
+
 services = [
     achareh, alibaba, alldigitall, alopeyk_safir, angeliran,
-    Balad, banimode, barghman, Besparto, bimebazar,
-    bodoroj, candom_shop, Charsooq, dgshahr, digikala,
-    DigikalaJet, divar, drnext, elanza, gap,
+    balad, banimode, barghman, besparto, bimebazar,
+    bodoroj, candom_shop, charsooq, dgshahr, digikala,
+    digikala_jet, divar, drnext, elanza, gap,
     ghasedak24, hajamooo, ilozi, katonikhan, katoonistore,
-    komodaa, Koohshid, mahabadperfume, malltina, mek,
+    komodaa, koohshid, mahabadperfume, malltina, mek,
     missomister, mo7_ir, mobilex, mootanroo, mrbilit,
-    niktakala, Nillarayeshi, Okala, okorosh, paklean_call,
-    payonshoes, pindo, ragham_call, riiha, Sandalestan,
-    shahrfarsh, ShahreSandal, snap, snapp_market, snappshop,
+    niktakala, nillarayeshi, okala, okorosh, paklean_call,
+    payonshoes, pindo, ragham_call, riiha, sandalestan,
+    shahrfarsh, shahresandal, snap, snapp_market, snappshop,
     sibapp, tapsi_food, tetherland, theshoes, torobpay,
     trip, trip_call, vitrin_shop
 ]
 
-          
+
+
 # ==========================
 # تابع VIP مولتی‌تردینگ
 # ==========================
