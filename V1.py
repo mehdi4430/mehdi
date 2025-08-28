@@ -1435,7 +1435,9 @@ def bimebazar(phone):
         print(f'{r}[!] Bimebazar Exception: {e}{a}')
         return False
 
-‏def sibapp(phone):
+def sibapp(phone):
+
+    
 ‏    try:
 ‏        url = "https://api.sibapp.net/api/v1/user/register"
 ‏        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
