@@ -265,7 +265,7 @@ def snapp(phone):
 # ==========================
 # لیست سرویس‌ها
 # ==========================
-services = [alibaba, mek, trip, snapp]
+services = [alibaba, mek, trip, otaghak, snapp]
 
 # ==========================
 # تابع VIP مولتی‌تردینگ
