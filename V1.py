@@ -2261,12 +2261,11 @@ services = [
     ghasedak24, hajamooo, ilozi, katonikhan, katoonistore,
     komodaa, Koohshid, mahabadperfume, malltina, mek,
     missomister, mo7_ir, mobilex, mootanroo, mrbilit,
-    niktakala, Nillarayeshi, Okala, okorosh, otaghak,
-    paklean_call, payonshoes, pindo, ragham_call, riiha,
-    Sandalestan, shahrfarsh, ShahreSandal, snap, snapp_market,
-    snappshop, sibapp, tapsi, tapsi_food, tetherland,
-    theshoes, torobpay, trip, trip_call, virgool,
-    vitrin_shop
+    niktakala, Okala, okorosh, otaghak, paklean_call,
+    payonshoes, pindo, ragham_call, riiha, Sandalestan,
+    shahrfarsh, ShahreSandal, snap, snapp_market, snappshop,
+    sibapp, tapsi, tapsi_food, tetherland, theshoes,
+    torobpay, trip, trip_call, virgool, vitrin_shop
 ]
 
 
