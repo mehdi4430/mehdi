@@ -2103,7 +2103,7 @@ services = [
     ghasedak24, hajamooo, ilozi, katonikhan, katoonistore,
     komodaa, Koohshid, mahabadperfume, malltina, mek,
     missomister, mo7_ir, mobilex, mootanroo, mrbilit,
-    niktakala, Nillarayeshi, Okala, okorosh, paklean_call,
+    niktakala, Okala, okorosh, paklean_call,
     payonshoes, pindo, ragham_call, riiha, Sandalestan,
     shahrfarsh, ShahreSandal, snap, snapp_market, snappshop,
     Sibapp, tapsi_food, tetherland, theshoes, torobpay,
