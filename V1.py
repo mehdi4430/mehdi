@@ -1436,42 +1436,40 @@ def bimebazar(phone):
         return False
 
 def sibapp(phone):
-
-    
-‏    try:
-‏        url = "https://api.sibapp.net/api/v1/user/register"
-‏        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
-‏        formatted_phone = f"0{formatted_phone}"
+    try:
+        url = "https://api.sibapp.net/api/v1/user/register"
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        formatted_phone = f"0{formatted_phone}"
         
-‏        headers = {
-‏            "accept": "application/json, text/plain, */*",
-‏            "content-type": "application/json; charset=UTF-8",
-‏            "cache-control": "no-cache",
-‏            "user-agent": random.choice(user_agents),
+        headers = {
+            "accept": "application/json, text/plain, */*",
+            "content-type": "application/json; charset=UTF-8",
+            "cache-control": "no-cache",
+            "user-agent": random.choice(user_agents),
         }
         
-‏        payload = {
-‏            "phone_number": formatted_phone
+        payload = {
+            "phone_number": formatted_phone
         }
         
-‏        response = requests.post(
-‏            url, 
-‏            json=payload, 
-‏            headers=headers, 
-‏            timeout=10,
-‏            verify=False
+        response = requests.post(
+            url, 
+            json=payload, 
+            headers=headers, 
+            timeout=10,
+            verify=False
         )
         
-‏        if response.status_code in [200, 201]:
-‏            print(f'{g}(sibapp) sms sent successfully!{a}')
-‏            return True
-‏        else:
-‏            print(f'{r}[-] sibapp error: {response.status_code}{a}')
-‏            return False
+        if response.status_code in [200, 201]:
+            print(f'{g}(sibapp) sms sent successfully!{a}')
+            return True
+        else:
+            print(f'{r}[-] sibapp error: {response.status_code}{a}')
+            return False
             
-‏    except Exception as e:
-‏        print(f'{r}[!] sibapp exception: {e}{a}')
-‏        return False
+    except Exception as e:
+        print(f'{r}[!] sibapp exception: {e}{a}')
+        return False
 
 ‏def komodaa(phone):
 ‏    try:
