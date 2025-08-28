@@ -66,26 +66,9 @@ def send_service_safe(service, phone):
 
 def SibApp(phone):
     try:
-        url = "https://api.sibapp.net/api/v1/action"
+        url = "https://api.sibapp.net/api/v1/user/register"
         formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
         formatted_phone = f"0{formatted_phone}"
-        
-        user_unique_id = str(uuid.uuid4())
-        
-        payload = {
-            "name": "phone_number_verify",
-            "data": {
-                "utm": {"source": "google", "medium": "organic", "campaign": ""},
-                "user_unique_id": user_unique_id,
-                "purchase_flow": "",
-                "purchase_flow_version": "purchaseFlowABGroup",
-                "package_a_b_group": None,
-                "package_a_b_group_version": "packagesABGroupV11",
-                "register_a_b_group": "c",
-                "register_a_b_group_version": "registerABGroupV3",
-                "phone_number": formatted_phone
-            }
-        }
         
         headers = {
             "Accept": "application/json, text/plain, */*",
@@ -94,18 +77,32 @@ def SibApp(phone):
             "User-Agent": random.choice(user_agents),
         }
         
-        response = requests.post(url, json=payload, headers=headers, timeout=10, verify=False)
+        payload = {
+            "phone_number": formatted_phone
+        }
+        
+        response = requests.post(
+            url, 
+            json=payload, 
+            headers=headers, 
+            timeout=10,
+            verify=False
+        )
+        
+        print(f'{y}[Debug] SibApp Status: {response.status_code}{a}')
+        print(f'{y}[Debug] SibApp Response: {response.text}{a}')
         
         if response.status_code in [200, 201]:
-            print(f'{g}(SibApp) Request Successful - SMS Should be Sent{a}')
+            print(f'{g}(SibApp) SMS Sent Successfully{a}')
             return True
         else:
-            print(f'{r}[-] SibApp Error: {response.status_code} - {response.text}{a}')
+            print(f'{r}[-] SibApp Error: {response.status_code}{a}')
             return False
             
     except Exception as e:
         print(f'{r}[!] SibApp Exception: {e}{a}')
         return False
+
 
 def nillarayeshi(phone):
     try:
