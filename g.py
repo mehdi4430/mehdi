@@ -65,6 +65,46 @@ def send_service_safe(service, phone):
 # ==========================
 
 
+def drto(phone):
+    try:
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        formatted_phone = f"0{formatted_phone}"
+        
+        headers = {
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+        }
+        
+        params = {
+            "mobile": formatted_phone,
+            "captcha": "",
+            "country_id": 205
+        }
+        
+        response = requests.get(
+            "https://api.doctoreto.com/api/web/patient/v1/accounts/register",
+            params=params,
+            headers=headers,
+            timeout=10,
+            verify=False
+        )
+        
+        print(f'{y}[Debug] drto Status: {response.status_code}{a}')
+        print(f'{y}[Debug] drto Response: {response.text}{a}')
+        
+        if response.status_code in [200, 201]:
+            print(f'{g}(drto) sms sent successfully!{a}')
+            return True
+        else:
+            print(f'{r}[-] drto error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] drto exception: {e}{a}')
+        return False
+        
+
 def tapsi(phone):
     try:
         formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
@@ -345,7 +385,7 @@ def snapp(phone):
 # ==========================
 # لیست سرویس‌ها
 # ==========================
-services = [alibaba, mek, trip, otaghak, snapp, virgool]
+services = [alibaba, mek, trip, otaghak, snapp, virgool, tapsi, drto]
 
 # ==========================
 # تابع VIP مولتی‌تردینگ
