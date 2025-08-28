@@ -109,7 +109,7 @@ def nillarayeshi(phone):
         session = requests.Session()
         formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
         
-        # استفاده از مقادیر جدید از اطلاعاتی که فرستادید
+        # استفاده از مقادیر جدید
         csrf = "34baf6a4f4"
         nonce = "34baf6a4f4"
         
@@ -126,7 +126,7 @@ def nillarayeshi(phone):
             "digits": "1",
             "json": "1",
             "whatsapp": "0",
-            "digits_reg_name": "نام",
+            "digits_reg_name": "name1234",  # تغییر به name1234
             "digregcode": "+98",
             "digits_reg_mail": formatted_phone,
             "digregscode2": "+98",
@@ -155,20 +155,20 @@ def nillarayeshi(phone):
             verify=False
         )
         
-        print(f'{y}[Debug] nillarayeshi Status: {response.status_code}{a}')
-        print(f'{y}[Debug] nillarayeshi Response: {response.text}{a}')
-        
         if response.status_code == 200:
-            print(f'{g}(nillarayeshi) SMS Sent Successfully{a}')
-            return True
+            if "code" in response.text:
+                print(f'{g}(nillarayeshi) SMS Sent Successfully!{a}')
+                return True
+            else:
+                print(f'{r}[-] nillarayeshi Error: {response.text}{a}')
+                return False
         else:
-            print(f'{r}[-] nillarayeshi Error: {response.status_code}{a}')
+            print(f'{r}[-] nillarayeshi HTTP Error: {response.status_code}{a}')
             return False
             
     except Exception as e:
         print(f"{r}[!] nillarayeshi Exception: {e}{a}")
         return False
-
 
 # ==========================
 # لیست سرویس‌ها
