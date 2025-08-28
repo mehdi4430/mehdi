@@ -65,6 +65,47 @@ def send_service_safe(service, phone):
 # ==========================
 
 
+def tapsi(phone):
+    try:
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        formatted_phone = f"0{formatted_phone}"
+        
+        headers = {
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+        }
+        
+        payload = {
+            "credential": {
+                "phoneNumber": formatted_phone,
+                "role": "PASSENGER"
+            }
+        }
+        
+        response = requests.post(
+            "https://tap33.me/api/v2/user",
+            json=payload,
+            headers=headers,
+            timeout=10,
+            verify=False
+        )
+        
+        print(f'{y}[Debug] tapsi Status: {response.status_code}{a}')
+        print(f'{y}[Debug] tapsi Response: {response.text}{a}')
+        
+        if response.status_code in [200, 201]:
+            print(f'{g}(tapsi) sms sent successfully!{a}')
+            return True
+        else:
+            print(f'{r}[-] tapsi error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] tapsi exception: {e}{a}')
+        return False
+        
+
 def virgool(phone):
     try:
         formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
