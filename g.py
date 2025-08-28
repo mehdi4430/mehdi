@@ -184,6 +184,45 @@ def mek(phone):
     except Exception as e:
         print(f'{r}[!] HamrahMechanic Exception: {e}{a}')
         return False
+
+
+def snapp(phone):
+    try:
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        
+        headers = {
+            "accept": "application/json",
+            "content-type": "application/json",
+            "user-agent": random.choice(user_agents),
+        }
+        
+        payload = {
+            "cellphone": f"+98{formatted_phone}"
+        }
+        
+        response = requests.post(
+            "https://app.snapp.taxi/api/api-passenger-oauth/v2/otp",
+            json=payload,
+            headers=headers,
+            timeout=10,
+            verify=False
+        )
+        
+        print(f'{y}[Debug] snapp Status: {response.status_code}{a}')
+        print(f'{y}[Debug] snapp Response: {response.text}{a}')
+        
+        if response.status_code in [200, 201]:
+            print(f'{g}(snapp) sms sent successfully!{a}')
+            return True
+        else:
+            print(f'{r}[-] snapp error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] snapp exception: {e}{a}')
+        return False
+
+
 # ==========================
 # لیست سرویس‌ها
 # ==========================
