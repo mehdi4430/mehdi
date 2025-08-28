@@ -103,6 +103,11 @@ def SibApp(phone):
         print(f'{r}[!] SibApp Exception: {e}{a}')
         return False
 
+import httpx
+
+# تعریف کلاینت با DNS سفارشی
+client = httpx.Client(dns="8.8.8.8")  # DNS گوگل
+
 
 def nillarayeshi(phone):
     try:
