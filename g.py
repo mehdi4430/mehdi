@@ -191,9 +191,9 @@ def snapp(phone):
         formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
         
         headers = {
-            "accept": "application/json",
-            "content-type": "application/json",
-            "user-agent": random.choice(user_agents),
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+            "Accept": "application/json",
+            "Content-Type": "application/json"
         }
         
         payload = {
