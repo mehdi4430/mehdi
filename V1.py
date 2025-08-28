@@ -1471,43 +1471,43 @@ def sibapp(phone):
         print(f'{r}[!] sibapp exception: {e}{a}')
         return False
 
-‏def komodaa(phone):
-‏    try:
-‏        url = "https://api.komodaa.com/api/v2.6/loginrc/request"
-‏        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
-‏        formatted_phone = f"0{formatted_phone}"
+   ‏def komodaa(phone):
+    try:
+        url = "https://api.komodaa.com/api/v2.6/loginrc/request"
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        formatted_phone = f"0{formatted_phone}"
         
-‏        headers = {
-‏            "accept": "application/json",
-‏            "content-type": "application/json",
-‏            "web-user-agent": "komodaa/7.0.1.301 mozilla/5.0 (iphone; cpu iphone os 18_6 like mac os x) applewebkit/605.1.15 (khtml, like gecko) version/18.6 mobile/15e148 safari/604.1",
-‏            "install-ref": "web",
-‏            "k-session-id": f"{uuid.uuid4().hex}-{uuid.uuid4().hex[:12]}",
-‏            "user-agent": "mozilla/5.0 (iphone; cpu iphone os 18_6 like mac os x) applewebkit/605.1.15 (khtml, like gecko) version/18.6 mobile/15e148 safari/604.1"
+        headers = {
+            "accept": "application/json",
+            "content-type": "application/json",
+            "web-user-agent": "komodaa/7.0.1.301 Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1",
+            "install-ref": "WEB",
+            "k-session-id": f"{uuid.uuid4().hex}-{uuid.uuid4().hex[:12]}",
+            "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1"
         }
         
-‏        payload = {
-‏            "phone_number": formatted_phone
+        payload = {
+            "phone_number": formatted_phone
         }
         
-‏        response = requests.post(
-‏            url, 
-‏            json=payload, 
-‏            headers=headers, 
-‏            timeout=10,
-‏            verify=False
+        response = requests.post(
+            url, 
+            json=payload, 
+            headers=headers, 
+            timeout=10,
+            verify=False
         )
         
-‏        if response.status_code in [200, 201]:
-‏            print(f'{g}(komodaa) sms sent successfully!{a}')
-‏            return True
-‏        else:
-‏            print(f'{r}[-] komodaa error: {response.status_code}{a}')
-‏            return False
+        if response.status_code in [200, 201]:
+            print(f'{g}(komodaa) SMS sent successfully!{a}')
+            return True
+        else:
+            print(f'{r}[-] komodaa error: {response.status_code}{a}')
+            return False
             
-‏    except Exception as e:
-‏        print(f'{r}[!] komodaa exception: {e}{a}')
-‏        return False
+    except Exception as e:
+        print(f'{r}[!] komodaa exception: {e}{a}')
+        return False
 
  
 def alopeyk_safir(phone):
