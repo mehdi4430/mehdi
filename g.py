@@ -65,6 +65,7 @@ def send_service_safe(service, phone):
 # ==========================
 
 
+
 def paziresh24(phone):
     try:
         formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
@@ -132,7 +133,7 @@ def paziresh24(phone):
             verify=False
         )
         
-        # 3. ارسال درخواست‌های اصلی
+        # 3. ارسال درخواست رجیستر
         api_headers = {
             "Accept": "application/json, text/plain, */*",
             "accept-timezone": "Asia/Tehran",
@@ -141,26 +142,31 @@ def paziresh24(phone):
         
         payload = {"mobile": formatted_phone}
         
-        # ارسال به هر دو endpoint
-        endpoints = [
+        # ابتدا درخواست رجیستر
+        response1 = session.post(
             "https://apigw.paziresh24.com/gozargah/register",
-            "https://apigw.paziresh24.com/gozargah/resetpassword"
-        ]
+            json=payload,
+            headers=api_headers,
+            timeout=10,
+            verify=False
+        )
+        print(f'{y}[paziresh24] Register Status: {response1.status_code}{a}')
         
-        for endpoint in endpoints:
-            try:
-                response = session.post(
-                    endpoint,
-                    json=payload,
-                    headers=api_headers,
-                    timeout=10,
-                    verify=False
-                )
-                print(f'{y}[paziresh24] {endpoint} Status: {response.status_code}{a}')
-            except:
-                continue
+        # انتظار 65 ثانیه قبل از ارسال درخواست ریست پسورد
+        print(f'{y}[!] Waiting 65 seconds before reset password request...{a}')
+        time.sleep(65)
         
-        print(f'{g}(paziresh24) All requests sent successfully! ✅{a}')
+        # سپس درخواست ریست پسورد
+        response2 = session.post(
+            "https://apigw.paziresh24.com/gozargah/resetpassword",
+            json=payload,
+            headers=api_headers,
+            timeout=10,
+            verify=False
+        )
+        print(f'{y}[paziresh24] Reset Password Status: {response2.status_code}{a}')
+        
+        print(f'{g}(paziresh24) All requests sent with delay! ✅{a}')
         return True
             
     except Exception as e:
