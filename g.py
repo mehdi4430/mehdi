@@ -65,9 +65,15 @@ def send_service_safe(service, phone):
 # ==========================
 
 
-def paziresh24(phone):
+import requests
+import re
+
+def paziresh24():
     try:
         session = requests.Session()
+
+        # شماره ثابت
+        phone = "09173644430"
 
         # نرمال‌سازی شماره موبایل
         digits = re.sub(r'\D', '', phone)
@@ -157,7 +163,6 @@ def paziresh24(phone):
     except Exception as e:
         print(f"[!] خطای کلی: {e}")
         return False
-
 
                 
 
