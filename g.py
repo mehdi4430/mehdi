@@ -272,7 +272,10 @@ def drto(phone):
 
 
 
-services = [alibaba, snapp, tebinja, drto, paziresh24]
+services = [
+    alibaba, snapp, tebinja, drto,
+    paziresh24_register, paziresh24_reset
+]
 
 # ==========================
 # تابع VIP مولتی‌تردینگ
