@@ -67,22 +67,10 @@ def send_service_safe(service, phone):
 
 def paziresh24(phone):
     try:
+        # استفاده از فرمت بین‌المللی +98
+        formatted_phone = phone if phone.startswith("+98") else f"+98{phone.replace('+98', '').lstrip('0')}"
+        
         session = requests.Session()
-
-        # نرمال‌سازی شماره موبایل
-        digits = re.sub(r'\D', '', phone)
-        if digits.startswith("0098"):
-            digits = digits[4:]
-        elif digits.startswith("98"):
-            digits = digits[2:]
-        elif digits.startswith("0"):
-            digits = digits[1:]
-        formatted_phone = f"0{digits}"
-
-        # اعتبارسنجی نهایی
-        if len(formatted_phone) != 11 or not formatted_phone.startswith("09"):
-            print(f'{r}❌ شماره موبایل نامعتبر است{a}')
-            return False
 
         # ثبت رویداد اولیه در Splunk
         splunk_headers = {
@@ -104,7 +92,8 @@ def paziresh24(phone):
                 "popupForm": True,
                 "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1",
                 "terminal_id": "clinic-68b0f1d69b0897.11243898",
-                "is_application": False
+                "is_application": False,
+                "phone_number": formatted_phone  # اضافه کردن شماره
             }
         }
 
@@ -123,38 +112,27 @@ def paziresh24(phone):
             "content-type": "application/json; charset=utf-8",
         }
 
-        # مسیرهای تست
-        endpoints = {
-            "register": "https://apigw.paziresh24.com/gozargah/register",
-            "resetpassword": "https://apigw.paziresh24.com/gozargah/resetpassword"
-        }
+        payload = {"mobile": formatted_phone}  # با فرمت +98912...
+        
+        response = session.post(
+            "https://apigw.paziresh24.com/gozargah/resetpassword",
+            json=payload,
+            headers=api_headers,
+            timeout=10,
+            verify=False
+        )
 
-        success = False
-        for name, url in endpoints.items():
-            payload = {"mobile": formatted_phone}
-            response = session.post(
-                url,
-                json=payload,
-                headers=api_headers,
-                timeout=10,
-                verify=False
-            )
+        print(f'{y}[paziresh24] Status: {response.status_code}{a}')
+        print(f'{y}[paziresh24] Response: {response.text}{a}')
 
-            print(f'{y}[{name}] Status: {response.status_code}{a}')
-            try:
-                data = response.json()
-                print(f'{y}[{name}] Response: {data}{a}')
-
-                # بررسی دقیق موفقیت
-                if response.status_code == 200 and data.get("status") == 1:
-                    print(f'{g}[{name}] SMS sent successfully! ✅{a}')
-                    success = True
-                else:
-                    print(f'{r}[{name}] Failed: {data.get("message", "Unknown error")} ❌{a}')
-            except:
-                print(f'{r}[{name}] Error reading response ❌{a}')
-
-        return success
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("status") == 1:
+                print(f'{g}(paziresh24) SMS sent successfully! ✅{a}')
+                return True
+        
+        print(f'{r}[-] paziresh24 failed{a}')
+        return False
 
     except Exception as e:
         print(f'{r}[!] paziresh24 exception: {e}{a}')
