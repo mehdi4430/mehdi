@@ -451,7 +451,7 @@ def drto(phone):
 
 
 
-services = [alibaba, snapp, tebinja, drto, masterkala, harikashop, pinket]
+services = [alibaba, snapp, tebinja, drto, masterkala, harikashop, pinket, sibbank, dastakht]
 
 # ==========================
 # تابع VIP مولتی‌تردینگ
