@@ -66,54 +66,45 @@ def send_service_safe(service, phone):
 
 def paziresh24(phone):
     try:
+        # پردازش شماره موبایل
         formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
         formatted_phone = f"0{formatted_phone}"
         
+        # ارسال به API بازیابی رمز
         headers = {
-            "Authorization": "Splunk cd46b97e-bf0d-46e4-ba7e-111c2f88291f",
-            "Content-Type": "application/json",
-            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1"
+            "Accept": "application/json, text/plain, */*",
+            "accept-timezone": "Asia/Tehran",
+            "content-type": "application/json; charset=utf-8",
+            "User-Agent": random.choice(user_agents),
+            "Referer": "https://www.paziresh24.com/",
         }
         
         payload = {
-            "sourcetype": "_json",
-            "event": {
-                "event_group": "legacy-login-steps",
-                "event_type": "submit-mobile-number",
-                "url": {
-                    "href": "https://www.paziresh24.com/patient/",
-                    "query": "",
-                    "pathname": "/patient/",
-                    "host": "www.paziresh24.com"
-                },
-                "popupForm": True,
-                "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1",
-                "terminal_id": "clinic-68b0f1d69b0897.11243898",
-                "is_application": False,
-                "phone_number": formatted_phone  # اضافه کردن شماره تلفن
-            }
+            "mobile": formatted_phone
         }
         
         response = requests.post(
-            "https://gozargah-splunk.paziresh24.com/services/collector",
+            "https://apigw.paziresh24.com/gozargah/resetpassword",
             json=payload,
             headers=headers,
             timeout=10,
             verify=False
         )
         
-        print(f'{y}[Debug] paziresh24 Status: {response.status_code}{a}')
+        print(f"paziresh24 Status: {response.status_code}")
+        print(f"paziresh24 Response: {response.text}")
         
         if response.status_code == 200:
-            print(f'{g}(paziresh24) log event sent successfully!{a}')
+            print("(paziresh24) reset password request sent!")
             return True
         else:
-            print(f'{r}[-] paziresh24 error: {response.status_code}{a}')
+            print(f"paziresh24 error: {response.status_code}")
             return False
             
     except Exception as e:
-        print(f'{r}[!] paziresh24 exception: {e}{a}')
+        print(f"paziresh24 exception: {e}")
         return False
+        
         
 
 def tebinja(phone):
