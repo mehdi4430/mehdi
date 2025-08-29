@@ -78,6 +78,8 @@ def paziresh24(phone):
         elif digits.startswith("0"):
             digits = digits[1:]
         formatted_phone = f"0{digits}"
+
+        # اعتبارسنجی نهایی
         if len(formatted_phone) != 11 or not formatted_phone.startswith("09"):
             print("❌ شماره موبایل نامعتبر است")
             return False
@@ -141,10 +143,12 @@ def paziresh24(phone):
             try:
                 data = response.json()
                 print(f"[{name}] Response: {data}")
-                if data.get("code") == 0 or data.get("status") == 0:
+
+                # بررسی دقیق موفقیت
+                if data.get("code") == 0 and "Success" in data.get("text", ""):
                     print(f"[{name}] پیامک با موفقیت ارسال شد ✅")
                 else:
-                    print(f"[{name}] ارسال پیامک ناموفق ❌")
+                    print(f"[{name}] ارسال پیامک ناموفق ❌ - {data.get('message')}")
             except Exception as e:
                 print(f"[{name}] خطا در خواندن پاسخ: {e}")
 
