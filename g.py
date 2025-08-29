@@ -66,8 +66,8 @@ def send_service_safe(service, phone):
 
 def paziresh24(phone):
     try:
-        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
-        formatted_phone = f"0{formatted_phone}"
+        # استفاده از فرمت +98 برای پذیرش 24
+        formatted_phone = phone if phone.startswith("+98") else f"+98{phone.replace('+98', '').lstrip('0')}"
         
         headers = {
             "Accept": "application/json, text/plain, */*",
@@ -77,7 +77,7 @@ def paziresh24(phone):
         }
         
         payload = {
-            "mobile": formatted_phone
+            "mobile": formatted_phone  # با فرمت +989123456789
         }
         
         response = requests.post(
@@ -91,17 +91,23 @@ def paziresh24(phone):
         print(f'{y}[Debug] paziresh24 Status: {response.status_code}{a}')
         print(f'{y}[Debug] paziresh24 Response: {response.text}{a}')
         
-        if response.status_code in [200, 201]:
-            print(f'{g}(paziresh24) sms sent successfully!{a}')
-            return True
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("status") == 1:  # بررسی status به جای کد وضعیت
+                print(f'{g}(paziresh24) sms sent successfully!{a}')
+                return True
+            else:
+                print(f'{r}[-] paziresh24 failed: {data.get("message", "Unknown error")}{a}')
+                return False
         else:
-            print(f'{r}[-] paziresh24 error: {response.status_code}{a}')
+            print(f'{r}[-] paziresh24 http error: {response.status_code}{a}')
             return False
             
     except Exception as e:
         print(f'{r}[!] paziresh24 exception: {e}{a}')
         return False
         
+
 
 def tebinja(phone):
     try:
