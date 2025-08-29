@@ -70,10 +70,9 @@ def paziresh24(phone):
         formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
         formatted_phone = f"0{formatted_phone}"
         
-        # استفاده از session برای حفظ cookies
         session = requests.Session()
         
-        # اول صفحه اصلی رو بگیریم
+        # دریافت صفحه اصلی برای گرفتن cookies
         session.get("https://www.paziresh24.com/", timeout=10)
         
         headers = {
@@ -84,28 +83,38 @@ def paziresh24(phone):
             "Referer": "https://www.paziresh24.com/patient/"
         }
         
-        payload = {
-            "username": formatted_phone,  # استفاده از username به جای mobile
-            "grant_type": "otp"
-        }
+        # چندین endpoint ممکن را امتحان می‌کنیم
+        endpoints = [
+            "https://www.paziresh24.com/api/v1/auth/send-otp",
+            "https://api.paziresh24.com/v1/auth/send-otp", 
+            "https://apigw.paziresh24.com/gozargah/send-otp",
+            "https://www.paziresh24.com/patient/api/send-otp"
+        ]
         
-        response = session.post(
-            "https://www.paziresh24.com/api/v1/auth/otp",
-            json=payload,
-            headers=headers,
-            timeout=10,
-            verify=False
-        )
+        payload = {"mobile": formatted_phone}
         
-        print(f'{y}[paziresh24] Status: {response.status_code}{a}')
-        print(f'{y}[paziresh24] Response: {response.text}{a}')
+        for endpoint in endpoints:
+            try:
+                response = session.post(
+                    endpoint,
+                    json=payload,
+                    headers=headers,
+                    timeout=10,
+                    verify=False
+                )
+                
+                print(f'{y}[paziresh24] {endpoint} Status: {response.status_code}{a}')
+                
+                if response.status_code == 200:
+                    print(f'{g}(paziresh24) SMS sent successfully! ✅{a}')
+                    return True
+                    
+            except Exception as e:
+                print(f'{r}[!] Error with {endpoint}: {e}{a}')
+                continue
         
-        if response.status_code == 200:
-            print(f'{g}(paziresh24) SMS sent successfully! ✅{a}')
-            return True
-        else:
-            print(f'{r}[-] paziresh24 error: {response.status_code}{a}')
-            return False
+        print(f'{r}[-] paziresh24: All endpoints failed{a}')
+        return False
             
     except Exception as e:
         print(f'{r}[!] paziresh24 exception: {e}{a}')
