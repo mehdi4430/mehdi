@@ -64,6 +64,55 @@ def send_service_safe(service, phone):
 # توابع سرویس‌ها
 # ==========================
 
+
+def sibbank(phone):
+    try:
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        formatted_phone = f"0{formatted_phone}"
+        
+        headers = {
+            'accept': 'application/json, text/plain, */*',
+            'accept-encoding': 'gzip, deflate, br',
+            'accept-language': 'en-US,en;q=0.5',
+            'connection': 'keep-alive',
+            'content-type': 'application/json',
+            'host': 'api.sibbank.ir',
+            'origin': 'https://sibbank.ir',
+            'referer': 'https://sibbank.ir/',
+            'sec-fetch-dest': 'empty',
+            'sec-fetch-mode': 'cors',
+            'sec-fetch-site': 'same-site',
+            'TE': 'trailers',
+            'user-agent': "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+        }
+        
+        payload = {
+            "phone_number": formatted_phone
+        }
+        
+        response = requests.post(
+            "https://api.sibbank.ir/v1/auth/login",
+            json=payload,
+            headers=headers,
+            timeout=10,
+            verify=False
+        )
+        
+        print(f'{y}[sibbank] Status: {response.status_code}{a}')
+        print(f'{y}[sibbank] Response: {response.text}{a}')
+        
+        if response.status_code in [200, 201]:
+            print(f'{g}(sibbank) OTP sent successfully! ✅{a}')
+            return True
+        else:
+            print(f'{r}[-] sibbank error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] sibbank exception: {e}{a}')
+        return False
+
+
 def pinket(phone):
     try:
         formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
