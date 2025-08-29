@@ -273,8 +273,7 @@ def drto(phone):
 
 
 services = [
-    alibaba, snapp, tebinja, drto,
-    paziresh24_register, paziresh24_reset
+    alibaba, snapp, tebinja, drto, paziresh24
 ]
 
 # ==========================
