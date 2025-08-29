@@ -112,6 +112,44 @@ def sibbank(phone):
         print(f'{r}[!] sibbank exception: {e}{a}')
         return False
 
+def dastakht(phone):
+    try:
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        
+        headers = {
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1",
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+        }
+        
+        payload = {
+            "mobile": formatted_phone,
+            "countryCode": 98,
+            "device_os": 2
+        }
+        
+        response = requests.post(
+            "https://dastkhat-isad.ir/api/v1/user/store",
+            json=payload,
+            headers=headers,
+            timeout=10,
+            verify=False
+        )
+        
+        print(f'{y}[dastakht] Status: {response.status_code}{a}')
+        print(f'{y}[dastakht] Response: {response.text}{a}')
+        
+        if response.status_code in [200, 201]:
+            print(f'{g}(dastakht) OTP sent successfully! ✅{a}')
+            return True
+        else:
+            print(f'{r}[-] dastakht error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] dastakht exception: {e}{a}')
+        return False
+        
 
 def pinket(phone):
     try:
