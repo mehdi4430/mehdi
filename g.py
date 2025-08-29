@@ -72,8 +72,19 @@ def paziresh24(phone):
         
         session = requests.Session()
         
-        # دریافت صفحه اصلی برای گرفتن cookies
-        session.get("https://www.paziresh24.com/", timeout=10)
+        # اول صفحه لاگین رو بگیریم
+        login_page = session.get(
+            "https://www.paziresh24.com/patient/", 
+            headers={"User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1"},
+            timeout=10
+        )
+        
+        # پیدا کردن endpoint از صفحه لاگین
+        endpoint_match = re.search(r'api.*send.*otp', login_page.text, re.IGNORECASE)
+        if endpoint_match:
+            endpoint = endpoint_match.group(0)
+        else:
+            endpoint = "https://www.paziresh24.com/api/v1/auth/send-otp"
         
         headers = {
             "Accept": "application/json, text/plain, */*",
@@ -83,38 +94,25 @@ def paziresh24(phone):
             "Referer": "https://www.paziresh24.com/patient/"
         }
         
-        # چندین endpoint ممکن را امتحان می‌کنیم
-        endpoints = [
-            "https://www.paziresh24.com/api/v1/auth/send-otp",
-            "https://api.paziresh24.com/v1/auth/send-otp", 
-            "https://apigw.paziresh24.com/gozargah/send-otp",
-            "https://www.paziresh24.com/patient/api/send-otp"
-        ]
-        
         payload = {"mobile": formatted_phone}
         
-        for endpoint in endpoints:
-            try:
-                response = session.post(
-                    endpoint,
-                    json=payload,
-                    headers=headers,
-                    timeout=10,
-                    verify=False
-                )
-                
-                print(f'{y}[paziresh24] {endpoint} Status: {response.status_code}{a}')
-                
-                if response.status_code == 200:
-                    print(f'{g}(paziresh24) SMS sent successfully! ✅{a}')
-                    return True
-                    
-            except Exception as e:
-                print(f'{r}[!] Error with {endpoint}: {e}{a}')
-                continue
+        response = session.post(
+            endpoint,
+            json=payload,
+            headers=headers,
+            timeout=10,
+            verify=False
+        )
         
-        print(f'{r}[-] paziresh24: All endpoints failed{a}')
-        return False
+        print(f'{y}[paziresh24] Status: {response.status_code}{a}')
+        print(f'{y}[paziresh24] Response: {response.text}{a}')
+        
+        if response.status_code == 200:
+            print(f'{g}(paziresh24) Request sent! ✅{a}')
+            return True
+        else:
+            print(f'{r}[-] paziresh24 error: {response.status_code}{a}')
+            return False
             
     except Exception as e:
         print(f'{r}[!] paziresh24 exception: {e}{a}')
