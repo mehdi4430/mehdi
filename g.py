@@ -67,10 +67,10 @@ def send_service_safe(service, phone):
 
 def paziresh24(phone):
     try:
+        # استفاده از فرمت 09123456789
         formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
         formatted_phone = f"0{formatted_phone}"
         
-        # استفاده از endpoint مستقیم ارسال OTP
         headers = {
             "Accept": "application/json, text/plain, */*",
             "Content-Type": "application/json",
@@ -78,7 +78,7 @@ def paziresh24(phone):
         }
         
         payload = {
-            "mobile": formatted_phone,
+            "mobile": formatted_phone,  # با فرمت 09123456789
             "captcha": "",
             "captcha_answer": ""
         }
@@ -99,9 +99,12 @@ def paziresh24(phone):
             if data.get("success"):
                 print(f'{g}(paziresh24) SMS sent successfully! ✅{a}')
                 return True
-        
-        print(f'{r}[-] paziresh24 failed{a}')
-        return False
+            else:
+                print(f'{r}[-] paziresh24 failed: {data.get("message", "Unknown error")}{a}')
+                return False
+        else:
+            print(f'{r}[-] paziresh24 http error: {response.status_code}{a}')
+            return False
             
     except Exception as e:
         print(f'{r}[!] paziresh24 exception: {e}{a}')
