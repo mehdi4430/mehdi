@@ -69,10 +69,18 @@ def paziresh24(phone):
     try:
         session = requests.Session()
 
-        # فرمت کردن شماره موبایل
-        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
-        if not formatted_phone.startswith("0"):
-            formatted_phone = f"0{formatted_phone}"
+        # نرمال‌سازی شماره موبایل
+        digits = re.sub(r'\D', '', phone)
+        if digits.startswith("0098"):
+            digits = digits[4:]
+        elif digits.startswith("98"):
+            digits = digits[2:]
+        elif digits.startswith("0"):
+            digits = digits[1:]
+        formatted_phone = f"0{digits}"
+        if len(formatted_phone) != 11 or not formatted_phone.startswith("09"):
+            print("❌ شماره موبایل نامعتبر است")
+            return False
 
         # ثبت رویداد اولیه در Splunk
         splunk_headers = {
@@ -133,7 +141,7 @@ def paziresh24(phone):
             try:
                 data = response.json()
                 print(f"[{name}] Response: {data}")
-                if data.get("code") == 0:
+                if data.get("code") == 0 or data.get("status") == 0:
                     print(f"[{name}] پیامک با موفقیت ارسال شد ✅")
                 else:
                     print(f"[{name}] ارسال پیامک ناموفق ❌")
@@ -146,8 +154,8 @@ def paziresh24(phone):
         print(f"[!] خطای کلی: {e}")
         return False
 
-        
-        
+
+                
 
 def tebinja(phone):
     try:
