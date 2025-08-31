@@ -2793,7 +2793,7 @@ services = [
     elanza, gap, gapfilm, ghasedak24, hajamooo, harikashop, ilozi, iranhotel, katonikhan, katoonistore,
     komodaa, Koohshid, mahabadperfume, malltina, masterkala, mek, missomister, mo7_ir, mobilex, mootanroo,
     mrbilit, niktakala, Okala, okorosh, otaghak, paklean_call, payonshoes, pindo, pinket, ragham_call,
-    riiha, Sandalestan, ShahreSandal, shahrfarsh, sibapp, sibbank, smarket, snap, snappshop, tapsi,
+    riiha, Sandalestan, ShahreSandal, shahrfarsh, sibapp, sibbank, smarket, snapp, snappshop, tapsi,
     tapsi_food, tebinja, tetherland, theshoes, torobpay, trip, trip_call, virgool, vitrin_shop
 ]
 
