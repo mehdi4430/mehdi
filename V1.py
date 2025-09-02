@@ -11,6 +11,7 @@ import uuid
 import socket
 import sys
 import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 from os import system, name
 from platform import node, system, release
 
