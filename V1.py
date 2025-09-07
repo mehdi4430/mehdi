@@ -5244,16 +5244,18 @@ def iranhotel(phone):
 # ==========================
 
 services = [
-    abantether, accounts1606, achareh, abanapps, activecleaners, alibaba, alldigitall, alopeyk_safir, angeliran, arzplus,
-    arzunex, azkivam, azno, Balad, banimode, barghapp, barghman, Besparto, bimebazar, bit24,
-    bitpin, bodoroj, booking, candom_shop, Charsooq, charter118, cita, coinkade, dastakht, denj,
-    denro, dgshahr, digikala, DigikalaJet, divar, drnext, drto, elanza, fadaktrains, gap,
-    gapfilm, ghasedak24, gruccia, hajamooo, harikashop, hotelyar, ilozi, iranhotel, instagram_send, katonikhan,
-    katoonistore, komodaa, Koohshid, mahabadperfume, malltina, masterkala, mek, milli_gold, missomister, mo7_ir,
-    mobilex, mootanroo, mrbilit, mydigipay, nikpardakht, niktakala, Okala, okorosh, otaghak, ompfinex,
-    paklean_call, payaneh, payonshoes, pindo, pinket, ragham_call, raastin, riiha, Sandalestan, ShahreSandal,
-    shahrfarsh, safarbazi, sarmayex, sibapp, sibbank, smarket, snapp, snappshop, tabdeal, tapsi,
-    tapsi_food, tebinja, telegram_send, tetherland, theshoes, torobpay, trip, trip_call, technogold, twox,
+    abantether, accounts1606, achareh, abanapps, activecleaners, alibaba, alldigitall, alopeyk_safir, amirkabircarpet, angeliran,
+    arzplus, arzunex, automoby, azkivam, azno, Balad, bamkhodro, banimode, barghapp, barghman,
+    bazari, Besparto, bimebazar, bit24, bitpin, bodoroj, booking, candom_shop, Charsooq, charter118,
+    coinkade, dastakht, denj, denro, dgshahr, digikala, DigikalaJet, divar, drnext, drto,
+    eavar, eghamat24, ekeepa, elanza, fadaktrains, farshonline, gap, gapfilm, ghasedak24, gruccia,
+    hajamooo, harikashop, hotelyar, ilozi, iranhotel, instagram_send, karnameh, katonikhan, katoonistore, khodro45,
+    komodaa, Koohshid, mahabadperfume, malltina, mashinno, masterkala, mek, milli_gold, missomister, mo7_ir,
+    mobilex, modema, mootanroo, mrbilit, mryadaki, mydigipay, nikpardakht, niktakala, Okala, okorosh,
+    otaghak, ompfinex, paklean_call, payaneh, payonshoes, pindo, pinket, proparts, ragham_call, raastin,
+    raheeno, riiha, roozima, safarbazi, Sandalestan, sarmayex, ShahreSandal, shahrfarsh, sheypoor, shojapart,
+    sibapp, sibbank, smarket, snapp, snappshop, tabdeal, t4f, tapsi, tapsi_food, tebinja,
+    telegram_send, tetherland, theshoes, three_click, ticketchi, technogold, torobpay, trip, trip_call, twox,
     ubitex, vakiljo, virgool, vitrin_shop, washino
 ]
 
