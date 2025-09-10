@@ -5951,19 +5951,20 @@ def iranhotel(phone):
 # ==========================
 
 services = [
-    abantether, accounts1606, achareh, abanapps, activecleaners, alibaba, alldigitall, alopeyk_safir, amirkabircarpet, angeliran,
-    arzplus, arzunex, automoby, azkivam, azno, Balad, bamkhodro, banimode, barghapp, barghman,
-    bazari, Besparto, bimebazar, bit24, bitpin, bodoroj, booking, candom_shop, Charsooq, charter118,
-    coinkade, dastakht, denj, denro, dgshahr, digikala, DigikalaJet, divar, drnext, drto,
-    eavar, eghamat24, ekeepa, elanza, fadaktrains, farshonline, gap, gapfilm, ghasedak24, gruccia,
-    hajamooo, harikashop, hotelyar, ilozi, iranhotel, instagram_send, karnameh, katonikhan, katoonistore, khodro45,
-    komodaa, Koohshid, mahabadperfume, malltina, mashinno, masterkala, mek, milli_gold, missomister, mo7_ir,
-    mobilex, modema, mootanroo, mrbilit, mryadaki, mydigipay, nikpardakht, niktakala, Okala, okorosh,
-    otaghak, ompfinex, paklean_call, payaneh, payonshoes, pindo, pinket, proparts, ragham_call, raastin,
-    raheeno, riiha, roozima, safarbazi, Sandalestan, sarmayex, ShahreSandal, shahrfarsh, sheypoor, shojapart,
-    sibapp, sibbank, smarket, snapp, snappshop, tabdeal, t4f, tapsi, tapsi_food, tebinja,
-    telegram_send, tetherland, theshoes, three_click, ticketchi, technogold, torobpay, trip, trip_call, twox,
-    ubitex, vakiljo, virgool, vitrin_shop, washino
+    abantether, accounts1606, achareh, abanapps, abzarmarket, activecleaners, alibaba, alldigitall, alopeyk_safir, amirkabircarpet,
+    angeliran, aryakalaabzar, arzplus, arzunex, automoby, azkivam, azno, Balad, baldano, bamkhodro,
+    banimode, barghapp, barghman, bazari, Besparto, bimebazar, bit24, bitpin, bodoroj, booking,
+    bornosmode, candom_shop, cartesabz, Charsooq, charter118, chapmatin, coinkade, dastakht, denj, denro,
+    dgshahr, digikala, DigikalaJet, divar, drnext, drto, eavar, eghamat24, ekeepa, elanza,
+    fadaktrains, farshonline, gap, gapfilm, ghasedak24, gruccia, hajamooo, harikashop, hotelyar, ilozi,
+    iranhotel, irankohan, instagram_send, karnameh, katonikhan, katoonistore, khodro45, komodaa, Koohshid, mahabadperfume,
+    malltina, mashinno, masterkala, mek, milli_gold, missomister, mo7_ir, mobilex, modema, mohrpegah,
+    mootanroo, mrbilit, mryadaki, mydigipay, nikpardakht, niktakala, Okala, okorosh, otaghak, ompfinex,
+    padmira, paklean_call, payaneh, payonshoes, pindo, pinket, proparts, ragham_call, raastin, raheeno,
+    riiha, roozima, safarbazi, Sandalestan, sarmayex, ShahreSandal, shahrfarsh, sheypoor, shojapart, sibapp,
+    sibbank, smarket, snapp, snappshop, t4f, tabdeal, tapsi, tapsi_food, teamgraphic, tebinja,
+    telegram_send, tetherland, theshoes, three_click, ticketchi, technogold, toorangco, torobpay, trip, trip_call,
+    twox, ubitex, vakiljo, virgool, vitrin_shop, washino, xmohr
 ]
 
 
