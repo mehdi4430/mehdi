@@ -85,8 +85,6 @@ def padmira(phone):
         csrf_tag = soup.find("meta", {"name": "csrf-token"}) or soup.find("input", {"name": "_token"})
         if not csrf_tag: return {"error": "CSRF token پیدا نشد!"}
         csrf_token = csrf_tag.get("content") if csrf_tag.has_attr("content") else csrf_tag.get("value")
-
-‎        # ارسال درخواست OTP
         ajax_url = home_url + "ajax/send_sms_active"
         headers.update({
             "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
