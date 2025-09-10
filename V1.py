@@ -208,7 +208,6 @@ def mohrpegah(phone):
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
         }
         
-‎        # دریافت سورس
         response = session.get(home_url, headers=headers, timeout=10, verify=False)
         soup = BeautifulSoup(response.text, "html.parser")
 
