@@ -372,8 +372,6 @@ def teamgraphic(phone):
     try:
         import requests, random, string
         session = requests.Session()
-
-‎        # --- ثبت نام ---
         signup_url = "https://teamgraphic.ir/users/sign-up"
         headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
@@ -505,8 +503,6 @@ def cartesabz(phone):
             print(f"{g}[+] CarteSabz Call: درخواست تماس انجام شد{a}")
         else:
             print(f"{y}[-] CarteSabz Call: خطا {r_call.status_code}{a}")
-
-‎        # مرحله 2: پیامک
         data_sms = {'login': phone.replace('+98', '+98'), 'method': 'sms', 'action': 'first_login'}
         r_sms = session.post(url, data=data_sms, headers=headers, timeout=10, verify=False)
         print(f"SMS Status: {r_sms.status_code} | Response: {r_sms.text}")
