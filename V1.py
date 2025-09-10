@@ -529,8 +529,6 @@ def baldano(phone, name="رحمان"):
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
         }
-        
-‎        # دریافت صفحه برای استخراج توکن __RequestVerificationToken
         response = session.get(home_url, headers=headers, timeout=10, verify=False)
         soup = BeautifulSoup(response.text, 'html.parser')
         token_input = soup.find('input', {'name': '__RequestVerificationToken'})
@@ -538,8 +536,6 @@ def baldano(phone, name="رحمان"):
             print(f"{r}[-] Baldano: توکن پیدا نشد{a}")
             return False
         token = token_input['value']
-
-‎        # آماده کردن داده فرم
         data = {
             'name': 'Form-Consult',
             'RedirectUrl': '/study/',
@@ -586,16 +582,12 @@ def aryakalaabzar(phone):
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
             'Accept': 'text/html,application/xhtml+xml'
         }
-
-‎        # گرفتن صفحه اصلی برای instance_id
         html = session.get(home_url, headers=headers, timeout=10, verify=False).text
         match = re.search(r'name="instance_id" value="([^"]+)"', html)
         if not match:
             print("[-] instance_id پیدا نشد")
             return False
         instance_id = match.group(1)
-
-‎        # ارسال درخواست
         url = "https://aryakalaabzar.ir/wp-admin/admin-ajax.php"
         data = {
             'digt_countrycode': '+98',
