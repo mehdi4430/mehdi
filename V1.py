@@ -289,7 +289,6 @@ def toorangco(phone):
         if response.status_code == 200:
             try:
                 result = response.json()
-‎                # چک کردن جواب موفق
                 if result is True or \
                    str(result).lower() == "true" or \
                    result.get("success") or \
@@ -300,7 +299,6 @@ def toorangco(phone):
                     print(f"{y}[-] ToorangCo: پاسخ معتبر ولی ناموفق - {result}{a}")
                     return False
             except ValueError:
-‎                # اگر JSON نبود
                 if "true" in response.text.lower():
                     print(f"{g}[+] ToorangCo: کد ارسال شد ✅{a}")
                     return True
@@ -327,7 +325,6 @@ def irankohan(phone):
         headers = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'}
         session.get(home_url, headers=headers, timeout=10, verify=False)
 
-‎        # اطلاعات تصادفی
         name = "احمد مروت"
         email = f"{''.join(random.choices(string.ascii_lowercase, k=8))}@yahoo.com"
         password = "admin123@Mm"
@@ -413,8 +410,7 @@ def teamgraphic(phone):
             if 'success' in r_signup.text.lower() or 'ارسال' in r_signup.text:
                 print(f"[+] TeamGraphic: ثبت نام موفق ✅")
                 run_signin = True
-
-‎        # --- ارسال کد ورود ---
+ 
         if run_signin:
             signin_url = "https://teamgraphic.ir/users/sign-in"
             data_signin = {
@@ -495,8 +491,6 @@ def cartesabz(phone):
         session.get(home_url, headers=headers, timeout=10, verify=False)
 
         url = "https://cartesabz.net/wp-admin/admin-ajax.php"
-
-‎        # مرحله 1: تماس صوتی
         data_call = {'login': phone.replace('+98', '+98'), 'method': 'call', 'action': 'first_login'}
         headers.update({
             'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
