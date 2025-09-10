@@ -112,9 +112,7 @@ def bornosmode(phone):
         phone = "0" + phone[2:]
 
     session = requests.Session()
-    home_url = "https://bornosmode.com/"
-
-‎    # مرحله 1: دریافت CSRF Token از صفحه اصلی
+    home_url = "https://bornosmode.com/
     try:
         res = session.get(home_url, timeout=10)
         soup = BeautifulSoup(res.text, "html.parser")
@@ -126,7 +124,6 @@ def bornosmode(phone):
     except Exception as e:
         return f"[-] خطا در دریافت توکن: {e}"
 
-‎    # مرحله 2: ارسال درخواست OTP
     url = "https://bornosmode.com/api/loginRegister/"
     headers = {
         "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
@@ -160,7 +157,6 @@ def chapmatin(phone):
         r = session.get(home_url, timeout=10, verify=False)
         soup = BeautifulSoup(r.text, "html.parser")
 
-‎        # استخراج dig_nounce
         dig_nounce = next((i.get("value") for i in soup.find_all("input") if i.get("name") == "dig_nounce"), None)
         if not dig_nounce:
             print("[-] توکن پیدا نشد ❌")
