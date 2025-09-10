@@ -79,8 +79,7 @@ def padmira(phone):
     home_url = "https://padmira.ir/"
     headers = {"User-Agent": "Mozilla/5.0", "Accept": "text/html,application/xhtml+xml,*/*"}
 
-    try:
-‎        # دریافت صفحه اصلی و استخراج CSRF token
+    try: 
         res = session.get(home_url, headers=headers, timeout=10)
         soup = BeautifulSoup(res.text, "html.parser")
         csrf_tag = soup.find("meta", {"name": "csrf-token"}) or soup.find("input", {"name": "_token"})
