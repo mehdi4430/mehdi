@@ -105,8 +105,6 @@ def padmira(phone):
         
         
 def bornosmode(phone):
-‎    """ارسال کد OTP به شماره در bornosmode.com"""
-‎    # شماره رو به فرمت استاندارد تبدیل می‌کنیم
     phone = phone.strip()
     if phone.startswith("+98"):
         phone = "0" + phone[3:]
