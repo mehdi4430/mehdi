@@ -5989,20 +5989,3 @@ if __name__ == "__main__":
             delay = 0.1
         vip(phones, delay)
 
-
-
-# --- بررسی توابع جاافتاده از services ---
-import inspect
-
-# پیدا کردن همه توابعی که توی همین فایل تعریف شدن
-defined_funcs = [name for name, obj in globals().items() if inspect.isfunction(obj)]
-
-# پیدا کردن توابعی که تعریف شدن ولی توی لیست services نیستن
-missing = sorted(set(defined_funcs) - set(services))
-
-if missing:
-    print("⚠️ این توابع تعریف شدن ولی توی لیست services نیستن:")
-    for m in missing:
-        print("-", m)
-else:
-    print("✅ همه توابع تعریف شده داخل services هستن.")
