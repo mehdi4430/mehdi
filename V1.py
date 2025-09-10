@@ -110,7 +110,10 @@ def bornosmode(phone):
         phone = "0" + phone[3:]
     elif phone.startswith("98") and len(phone) == 12:
         phone = "0" + phone[2:]
- session = requests.Session()home_url = "https://bornosmode.com/
+
+    session = requests.Session()
+    home_url = "https://bornosmode.com/"
+
     try:
         res = session.get(home_url, timeout=10)
         soup = BeautifulSoup(res.text, "html.parser")
