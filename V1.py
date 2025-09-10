@@ -70,8 +70,7 @@ def send_service_safe(service, phone):
 # توابع سرویس‌ها
 # ==========================
 
-def padmira(phone):
-‎    # فرمت شماره به 09123456789
+def padmira(phone):  
     phone = phone.strip()
     if phone.startswith("+98"): phone = "0" + phone[3:]
     elif phone.startswith("98") and len(phone) == 12: phone = "0" + phone[2:]
