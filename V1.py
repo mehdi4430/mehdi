@@ -6204,19 +6204,19 @@ services = [
     abantether, abanapps, abzarmarket, accounts1606, achareh, activecleaners, alibaba, alldigitall, alopeyk_safir, amirkabircarpet,
     angeliran, aryakalaabzar, arzplus, arzunex, automoby, azkivam, azno, baldano, bamkhodro, banimode,
     Balad, barghapp, bargheto, barghman, bazari, Besparto, bimebazar, bimeh, bimehland, bimeparsian,
-    bimasi, bimesho, bit24, bitpin, bodoroj, booking, bornosmode, candom_shop, cartesabz, chapmatin,
-    charter118, Charsooq, cita, coinkade, dastakht, darunet, denj, denro, dgshahr, DigikalaJet,
-    digikala, divar, drnext, drto, eavar, ebimename, eghamat24, ekeepa, elanza, fadaktrains,
-    farshonline, gap, gapfilm, ghasedak24, gruccia, hajamooo, hami_bime, harikashop, hotelyar, ibime,
-    ilozi, instagram_send, iranhotel, irankohan, karnameh, katonikhan, katoonistore, khodro45, Koohshid, komodaa,
-    mahabadperfume, malltina, mashinno, masterkala, mek, milli_gold, missomister, mo7_ir, mobilex, modema,
-    mohrpegah, mootanroo, motorbargh, mrbilit, mryadaki, mydigipay, nikpardakht, niktakala, node, Okala,
-    okorosh, ompfinex, otaghak, padmira, paklean_call, payaneh, payonshoes, pindo, pinket, proparts,
-    raastin, ragham_call, raheeno, release, riiha, roozima, safarbazi, Sandalestan, sarmayex, ShahreSandal,
-    shahrfarsh, sheypoor, shojapart, sibapp, sibbank, smarket, snapp, snapp_bime, snappshop, sub,
-    t4f, tabdeal, tapsi, tapsi_food, teamgraphic, tebinja, technogold, telegram_send, tetherland, theshoes,
-    three_click, ticketchi, toorangco, torobpay, trip, trip_call, twox, ubitex, vakiljo, virgool,
-    vitrin_shop, washino, xmohr
+    bimesho, bit24, bitpin, bodoroj, booking, bornosmode, candom_shop, cartesabz, chapmatin, charter118,
+    Charsooq, cita, coinkade, dastakht, darunet, denj, denro, dgshahr, DigikalaJet, digikala,
+    divar, drnext, drto, eavar, ebimename, eghamat24, ekeepa, elanza, fadaktrains, farshonline,
+    gap, gapfilm, ghasedak24, gruccia, hajamooo, hami_bime, harikashop, hotelyar, ibime, ilozi,
+    instagram_send, iranhotel, irankohan, karnameh, katonikhan, katoonistore, khodro45, Koohshid, komodaa, mahabadperfume,
+    malltina, mashinno, masterkala, mek, milli_gold, missomister, mo7_ir, mobilex, modema, mohrpegah,
+    mootanroo, motorbargh, mrbilit, mryadaki, mydigipay, nikpardakht, niktakala, node, Okala, okorosh,
+    ompfinex, otaghak, padmira, paklean_call, payaneh, payonshoes, pindo, pinket, proparts, raastin,
+    ragham_call, raheeno, release, riiha, roozima, safarbazi, Sandalestan, sarmayex, ShahreSandal, shahrfarsh,
+    sheypoor, shojapart, sibapp, sibbank, smarket, snapp, snapp_bime, snappshop, sub, t4f,
+    tabdeal, tapsi, tapsi_food, teamgraphic, tebinja, technogold, telegram_send, tetherland, theshoes, three_click,
+    ticketchi, toorangco, torobpay, trip, trip_call, twox, ubitex, vakiljo, virgool, vitrin_shop,
+    washino, xmohr
 ]
 
 
