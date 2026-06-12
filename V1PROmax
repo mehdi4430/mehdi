@@ -100,12 +100,34 @@ def bimeparsian(phone):
         print(f"Error: {e}")
         return False
 
+def ebimename(phone):
+    phone = '0' + phone.split('+98')[-1].split('98')[-1]
+    try:
+        r = requests.post("https://ebimename.com/MasterApi/VerifyNumber", json={"mobile": phone, "nCode": None, "sso": ""}, timeout=10)
+        print(f"Status: {r.status_code} | {'JSON' if 'json' in r.headers.get('Content-Type', '').lower() else 'TEXT'}: {r.json() if 'json' in r.headers.get('Content-Type', '').lower() else r.text[:300]}")
+        return r.status_code in [200, 201]
+    except Exception as e:
+        print(f"Error: {e}")
+        return False
+
+def didar24(phone):
+    phone = '0' + phone.split('+98')[-1].split('98')[-1]
+    try:
+        r = requests.post("https://didar24.com/api/AccessManagement/OAuth/mobile", json={"mobile": phone}, timeout=10)
+        print(f"Status: {r.status_code} | Response: {r.text}")
+        return r.status_code == 200
+    except Exception as e:
+        print(f"Error: {e}")
+        return False
+
+
+
         
 # ==========================
 # لیست سرویس‌ها
 # ==========================
 services = [
-    digikala, bimehland, bimeparsian
+    digikala, bimehland, bimeparsian, ebimename, didar24
 ]
 
 # ==========================
