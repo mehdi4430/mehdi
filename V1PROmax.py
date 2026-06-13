@@ -890,7 +890,7 @@ services = [
     drto, ebimename, gap, ibime, karnameh,
     khodro45, masterkala, mek, milli_gold, motorbargh,
     mydigipay, okala, otaghak, padmira, pinket,
-    pindo, Raastin, raheeno, riiha, sarmayex,
+    pindo, raheeno, riiha, sarmayex,
     shahrfarsh, sheypoor, sibapp, t4f, tetherland,
     theshoes, twox, ubitex, vakiljo
 ]
