@@ -204,12 +204,27 @@ def chapmatin(phone):
         return False
 
 
+def vakiljo(phone):
+    phone = '0' + phone.split('+98')[-1].split('98')[-1]
+    if not re.match(r"^09\d{9}$", phone): return False
+    try:
+        payload = {
+            "query": "mutation($mobile:String!){challengeUser(mobile:$mobile){status message}}",
+            "variables": {"mobile": phone}
+        }
+        r = requests.post("https://vakiljo.ir/api/graphql", json=payload, headers={"User-Agent": "Mozilla/5.0"}, timeout=10)
+        return r.status_code == 200
+    except Exception as e:
+        print(f"Error: {e}")
+        return False
+
+
 
 # ==========================
 # لیست سرویس‌ها
 # ==========================
 services = [
-    digikala, bimehland, bimeparsian, ebimename, didar24 ,ibime ,bimeh, darunet, padmira, bornosmode ,chapmatin
+    digikala, bimehland, bimeparsian, ebimename, didar24 ,ibime ,bimeh, darunet, padmira, bornosmode ,chapmatin, vakiljo
 ]
 
 # ==========================
