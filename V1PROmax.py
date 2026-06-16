@@ -1422,7 +1422,7 @@ def ickala(phone):
 # ==========================
 # لیست سرویس‌ها
 # ==========================
-Services = [
+services = [
     abantether, accounts1606, achareh, activecleaners, alibaba,
     alldigitall, alldigitall, alopeyk_safir, arzplus, arzunex,
     attaryalibaba, azkivam, azno, basalam, bimeh,
