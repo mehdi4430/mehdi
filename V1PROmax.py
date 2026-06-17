@@ -1873,21 +1873,25 @@ def f4k(m):
 # ==========================
 services = [
     abantether, accounts1606, achareh, activecleaners, alibaba,
-    alldigitall, alldigitall, alopeyk_safir, arzplus, arzunex,
-    attaryalibaba, azkivam, azno, basalam, bimeh,
-    bimehland, bimeparsian, bornosmode, cartesabz, chapmatin,
-    charsooq, darunet, dgshahr, didar24, digikala,
-    digikala_call_v2, divar, drto, ebimename, faradars,
-    gap, ibime, ickala, irantic, iticket,
-    jabama, janebi, karnameh, khodro45, luxirana,
-    malltina, masterkala, mek, milli_gold, motorbargh,
-    mydigipay, namatek, nazarkade, okala, ompfinex,
+    alldigitall, alldigitall, alopeyk_safir, andre, arjmand,
+    arzplus, arzunex, arvand, attaryalibaba, azkivam,
+    azno, basalam, bimeh, bimehland, bimeparsian,
+    bornosmode, buybest, cartesabz, catering, chapmatin,
+    charsooq, dadlisan, daneshjookit, darunet, dgshahr,
+    didar24, digikala, digikala_call_v2, divar, drsaina,
+    drto, ebimename, F4k, faradars, gap,
+    ibime, ickala, irantic, iticket, jabama,
+    janebi, karnameh, khodro45, luxirana, malltina,
+    masterkala, mek, milli_gold, motorbargh, mydigipay,
+    namatek, nazarkade, nobat, okala, ompfinex,
     otaghak, padmira, pinket, pindo, plaza,
-    qeshminora, raheeno, riiha, saalambaba, sarmayex,
-    shahrfarsh, sheypoor, sibapp, sibche, sorrad,
-    t4f, tetherland, theshoes, torob, twox,
-    ubitex, vakiljo, yaniperfume, zarinplus
+    qazvinfood, qeshminora, raheeno, ravanamooz, ravandarman,
+    riiha, saalambaba, sarmayex, shahrfarsh, sheypoor,
+    shiva, sibapp, sibche, snapp_dr, sorrad,
+    t4f, tecsho, tetherland, theshoes, torob,
+    twox, ubitex, vakiljo, yaniperfume, zarinplus
 ]
+
 
 
 
