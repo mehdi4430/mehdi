@@ -1879,7 +1879,7 @@ services = [
     bornosmode, buybest, cartesabz, catering, chapmatin,
     charsooq, dadlisan, daneshjookit, darunet, dgshahr,
     didar24, digikala, digikala_call_v2, divar, drsaina,
-    drto, ebimename, F4k, faradars, gap,
+    drto, ebimename, f4k, faradars, gap,
     ibime, ickala, irantic, iticket, jabama,
     janebi, karnameh, khodro45, luxirana, malltina,
     masterkala, mek, milli_gold, motorbargh, mydigipay,
