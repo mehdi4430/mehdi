@@ -57,6 +57,11 @@ def is_phone(phone_input: str):
             print(f"{r}[-] Invalid Phone: {phone}{a}")
     return valid_phones if valid_phones else False
 
+
+
+def format_mobile(m):
+    d = ''.join(filter(str.isdigit, str(m)))
+    return f"0{d[-10:]}" if len(d) >= 10 else d
 # ==========================
 # تابع ارسال ایمن
 # ==========================
